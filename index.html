@@ -879,8 +879,8 @@
                 <ul>
                     <li><a onclick="showPage('faq'); return false;">Preguntas frecuentes</a></li>
                     <li><a onclick="showPage('contact'); return false;">Contacto</a></li>
-                    <li><a onclick="alert('📧 Reporta problemas a: soporte@plugin-app.com'); return false;">Reportar problema</a></li>
-                    <li><a onclick="alert('💡 Envía tus sugerencias a: ideas@plugin-app.com'); return false;">Sugerencias</a></li>
+                    <li><a onclick="window.open('mailto:holapluginapp@gmail.com?subject=Reporte de Problema&body=Describe el problema que encontraste:'); return false;">Reportar problema</a></li>
+                    <li><a onclick="window.open('mailto:holapluginapp@gmail.com?subject=Sugerencia&body=Mi sugerencia para PlugIn:'); return false;">Sugerencias</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -948,6 +948,202 @@
         initMap();
         initAddMap();
         setupEventListeners();
+        
+        // Auto-cargar enchufes de ejemplo si la DB está vacía
+        window.loadExamplePlugs = async function() {
+            console.log('🚀 Agregando enchufes de ejemplo...');
+            const examplePlugs = [
+                {
+                    name: "Starbucks Gran Vía",
+                    location: "Gran Vía 28, Madrid",
+                    category: "cafe",
+                    status: "disponible",
+                    rating: 4,
+                    notes: "Muchos enchufes disponibles en las mesas del fondo. WiFi rápido.",
+                    lat: 40.4200,
+                    lng: -3.7006,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Aeropuerto Madrid-Barajas T2",
+                    location: "Terminal T2, Madrid",
+                    category: "aeropuerto",
+                    status: "disponible", 
+                    rating: 5,
+                    notes: "Múltiples puntos de carga en zonas de espera. GRATIS",
+                    lat: 40.4719,
+                    lng: -3.5626,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Biblioteca Ángel González",
+                    location: "Madrid",
+                    category: "biblioteca",
+                    status: "disponible",
+                    rating: 3,
+                    notes: "Única biblioteca municipal con enchufes permitidos. GRATIS",
+                    lat: 40.4168,
+                    lng: -3.7038,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Centro Comercial La Vaguada",
+                    location: "Avenida de Monforte de Lemos, 36, Madrid",
+                    category: "centro-comercial",
+                    status: "disponible",
+                    rating: 4,
+                    notes: "Zona de descanso con enchufes y WiFi. GRATIS para clientes",
+                    lat: 40.4761,
+                    lng: -3.7132,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Betahaus Barcelona",
+                    location: "Carrer de Vilafranca, 7, Gracia, Barcelona",
+                    category: "cafe",
+                    status: "disponible",
+                    rating: 5,
+                    notes: "Coworking con terraza. WiFi rápido, enchufes en todas las mesas. DE PAGO: 20€/día",
+                    lat: 41.4021,
+                    lng: 2.1572,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Aeropuerto Barcelona-El Prat T1",
+                    location: "Terminal T1, Barcelona",
+                    category: "aeropuerto",
+                    status: "disponible",
+                    rating: 5,
+                    notes: "Puntos de carga en zonas de espera. GRATIS",
+                    lat: 41.2974,
+                    lng: 2.0833,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Garage Coworking Valencia",
+                    location: "Barrio del Carmen, Valencia",
+                    category: "cafe",
+                    status: "disponible",
+                    rating: 4,
+                    notes: "Acceso 24h, terraza 200m2, internet 1GB/s. DE PAGO: desde 165€/mes",
+                    lat: 39.4779,
+                    lng: -0.3796,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Aeropuerto de Valencia",
+                    location: "Valencia",
+                    category: "aeropuerto",
+                    status: "disponible",
+                    rating: 4,
+                    notes: "20 puntos de recarga sin coste en zonas de espera. GRATIS",
+                    lat: 39.4893,
+                    lng: -0.4817,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Mercadona Cualquier Ubicación",
+                    location: "España (1500+ ubicaciones)",
+                    category: "centro-comercial",
+                    status: "disponible",
+                    rating: 3,
+                    notes: "Puntos de carga en aparcamientos. GRATIS con compra mínima",
+                    lat: 40.4168,
+                    lng: -3.7038,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "IKEA España",
+                    location: "España (múltiples ubicaciones)",
+                    category: "centro-comercial", 
+                    status: "disponible",
+                    rating: 4,
+                    notes: "Puntos de carga en aparcamientos. GRATIS para clientes",
+                    lat: 40.4500,
+                    lng: -3.7000,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "La Bicicleta Café",
+                    location: "Plaza de San Ildefonso, 9, Malasaña, Madrid",
+                    category: "cafe",
+                    status: "disponible",
+                    rating: 4,
+                    notes: "Cycling café con zona para trabajar. WiFi rápido e ilimitado. GRATIS",
+                    lat: 40.4257,
+                    lng: -3.7023,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Casa Encendida Café",
+                    location: "Ronda de Valencia, 1, Lavapiés, Madrid",
+                    category: "cafe",
+                    status: "disponible",
+                    rating: 4,
+                    notes: "Varios enchufes distribuidos. WiFi gratis, música jazz. GRATIS",
+                    lat: 40.4095,
+                    lng: -3.6946,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Centro Comercial Oasiz",
+                    location: "Avenida Premios Nobel, 15, Torrejón de Ardoz, Madrid",
+                    category: "centro-comercial",
+                    status: "disponible",
+                    rating: 3,
+                    notes: "Puntos de carga para móviles en zona de descanso. GRATIS para clientes",
+                    lat: 40.4619,
+                    lng: -3.4728,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "The Social Hub Barcelona",
+                    location: "Carrer de Cristóbal de Moura, 49, Poblenou, Barcelona",
+                    category: "cafe",
+                    status: "disponible",
+                    rating: 5,
+                    notes: "Coworking + hotel. Piscina, gimnasio, espacios compartidos. DE PAGO: desde 109€/mes",
+                    lat: 41.4077,
+                    lng: 2.2008,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Botánico Coworking Valencia",
+                    location: "Valencia",
+                    category: "cafe",
+                    status: "disponible",
+                    rating: 4,
+                    notes: "Café espresso gratis, té y agua. Acceso L-V 8:00-20:00. DE PAGO",
+                    lat: 39.4699,
+                    lng: -0.3763,
+                    timestamp: Timestamp.now()
+                },
+                {
+                    name: "Lidl España",
+                    location: "España (100+ ubicaciones con carga)",
+                    category: "centro-comercial",
+                    status: "disponible",
+                    rating: 3,
+                    notes: "Puntos de carga gratuitos. Límite 30 minutos. GRATIS",
+                    lat: 40.4000,
+                    lng: -3.7200,
+                    timestamp: Timestamp.now()
+                }
+            ];
+
+            try {
+                for (let plug of examplePlugs) {
+                    await addDoc(collection(db, 'plugs'), plug);
+                    console.log(`✅ Agregado: ${plug.name}`);
+                }
+                console.log('🎉 ¡Todos los enchufes de ejemplo agregados!');
+                alert('🎉 ¡16 enchufes de ejemplo agregados a la base de datos!\n\nAhora puedes ver enchufes reales en Madrid, Barcelona y Valencia.');
+                loadPlugs(); // Recargar la lista
+            } catch (error) {
+                console.error('❌ Error agregando enchufes:', error);
+                alert('Error al agregar enchufes de ejemplo');
+            }
+        };
 
         function setupEventListeners() {
             // Search
@@ -1385,7 +1581,7 @@
                         <h3>Cookies</h3>
                         <p>Usamos almacenamiento local (localStorage) para guardar tus puntos. No usamos cookies de terceros.</p>
                         <h3>Tus derechos</h3>
-                        <p>Puedes solicitar la eliminación de enchufes que hayas agregado contactándonos en privacy@plugin-app.com</p>
+                        <p>Puedes solicitar la eliminación de enchufes que hayas agregado contactándonos en holapluginapp@gmail.com</p>
                     `
                 },
                 'contact': {
@@ -1394,16 +1590,16 @@
                         <h2>📧 Contacto</h2>
                         <p>¿Tienes preguntas, sugerencias o necesitas ayuda? ¡Nos encantaría escucharte!</p>
                         <h3>Email</h3>
-                        <p>📩 <strong>General:</strong> hola@plugin-app.com</p>
-                        <p>🛠️ <strong>Soporte técnico:</strong> soporte@plugin-app.com</p>
-                        <p>💡 <strong>Sugerencias:</strong> ideas@plugin-app.com</p>
-                        <p>🔒 <strong>Privacidad:</strong> privacy@plugin-app.com</p>
+                        <p>📩 <strong>General:</strong> holapluginapp@gmail.com</p>
+                        <p>🛠️ <strong>Soporte técnico:</strong> holapluginapp@gmail.com</p>
+                        <p>💡 <strong>Sugerencias:</strong> holapluginapp@gmail.com</p>
+                        <p>🔒 <strong>Privacidad:</strong> holapluginapp@gmail.com</p>
                         <h3>Redes Sociales</h3>
                         <p>🐦 <strong>Twitter:</strong> @PlugInApp</p>
                         <p>📸 <strong>Instagram:</strong> @plugin.app</p>
                         <p>💬 <strong>Discord:</strong> discord.gg/plugin</p>
                         <h3>Tiempo de respuesta</h3>
-                        <p>Respondemos normalmente en 24-48 horas. Para soporte urgente, escríbenos a soporte@plugin-app.com</p>
+                        <p>Respondemos normalmente en 24-48 horas. Para soporte urgente, escríbenos a holapluginapp@gmail.com</p>
                     `
                 }
             };
