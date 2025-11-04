@@ -837,7 +837,7 @@
                     </div>
                 </div>
                 <div id="authContainer">
-                    <button class="login-btn" id="loginBtn">
+                    <button class="login-btn" onclick="handleLogin()">
                         <span>🔐</span>
                         <span>Iniciar sesión</span>
                     </button>
@@ -1083,20 +1083,17 @@
             }
         });
 
-        // Login with Google
-        document.addEventListener('DOMContentLoaded', () => {
-            const loginBtn = document.getElementById('loginBtn');
-            if (loginBtn) {
-                loginBtn.addEventListener('click', async () => {
-                    try {
-                        await auth.signInWithPopup(googleProvider);
-                    } catch (error) {
-                        console.error('Error al iniciar sesión:', error);
-                        alert('Error al iniciar sesión. Intenta de nuevo.');
-                    }
+        // Login with Google - Fixed with direct handler
+        function handleLogin() {
+            auth.signInWithPopup(googleProvider)
+                .then((result) => {
+                    console.log('✅ Login exitoso:', result.user.displayName);
+                })
+                .catch((error) => {
+                    console.error('❌ Error al iniciar sesión:', error);
+                    alert('Error al iniciar sesión: ' + error.message);
                 });
-            }
-        });
+        }
 
         // Update Auth UI
         function updateAuthUI(user) {
@@ -1111,21 +1108,11 @@
                 `;
             } else {
                 authContainer.innerHTML = `
-                    <button class="login-btn" id="loginBtn">
+                    <button class="login-btn" onclick="handleLogin()">
                         <span>🔐</span>
                         <span>Iniciar sesión</span>
                     </button>
                 `;
-                const newLoginBtn = document.getElementById('loginBtn');
-                if (newLoginBtn) {
-                    newLoginBtn.addEventListener('click', async () => {
-                        try {
-                            await auth.signInWithPopup(googleProvider);
-                        } catch (error) {
-                            console.error('Error:', error);
-                        }
-                    });
-                }
             }
         }
 
