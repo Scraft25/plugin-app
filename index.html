@@ -561,6 +561,7 @@
             color: var(--text-muted);
             text-decoration: none;
             transition: color 0.3s ease;
+            cursor: pointer;
         }
 
         .footer-section a:hover {
@@ -691,6 +692,16 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* CLICK HINT */
+        .click-hint {
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .click-hint:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -857,19 +868,19 @@
             <div class="footer-section">
                 <h3>Enlaces</h3>
                 <ul>
-                    <li><a href="#" onclick="showPage('about'); return false;">Sobre nosotros</a></li>
-                    <li><a href="#how-it-works" onclick="document.querySelector('.how-it-works').scrollIntoView({behavior: 'smooth'}); return false;">Cómo funciona</a></li>
-                    <li><a href="#" onclick="showPage('terms'); return false;">Términos de uso</a></li>
-                    <li><a href="#" onclick="showPage('privacy'); return false;">Política de privacidad</a></li>
+                    <li><a onclick="showPage('about'); return false;">Sobre nosotros</a></li>
+                    <li><a onclick="document.querySelector('.how-it-works').scrollIntoView({behavior: 'smooth'}); return false;">Cómo funciona</a></li>
+                    <li><a onclick="showPage('terms'); return false;">Términos de uso</a></li>
+                    <li><a onclick="showPage('privacy'); return false;">Política de privacidad</a></li>
                 </ul>
             </div>
             <div class="footer-section">
                 <h3>Soporte</h3>
                 <ul>
-                    <li><a href="#" onclick="showPage('faq'); return false;">Preguntas frecuentes</a></li>
-                    <li><a href="#" onclick="showPage('contact'); return false;">Contacto</a></li>
-                    <li><a href="#" onclick="alert('📧 Reporta problemas a: soporte@plugin-app.com'); return false;">Reportar problema</a></li>
-                    <li><a href="#" onclick="alert('💡 Envía tus sugerencias a: ideas@plugin-app.com'); return false;">Sugerencias</a></li>
+                    <li><a onclick="showPage('faq'); return false;">Preguntas frecuentes</a></li>
+                    <li><a onclick="showPage('contact'); return false;">Contacto</a></li>
+                    <li><a onclick="alert('📧 Reporta problemas a: soporte@plugin-app.com'); return false;">Reportar problema</a></li>
+                    <li><a onclick="alert('💡 Envía tus sugerencias a: ideas@plugin-app.com'); return false;">Sugerencias</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -968,7 +979,7 @@
                             className: '',
                             iconSize: [20, 20]
                         })
-                    }).addTo(map).bindPopup('Tu ubicación');
+                    }).addTo(map).bindPopup('📍 Tu ubicación');
                 });
             }
         }
@@ -1058,9 +1069,9 @@
                                 </div>
                             </div>
                             <div class="plug-meta">
-                                <div class="meta-item">
+                                <div class="meta-item click-hint" onclick="showPlugInMap('${plug.id}')" style="cursor: pointer; color: var(--secondary); font-weight: 600;">
                                     <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-                                    ${plug.location}
+                                    ${plug.location} 👁️ Ver en mapa
                                 </div>
                                 ${distance ? `
                                 <div class="meta-item">
@@ -1087,19 +1098,75 @@
         }
 
         function updateMap(plugs) {
+            // Limpiar marcadores existentes
             markers.forEach(m => map.removeLayer(m));
             markers = [];
 
             plugs.forEach(plug => {
-                const marker = L.marker([plug.lat, plug.lng]).addTo(map);
+                // Crear icono personalizado según categoría
+                const categoryColors = {
+                    'cafe': '#8b5cf6',
+                    'aeropuerto': '#3b82f6', 
+                    'biblioteca': '#10b981',
+                    'parque': '#84cc16',
+                    'centro-comercial': '#f59e0b',
+                    'otro': '#64748b'
+                };
+                
+                const color = categoryColors[plug.category] || '#64748b';
+                const statusIcon = plug.status === 'disponible' ? '⚡' : '⚠️';
+                
+                const customIcon = L.divIcon({
+                    html: `<div style="
+                        background: ${color}; 
+                        width: 30px; 
+                        height: 30px; 
+                        border-radius: 50%; 
+                        border: 3px solid white; 
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 14px;
+                    ">${statusIcon}</div>`,
+                    className: '',
+                    iconSize: [30, 30]
+                });
+
+                const marker = L.marker([plug.lat, plug.lng], { icon: customIcon }).addTo(map);
+                
+                // Popup completo con toda la información
+                const distance = userLocation ? calculateDistance(userLocation.lat, userLocation.lng, plug.lat, plug.lng) : null;
+                const distanceText = distance ? `<br>📍 A ${distance.toFixed(1)} km de ti` : '';
+                
                 marker.bindPopup(`
-                    <strong>${plug.name}</strong><br>
-                    ${plug.location}<br>
-                    ${plug.status === 'disponible' ? '✅ Disponible' : '⚠️ Ocupado'}<br>
-                    ${Array(plug.rating).fill('⭐').join('')}
+                    <div style="min-width: 250px;">
+                        <h3 style="margin: 0 0 10px 0; color: ${color};">${getCategoryIcon(plug.category)} ${plug.name}</h3>
+                        <p style="margin: 5px 0;"><strong>📍 Ubicación:</strong><br>${plug.location}${distanceText}</p>
+                        <p style="margin: 5px 0;"><strong>Estado:</strong> ${plug.status === 'disponible' ? '✅ Disponible' : '⚠️ Ocupado'}</p>
+                        <p style="margin: 5px 0;"><strong>Calificación:</strong> ${Array(plug.rating).fill('⭐').join('')} (${plug.rating}/5)</p>
+                        ${plug.notes ? `<p style="margin: 5px 0;"><strong>Notas:</strong> ${plug.notes}</p>` : ''}
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+                            <small style="color: #666;">Haz clic en el marcador para más opciones</small>
+                        </div>
+                    </div>
                 `);
+                
                 markers.push(marker);
             });
+            
+            // Auto-ajustar vista del mapa para mostrar todos los marcadores
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                if (userLocation) {
+                    // Incluir ubicación del usuario en el ajuste automático
+                    const bounds = group.getBounds();
+                    bounds.extend([userLocation.lat, userLocation.lng]);
+                    map.fitBounds(bounds, { padding: [20, 20] });
+                } else {
+                    map.fitBounds(group.getBounds(), { padding: [20, 20] });
+                }
+            }
         }
 
         function filterPlugs() {
@@ -1215,11 +1282,40 @@
             }
 
             if (section === 'map') {
-                setTimeout(() => map.invalidateSize(), 100);
+                setTimeout(() => {
+                    map.invalidateSize();
+                    // Asegurar que los marcadores se muestran correctamente
+                    if (plugsData.length > 0) {
+                        updateMap(plugsData);
+                    }
+                }, 100);
             }
             if (section === 'add') {
                 setTimeout(() => addMap.invalidateSize(), 100);
             }
+        };
+
+        window.showPlugInMap = function(plugId) {
+            // Buscar el enchufe por ID
+            const plug = plugsData.find(p => p.id === plugId);
+            if (!plug) return;
+
+            // Cambiar a la vista de mapa
+            showSection('map');
+
+            // Centrar el mapa en el enchufe específico
+            setTimeout(() => {
+                map.setView([plug.lat, plug.lng], 16);
+                
+                // Encontrar y abrir el popup del marcador correspondiente
+                markers.forEach(marker => {
+                    const markerLatLng = marker.getLatLng();
+                    if (Math.abs(markerLatLng.lat - plug.lat) < 0.0001 && 
+                        Math.abs(markerLatLng.lng - plug.lng) < 0.0001) {
+                        marker.openPopup();
+                    }
+                });
+            }, 200);
         };
 
         window.showPage = function(page) {
