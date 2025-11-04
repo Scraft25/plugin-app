@@ -1,6 +1,3 @@
-Plugin App Professional
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -773,6 +770,8 @@ Plugin App Professional
         <div id="add-section" class="section">
             <div class="add-section">
                 <h2>➕ Agregar Nuevo Enchufe</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">📍 Haz clic en el mapa para marcar la ubicación exacta del enchufe</p>
+                <div id="addMap" style="height: 300px; border-radius: 12px; margin-bottom: 1.5rem; border: 2px solid var(--border);"></div>
                 <form id="addPlugForm">
                     <div class="form-group">
                         <label>Nombre del lugar *</label>
@@ -858,19 +857,19 @@ Plugin App Professional
             <div class="footer-section">
                 <h3>Enlaces</h3>
                 <ul>
-                    <li><a href="#">Sobre nosotros</a></li>
-                    <li><a href="#">Cómo funciona</a></li>
-                    <li><a href="#">Términos de uso</a></li>
-                    <li><a href="#">Política de privacidad</a></li>
+                    <li><a href="#" onclick="showPage('about'); return false;">Sobre nosotros</a></li>
+                    <li><a href="#how-it-works" onclick="document.querySelector('.how-it-works').scrollIntoView({behavior: 'smooth'}); return false;">Cómo funciona</a></li>
+                    <li><a href="#" onclick="showPage('terms'); return false;">Términos de uso</a></li>
+                    <li><a href="#" onclick="showPage('privacy'); return false;">Política de privacidad</a></li>
                 </ul>
             </div>
             <div class="footer-section">
                 <h3>Soporte</h3>
                 <ul>
-                    <li><a href="#">Preguntas frecuentes</a></li>
-                    <li><a href="#">Contacto</a></li>
-                    <li><a href="#">Reportar problema</a></li>
-                    <li><a href="#">Sugerencias</a></li>
+                    <li><a href="#" onclick="showPage('faq'); return false;">Preguntas frecuentes</a></li>
+                    <li><a href="#" onclick="showPage('contact'); return false;">Contacto</a></li>
+                    <li><a href="#" onclick="alert('📧 Reporta problemas a: soporte@plugin-app.com'); return false;">Reportar problema</a></li>
+                    <li><a href="#" onclick="alert('💡 Envía tus sugerencias a: ideas@plugin-app.com'); return false;">Sugerencias</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -929,11 +928,14 @@ Plugin App Professional
         let userPoints = parseInt(localStorage.getItem('userPoints') || '0');
         let map, markers = [];
         let userLocation = null;
+        let addMap, addMarker;
+        let selectedLocation = null;
 
         // Initialize
         updateUserStats();
         loadPlugs();
         initMap();
+        initAddMap();
         setupEventListeners();
 
         function setupEventListeners() {
@@ -976,6 +978,39 @@ Plugin App Professional
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
+        }
+
+        function initAddMap() {
+            addMap = L.map('addMap').setView([40.4168, -3.7038], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(addMap);
+
+            addMap.on('click', function(e) {
+                selectedLocation = e.latlng;
+                
+                if (addMarker) {
+                    addMap.removeLayer(addMarker);
+                }
+                
+                addMarker = L.marker([e.latlng.lat, e.latlng.lng], {
+                    icon: L.divIcon({
+                        html: '<div style="background: #10b981; width: 30px; height: 30px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.5);"></div>',
+                        className: '',
+                        iconSize: [30, 30]
+                    })
+                }).addTo(addMap);
+                
+                addMarker.bindPopup('📍 Ubicación seleccionada').openPopup();
+            });
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    addMap.setView([lat, lng], 15);
+                });
+            }
         }
 
         async function loadPlugs() {
@@ -1092,6 +1127,11 @@ Plugin App Professional
         async function handleAddPlug(e) {
             e.preventDefault();
 
+            if (!selectedLocation) {
+                alert('⚠️ Por favor, haz clic en el mapa para marcar la ubicación del enchufe');
+                return;
+            }
+
             const plug = {
                 name: document.getElementById('plugName').value,
                 location: document.getElementById('plugLocation').value,
@@ -1099,8 +1139,8 @@ Plugin App Professional
                 status: document.getElementById('plugStatus').value,
                 rating: parseInt(document.getElementById('plugRating').value),
                 notes: document.getElementById('plugNotes').value,
-                lat: userLocation ? userLocation.lat : 40.4168 + (Math.random() - 0.5) * 0.1,
-                lng: userLocation ? userLocation.lng : -3.7038 + (Math.random() - 0.5) * 0.1,
+                lat: selectedLocation.lat,
+                lng: selectedLocation.lng,
                 timestamp: Timestamp.now()
             };
 
@@ -1111,6 +1151,11 @@ Plugin App Professional
                 updateUserStats();
                 alert('¡Enchufe agregado! +10 puntos 🎉');
                 document.getElementById('addPlugForm').reset();
+                selectedLocation = null;
+                if (addMarker) {
+                    addMap.removeLayer(addMarker);
+                    addMarker = null;
+                }
                 showSection('list');
                 loadPlugs();
             } catch (error) {
@@ -1172,6 +1217,154 @@ Plugin App Professional
             if (section === 'map') {
                 setTimeout(() => map.invalidateSize(), 100);
             }
+            if (section === 'add') {
+                setTimeout(() => addMap.invalidateSize(), 100);
+            }
+        };
+
+        window.showPage = function(page) {
+            const pages = {
+                'about': {
+                    title: 'Sobre PlugIn',
+                    content: `
+                        <h2>🔌 Sobre PlugIn</h2>
+                        <p>PlugIn nació de una necesidad real: estar en un café con la batería al 0% y no saber dónde encontrar un enchufe libre.</p>
+                        <p>Somos una comunidad colaborativa que ayuda a personas como tú a encontrar enchufes disponibles en cafés, aeropuertos, bibliotecas y más lugares públicos.</p>
+                        <h3>Nuestra Misión</h3>
+                        <p>Crear la red más grande de enchufes compartidos del mundo, donde nadie vuelva a quedarse sin batería.</p>
+                        <h3>¿Cómo empezó?</h3>
+                        <p>En 2025, un grupo de desarrolladores cansados de buscar enchufes decidió crear esta app. Hoy somos miles de usuarios ayudándonos mutuamente.</p>
+                    `
+                },
+                'faq': {
+                    title: 'Preguntas Frecuentes',
+                    content: `
+                        <h2>❓ Preguntas Frecuentes</h2>
+                        <h3>¿Cómo funciona PlugIn?</h3>
+                        <p>Es simple: busca enchufes cerca de ti en el mapa, agrega nuevos que encuentres y gana puntos por ayudar a la comunidad.</p>
+                        <h3>¿Es gratis?</h3>
+                        <p>¡Sí! PlugIn es 100% gratuito y siempre lo será.</p>
+                        <h3>¿Cómo gano puntos?</h3>
+                        <p>Ganas 10 puntos por cada enchufe que agregues. Con los puntos subes de nivel: Explorador → Cazador → Maestro → Leyenda.</p>
+                        <h3>¿Qué pasa si un enchufe ya no está disponible?</h3>
+                        <p>Próximamente podrás reportar enchufes ocupados o inexistentes para mantener la base de datos actualizada.</p>
+                        <h3>¿Necesito cuenta?</h3>
+                        <p>No es necesario crear cuenta para usar PlugIn, pero próximamente añadiremos perfiles para guardar tus enchufes favoritos.</p>
+                    `
+                },
+                'terms': {
+                    title: 'Términos de Uso',
+                    content: `
+                        <h2>📜 Términos de Uso</h2>
+                        <p><strong>Última actualización:</strong> Noviembre 2025</p>
+                        <h3>1. Aceptación de términos</h3>
+                        <p>Al usar PlugIn, aceptas estos términos de uso. Si no estás de acuerdo, por favor no uses la aplicación.</p>
+                        <h3>2. Uso de la aplicación</h3>
+                        <p>PlugIn es una plataforma colaborativa. Los usuarios son responsables de la información que comparten.</p>
+                        <h3>3. Contenido del usuario</h3>
+                        <p>Al agregar enchufes, garantizas que la información es precisa y no infringe derechos de terceros.</p>
+                        <h3>4. Privacidad</h3>
+                        <p>Respetamos tu privacidad. Solo recopilamos datos de ubicación cuando agregas enchufes, y nunca compartimos información personal.</p>
+                        <h3>5. Limitación de responsabilidad</h3>
+                        <p>PlugIn no garantiza la disponibilidad exacta de los enchufes. La información es proporcionada por la comunidad.</p>
+                        <h3>6. Modificaciones</h3>
+                        <p>Nos reservamos el derecho de modificar estos términos en cualquier momento.</p>
+                    `
+                },
+                'privacy': {
+                    title: 'Política de Privacidad',
+                    content: `
+                        <h2>🔒 Política de Privacidad</h2>
+                        <p><strong>Última actualización:</strong> Noviembre 2025</p>
+                        <h3>Información que recopilamos</h3>
+                        <p>• <strong>Ubicación:</strong> Solo cuando agregas un enchufe o buscas cerca de ti (con tu permiso).</p>
+                        <p>• <strong>Datos del enchufe:</strong> Nombre del lugar, dirección, categoría y calificación que proporcionas.</p>
+                        <p>• <strong>Puntos y nivel:</strong> Guardados localmente en tu navegador.</p>
+                        <h3>Cómo usamos la información</h3>
+                        <p>• Para mostrar enchufes en el mapa.</p>
+                        <p>• Para calcular distancias desde tu ubicación.</p>
+                        <p>• Para mejorar la experiencia del usuario.</p>
+                        <h3>No compartimos tu información</h3>
+                        <p>Nunca vendemos ni compartimos tus datos personales con terceros. Tu privacidad es nuestra prioridad.</p>
+                        <h3>Cookies</h3>
+                        <p>Usamos almacenamiento local (localStorage) para guardar tus puntos. No usamos cookies de terceros.</p>
+                        <h3>Tus derechos</h3>
+                        <p>Puedes solicitar la eliminación de enchufes que hayas agregado contactándonos en privacy@plugin-app.com</p>
+                    `
+                },
+                'contact': {
+                    title: 'Contacto',
+                    content: `
+                        <h2>📧 Contacto</h2>
+                        <p>¿Tienes preguntas, sugerencias o necesitas ayuda? ¡Nos encantaría escucharte!</p>
+                        <h3>Email</h3>
+                        <p>📩 <strong>General:</strong> hola@plugin-app.com</p>
+                        <p>🛠️ <strong>Soporte técnico:</strong> soporte@plugin-app.com</p>
+                        <p>💡 <strong>Sugerencias:</strong> ideas@plugin-app.com</p>
+                        <p>🔒 <strong>Privacidad:</strong> privacy@plugin-app.com</p>
+                        <h3>Redes Sociales</h3>
+                        <p>🐦 <strong>Twitter:</strong> @PlugInApp</p>
+                        <p>📸 <strong>Instagram:</strong> @plugin.app</p>
+                        <p>💬 <strong>Discord:</strong> discord.gg/plugin</p>
+                        <h3>Tiempo de respuesta</h3>
+                        <p>Respondemos normalmente en 24-48 horas. Para soporte urgente, escríbenos a soporte@plugin-app.com</p>
+                    `
+                }
+            };
+
+            const pageData = pages[page];
+            if (!pageData) return;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+            `;
+
+            modal.innerHTML = `
+                <div style="
+                    background: var(--surface);
+                    max-width: 800px;
+                    width: 100%;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    border-radius: 16px;
+                    padding: 2rem;
+                    position: relative;
+                    border: 1px solid var(--border);
+                ">
+                    <button onclick="this.closest('div').parentElement.remove()" style="
+                        position: absolute;
+                        top: 1rem;
+                        right: 1rem;
+                        background: var(--border);
+                        border: none;
+                        color: var(--text);
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 1.5rem;
+                        line-height: 1;
+                    ">×</button>
+                    ${pageData.content}
+                </div>
+            `;
+
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+
+            document.body.appendChild(modal);
         };
     </script>
 </body>
