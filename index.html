@@ -1,3 +1,6 @@
+Plugin App Professional
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -976,14 +979,24 @@
         }
 
         async function loadPlugs() {
+            console.log('🔄 Iniciando carga de enchufes desde Firebase...');
             try {
                 const q = query(collection(db, 'plugs'), orderBy('timestamp', 'desc'));
+                console.log('📡 Consultando Firebase...');
                 const snapshot = await getDocs(q);
                 plugsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log(`✅ Enchufes cargados: ${plugsData.length}`);
+                console.log('📊 Datos:', plugsData);
+                
+                if (plugsData.length === 0) {
+                    console.warn('⚠️ No hay enchufes en la base de datos');
+                }
+                
                 displayPlugs(plugsData);
                 updateMap(plugsData);
             } catch (error) {
-                console.error('Error loading plugs:', error);
+                console.error('❌ Error loading plugs:', error);
+                console.error('Detalles del error:', error.message);
                 document.getElementById('plugsList').innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">Error al cargar enchufes. Intenta recargar la página.</p>';
             }
         }
