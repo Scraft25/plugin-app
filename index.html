@@ -21,16 +21,8 @@
     <meta property="twitter:description" content="Cable bajo la mesa, batería en 0%... Localiza un enchufe libre en segundos">
     <meta property="twitter:image" content="https://plugin-app.vercel.app/og-image.png">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2310b981'/%3E%3Cpath d='M35 30 L35 45 L30 45 L40 60 L50 45 L45 45 L45 30 Z M55 40 L55 55 L50 55 L60 70 L70 55 L65 55 L65 40 Z' fill='white'/%3E%3C/svg%3E">
-    
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <style>
         * {
@@ -40,496 +32,537 @@
         }
 
         :root {
-            --primary: #1e293b;
-            --secondary: #10b981;
-            --accent: #f97316;
-            --bg: #0f172a;
-            --surface: #1e293b;
+            --primary: #20d4e8;
+            --primary-dark: #1ab8cc;
+            --secondary: #1e293b;
+            --bg-dark: #0f172a;
+            --bg-darker: #0a0f1a;
             --text: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border: #334155;
+            --text-secondary: #cbd5e1;
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
             color: var(--text);
             min-height: 100vh;
             padding-bottom: 80px;
         }
 
-        /* GLASSMORPHISM HEADER */
-        header {
+        /* Header */
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1rem 0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .header-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 1rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 0.5rem;
+            gap: 0.75rem;
             flex-wrap: wrap;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--secondary);
-            text-decoration: none;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-        }
-
-        .user-stats {
-            display: flex;
-            align-items: center;
             gap: 0.5rem;
-            background: rgba(16, 185, 129, 0.1);
-            padding: 0.4rem 0.8rem;
-            border-radius: 50px;
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
         }
 
         .stat {
             display: flex;
             align-items: center;
-            gap: 0.3rem;
-            font-weight: 600;
+            gap: 0.4rem;
+            background: rgba(32, 212, 232, 0.1);
+            padding: 0.4rem 0.75rem;
+            border-radius: 20px;
             font-size: 0.85rem;
+            border: 1px solid rgba(32, 212, 232, 0.2);
         }
 
         .stat svg {
-            width: 20px;
-            height: 20px;
-            fill: var(--secondary);
+            width: 18px;
+            height: 18px;
         }
-        
-        /* LOGIN BUTTON */
-        .login-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
+
+        .btn-login {
+            background: var(--primary);
+            color: var(--bg-dark);
             border: none;
             padding: 0.5rem 1rem;
-            border-radius: 50px;
+            border-radius: 20px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-            font-size: 0.85rem;
-            white-space: nowrap;
-        }
-        
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-        }
-        
-        .user-profile {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(16, 185, 129, 0.1);
-            padding: 0.4rem 0.8rem;
-            border-radius: 50px;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        
-        .user-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 2px solid var(--secondary);
-        }
-        
-        .user-name {
-            font-weight: 600;
-            font-size: 0.8rem;
-            max-width: 100px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .logout-btn {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid #ef4444;
-            color: #ef4444;
-            padding: 0.3rem 0.6rem;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             transition: all 0.3s ease;
         }
-        
-        .logout-btn:hover {
-            background: #ef4444;
-            color: white;
+
+        .btn-login:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
         }
 
-        /* HERO SECTION */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 0.4rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Botón flotante enchufe más cercano */
+        .btn-nearest {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nearest:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.6);
+        }
+
+        .btn-nearest svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* Hero */
         .hero {
             text-align: center;
-            padding: 4rem 1rem 3rem;
-            max-width: 900px;
+            padding: 2.5rem 1rem;
+            max-width: 800px;
             margin: 0 auto;
         }
 
         .hero h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #60a5fa 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 1rem;
-            line-height: 1.2;
         }
 
         .hero p {
-            font-size: 1.25rem;
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-            line-height: 1.6;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
         }
 
-        .hero-cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-            color: white;
-            padding: 1rem 2.5rem;
-            border-radius: 50px;
-            font-size: 1.125rem;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
-        }
-
-        .hero-cta:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(249, 115, 22, 0.6);
-        }
-
-        .hero-cta svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        /* CONTAINER */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem 2rem;
-        }
-
-        /* TABS */
-        .tabs {
-            display: none;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            background: var(--surface);
-            padding: 0.5rem;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-
-        .tab {
-            flex: 1;
-            padding: 0.75rem;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .tab.active {
-            background: var(--secondary);
-            color: white;
-        }
-
-        /* SEARCH */
+        /* Search & Filters */
         .search-section {
-            margin-bottom: 2rem;
+            max-width: 1200px;
+            margin: 0 auto 2rem;
+            padding: 0 1rem;
         }
 
         .search-bar {
-            position: relative;
-        }
-
-        .search-bar input {
-            width: 100%;
-            padding: 1rem 1rem 1rem 3rem;
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            color: var(--text);
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .search-bar input:focus {
-            outline: none;
-            border-color: var(--secondary);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            fill: var(--text-muted);
-        }
-
-        /* FILTERS */
-        .filters {
             display: flex;
             gap: 0.75rem;
-            margin-top: 1rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .filter-btn {
-            padding: 0.5rem 1rem;
-            background: var(--surface);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
-            border-radius: 50px;
-            color: var(--text);
-            font-size: 0.875rem;
-            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
             cursor: pointer;
-            white-space: nowrap;
             transition: all 0.3s ease;
         }
 
-        .filter-btn:hover, .filter-btn.active {
-            background: var(--secondary);
-            border-color: var(--secondary);
-            color: white;
+        .filter-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
         }
-        
-        /* PAGINATION */
-        .pagination {
+
+        /* Outlets Grid */
+        .outlets-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
             display: flex;
-            justify-content: center;
             align-items: center;
-            gap: 1rem;
-            margin-top: 2rem;
-            padding: 1rem;
-        }
-        
-        .pagination-btn {
-            padding: 0.6rem 1.2rem;
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .pagination-btn:hover:not(:disabled) {
-            background: var(--secondary);
-            border-color: var(--secondary);
-            color: white;
-        }
-        
-        .pagination-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        
-        .pagination-info {
-            color: var(--text-muted);
-            font-weight: 600;
+            gap: 0.5rem;
         }
 
-        /* CARDS */
-        .plugs-list {
+        .outlets-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
         }
 
-        .plug-card {
-            background: var(--surface);
-            border-radius: 16px;
-            overflow: hidden;
+        .outlet-card {
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .plug-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            border-color: var(--secondary);
-        }
-
-        .plug-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: var(--secondary);
-        }
-
-        .plug-card.cafe::before { background: linear-gradient(180deg, #8b5cf6, #6366f1); }
-        .plug-card.aeropuerto::before { background: linear-gradient(180deg, #3b82f6, #2563eb); }
-        .plug-card.biblioteca::before { background: linear-gradient(180deg, #10b981, #059669); }
-        .plug-card.parque::before { background: linear-gradient(180deg, #84cc16, #65a30d); }
-        .plug-card.centro-comercial::before { background: linear-gradient(180deg, #f59e0b, #d97706); }
-        .plug-card.otro::before { background: linear-gradient(180deg, #64748b, #475569); }
-
-        .plug-card-content {
+            border-radius: 16px;
             padding: 1.25rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .plug-header {
+        .outlet-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(32, 212, 232, 0.2);
+        }
+
+        .outlet-header {
             display: flex;
             justify-content: space-between;
             align-items: start;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
 
-        .plug-title {
-            font-size: 1.125rem;
-            font-weight: 700;
+        .outlet-name {
+            font-size: 1.1rem;
+            font-weight: 600;
             color: var(--text);
-            margin-bottom: 0.25rem;
         }
 
-        .plug-category {
+        .outlet-category {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.25rem;
             padding: 0.25rem 0.75rem;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 50px;
+            border-radius: 12px;
             font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--secondary);
+            font-weight: 500;
         }
 
-        .category-icon {
-            width: 16px;
-            height: 16px;
-        }
+        .category-cafe { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+        .category-aeropuerto { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .category-biblioteca { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .category-parque { background: rgba(132, 204, 22, 0.2); color: #a3e635; }
+        .category-centro-comercial { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
+        .category-otro { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
 
-        .plug-meta {
+        .outlet-location {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
             display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .outlet-distance {
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .outlet-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
         }
 
         .meta-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            color: var(--text-muted);
-            font-size: 0.875rem;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
 
-        .meta-item svg {
-            width: 16px;
-            height: 16px;
-            fill: var(--text-muted);
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-
-        .status-badge.disponible {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--secondary);
-        }
-
-        .status-badge.ocupado {
-            background: rgba(249, 115, 22, 0.1);
-            border: 1px solid rgba(249, 115, 22, 0.3);
-            color: var(--accent);
-        }
-
-        .rating {
+        .outlet-actions {
             display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-action {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             gap: 0.25rem;
         }
 
-        .star {
-            width: 16px;
-            height: 16px;
-            fill: #fbbf24;
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
         }
 
-        .star.empty {
-            fill: var(--border);
+        .btn-share {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+            color: var(--success);
         }
 
-        /* MAP */
+        .btn-share:hover {
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .pagination button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Map */
         .map-section {
-            margin-bottom: 2rem;
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1rem;
         }
 
         #map {
             height: 500px;
             border-radius: 16px;
-            border: 2px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        /* ADD FORM */
-        .add-section {
-            background: var(--surface);
-            padding: 2rem;
-            border-radius: 16px;
             border: 1px solid var(--border);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .add-section h2 {
-            font-size: 1.5rem;
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border);
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-around;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active, .nav-item:hover {
+            color: var(--primary);
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-close:hover {
+            background: rgba(255, 255, 255, 0.1);
             color: var(--text);
         }
 
@@ -537,112 +570,110 @@
             margin-bottom: 1.25rem;
         }
 
-        .form-group label {
+        .form-label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 600;
             color: var(--text);
+            font-weight: 500;
+            font-size: 0.9rem;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-input, .form-select, .form-textarea {
             width: 100%;
-            padding: 0.75rem;
-            background: var(--bg);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--secondary);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--secondary) 0%, #059669 100%);
-            color: white;
-            border: none;
+            padding: 0.75rem;
             border-radius: 12px;
-            font-size: 1.125rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            color: var(--text);
+            font-size: 0.95rem;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
         }
 
-        /* HOW IT WORKS */
-        .how-it-works {
-            margin: 4rem 0;
-            padding: 3rem 1rem;
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .map-picker {
+            height: 300px;
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .map-instructions {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background: rgba(32, 212, 232, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(32, 212, 232, 0.2);
+        }
+
+        /* Profile */
+        .profile-header {
             text-align: center;
+            margin-bottom: 2rem;
         }
 
-        .how-it-works h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 3rem;
-        }
-
-        .steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .step {
-            text-align: center;
-        }
-
-        .step-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, var(--secondary), #3b82f6);
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            border: 3px solid var(--primary);
+            margin: 0 auto 1rem;
         }
 
-        .step-icon svg {
-            width: 40px;
-            height: 40px;
-            fill: white;
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
 
-        .step h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.75rem;
+        .profile-email {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
-        .step p {
-            color: var(--text-muted);
-            line-height: 1.6;
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
         }
 
-        /* FOOTER */
-        footer {
-            background: var(--surface);
+        .profile-stat {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .profile-stat-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(15, 23, 42, 0.95);
             border-top: 1px solid var(--border);
-            padding: 3rem 1rem 2rem;
+            padding: 2rem 1rem;
             margin-top: 4rem;
+            margin-bottom: 80px;
         }
 
         .footer-content {
@@ -654,392 +685,353 @@
         }
 
         .footer-section h3 {
-            font-size: 1.125rem;
+            font-size: 1rem;
             margin-bottom: 1rem;
-            color: var(--secondary);
+            color: var(--primary);
         }
 
-        .footer-section ul {
+        .footer-links {
             list-style: none;
         }
 
-        .footer-section li {
-            margin-bottom: 0.75rem;
+        .footer-links li {
+            margin-bottom: 0.5rem;
         }
 
-        .footer-section a {
-            color: var(--text-muted);
+        .footer-links a {
+            color: var(--text-secondary);
             text-decoration: none;
+            font-size: 0.9rem;
             transition: color 0.3s ease;
-            cursor: pointer;
         }
 
-        .footer-section a:hover {
-            color: var(--secondary);
+        .footer-links a:hover {
+            color: var(--primary);
         }
 
         .footer-bottom {
-            max-width: 1200px;
-            margin: 2rem auto 0;
-            padding-top: 2rem;
-            border-top: 1px solid var(--border);
             text-align: center;
-            color: var(--text-muted);
-            font-size: 0.875rem;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
         }
 
-        /* BOTTOM NAV */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 0.75rem 0;
-            display: flex;
-            justify-content: space-around;
-            z-index: 1000;
-            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.75rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-        }
-
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--text-muted);
-            transition: all 0.3s ease;
-        }
-
-        .nav-item.active,
-        .nav-item:hover {
-            color: var(--secondary);
-        }
-
-        .nav-item.active svg,
-        .nav-item:hover svg {
-            fill: var(--secondary);
-        }
-
-        /* RESPONSIVE */
+        /* Responsive */
         @media (max-width: 768px) {
             .hero h1 {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
 
-            .hero p {
-                font-size: 1rem;
-            }
-
-            .tabs {
-                display: flex;
-            }
-
-            .plugs-list {
+            .outlets-grid {
                 grid-template-columns: 1fr;
             }
 
             #map {
-                height: 400px;
+                height: 350px;
             }
 
-            .footer-content {
-                grid-template-columns: 1fr;
+            .header-content {
+                font-size: 0.9rem;
+            }
+
+            .logo {
+                font-size: 1rem;
+            }
+
+            .stat {
+                font-size: 0.75rem;
+                padding: 0.35rem 0.6rem;
+            }
+
+            .btn-login {
+                font-size: 0.75rem;
+                padding: 0.4rem 0.8rem;
             }
         }
 
-        @media (min-width: 769px) {
-            .bottom-nav {
-                display: none;
-            }
-
-            .tabs {
-                display: flex;
-            }
-        }
-
-        .section {
+        /* Offline indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(239, 68, 68, 0.95);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 24px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 2001;
             display: none;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
         }
 
-        .section.active {
+        .offline-indicator.show {
             display: block;
-        }
-
-        /* LOADING */
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-        }
-
-        .spinner {
-            border: 3px solid var(--border);
-            border-top: 3px solid var(--secondary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* CLICK HINT */
-        .click-hint {
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-        }
-
-        .click-hint:hover {
-            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
-    <header>
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        📡 Sin conexión - Modo offline
+    </div>
+
+    <!-- Header -->
+    <header class="header">
         <div class="header-content">
-            <a href="#" class="logo">
-                <svg class="logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="50" cy="50" r="45" fill="#10b981"/>
-                    <path d="M35 30 L35 45 L30 45 L40 60 L50 45 L45 45 L45 30 Z M55 40 L55 55 L50 55 L60 70 L70 55 L65 55 L65 40 Z" fill="white"/>
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                 </svg>
-                PlugIn
-            </a>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <div class="user-stats">
-                    <div class="stat">
-                        <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-                        <span id="userPoints">0</span>
-                    </div>
-                    <div class="stat">
-                        <span id="userLevel">Explorador</span>
-                    </div>
+                <span>PlugIn</span>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    <span id="outletCount">16</span> enchufes
                 </div>
-                <div id="authContainer">
-                    <button class="login-btn" onclick="handleLogin()">
-                        <span>🔐</span>
-                        <span>Iniciar sesión</span>
-                    </button>
+                <div class="stat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    <span id="pointsDisplay">0</span> Puntos
                 </div>
+            </div>
+
+            <div id="authContainer">
+                <button class="btn-login" onclick="handleLogin()">
+                    🔐 Iniciar sesión con Google
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- HERO -->
-    <div class="hero">
+    <!-- Botón flotante enchufe más cercano -->
+    <button class="btn-nearest" id="btnNearest" title="Ir al enchufe más cercano" style="display: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="3"/>
+        </svg>
+    </button>
+
+    <!-- Hero -->
+    <section class="hero">
         <h1>¿Batería en 0%?</h1>
-        <p>Cable bajo la mesa pero sin enchufe... Localiza un enchufe libre en segundos y ayuda a otros compartiendo los tuyos.</p>
-        <a href="#" class="hero-cta" onclick="showSection('map'); return false;">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Ver mapa ahora
-        </a>
-    </div>
+        <p>Encuentra enchufes libres cerca de ti. Tu comunidad, tu solución.</p>
+    </section>
 
-    <!-- TABS (Desktop) -->
-    <div class="container">
-        <div class="tabs">
-            <button class="tab active" onclick="showSection('list')">📋 Lista</button>
-            <button class="tab" onclick="showSection('map')">🗺️ Mapa</button>
-            <button class="tab" onclick="showSection('add')">➕ Agregar</button>
+    <!-- Search & Filters -->
+    <div class="search-section">
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre, ubicación...">
+            <button class="btn-primary" onclick="openAddModal()">➕ Agregar enchufe</button>
         </div>
-
-        <!-- LIST SECTION -->
-        <div id="list-section" class="section active">
-            <div class="search-section">
-                <div class="search-bar">
-                    <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                    <input type="text" id="searchInput" placeholder="Buscar por ubicación, nombre...">
-                </div>
-                <div class="filters">
-                    <button class="filter-btn active" data-filter="todos">Todos</button>
-                    <button class="filter-btn" data-filter="cafe">☕ Café</button>
-                    <button class="filter-btn" data-filter="aeropuerto">✈️ Aeropuerto</button>
-                    <button class="filter-btn" data-filter="biblioteca">📚 Biblioteca</button>
-                    <button class="filter-btn" data-filter="parque">🌳 Parque</button>
-                    <button class="filter-btn" data-filter="centro-comercial">🛍️ Centro Comercial</button>
-                </div>
-            </div>
-            <div id="plugsList" class="plugs-list">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Cargando enchufes...</p>
-                </div>
-            </div>
-            <div class="pagination">
-                <button class="pagination-btn" id="prevPageBtn" disabled>← Anterior</button>
-                <span class="pagination-info" id="pageInfo">Página 1</span>
-                <button class="pagination-btn" id="nextPageBtn">Siguiente →</button>
-            </div>
-        </div>
-
-        <!-- MAP SECTION -->
-        <div id="map-section" class="section">
-            <div class="map-section">
-                <div id="map"></div>
-            </div>
-        </div>
-
-        <!-- ADD SECTION -->
-        <div id="add-section" class="section">
-            <div class="add-section">
-                <h2>➕ Agregar Nuevo Enchufe</h2>
-                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">📍 Haz clic en el mapa para marcar la ubicación exacta del enchufe</p>
-                <div id="addMap" style="height: 300px; border-radius: 12px; margin-bottom: 1.5rem; border: 2px solid var(--border);"></div>
-                <form id="addPlugForm">
-                    <div class="form-group">
-                        <label>Nombre del lugar *</label>
-                        <input type="text" id="plugName" required placeholder="Ej: Starbucks Plaza Mayor">
-                    </div>
-                    <div class="form-group">
-                        <label>Ubicación *</label>
-                        <input type="text" id="plugLocation" required placeholder="Calle Principal 123">
-                    </div>
-                    <div class="form-group">
-                        <label>Categoría *</label>
-                        <select id="plugCategory" required>
-                            <option value="cafe">☕ Café</option>
-                            <option value="aeropuerto">✈️ Aeropuerto</option>
-                            <option value="biblioteca">📚 Biblioteca</option>
-                            <option value="parque">🌳 Parque</option>
-                            <option value="centro-comercial">🛍️ Centro Comercial</option>
-                            <option value="otro">🔌 Otro</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Estado *</label>
-                        <select id="plugStatus" required>
-                            <option value="disponible">✅ Disponible</option>
-                            <option value="ocupado">⚠️ Ocupado</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Calificación *</label>
-                        <select id="plugRating" required>
-                            <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
-                            <option value="4">⭐⭐⭐⭐ Muy bueno</option>
-                            <option value="3">⭐⭐⭐ Bueno</option>
-                            <option value="2">⭐⭐ Regular</option>
-                            <option value="1">⭐ Malo</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Notas (opcional)</label>
-                        <textarea id="plugNotes" rows="3" placeholder="Información adicional..."></textarea>
-                    </div>
-                    <button type="submit" class="btn-primary">🚀 Agregar Enchufe (+10 puntos)</button>
-                </form>
-            </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="cafe">☕ Cafés</button>
+            <button class="filter-btn" data-filter="aeropuerto">✈️ Aeropuertos</button>
+            <button class="filter-btn" data-filter="biblioteca">📚 Bibliotecas</button>
+            <button class="filter-btn" data-filter="parque">🌳 Parques</button>
+            <button class="filter-btn" data-filter="centro-comercial">🛍️ Centros C.</button>
+            <button class="filter-btn" data-filter="otro">🔌 Otro</button>
         </div>
     </div>
 
-    <!-- HOW IT WORKS -->
-    <div class="how-it-works">
-        <h2>¿Cómo funciona?</h2>
-        <div class="steps">
-            <div class="step">
-                <div class="step-icon">
-                    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                </div>
-                <h3>1. Busca enchufes</h3>
-                <p>Encuentra enchufes libres cerca de tu ubicación en tiempo real</p>
-            </div>
-            <div class="step">
-                <div class="step-icon">
-                    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                </div>
-                <h3>2. Agrega nuevos</h3>
-                <p>Comparte enchufes que encuentres y ayuda a la comunidad</p>
-            </div>
-            <div class="step">
-                <div class="step-icon">
-                    <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-                </div>
-                <h3>3. Gana puntos</h3>
-                <p>Sube de nivel y desbloquea logros ayudando a otros</p>
-            </div>
-        </div>
-    </div>
+    <!-- Outlets -->
+    <section class="outlets-section">
+        <h2 class="section-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+            </svg>
+            Enchufes disponibles
+        </h2>
+        <div class="outlets-grid" id="outletsGrid"></div>
 
-    <!-- FOOTER -->
-    <footer>
+        <!-- Pagination -->
+        <div class="pagination">
+            <button id="prevPage" onclick="changePage(-1)">← Anterior</button>
+            <span id="pageInfo">Página 1</span>
+            <button id="nextPage" onclick="changePage(1)">Siguiente →</button>
+        </div>
+    </section>
+
+    <!-- Map -->
+    <section class="map-section">
+        <h2 class="section-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                <line x1="8" y1="2" x2="8" y2="18"/>
+                <line x1="16" y1="6" x2="16" y2="22"/>
+            </svg>
+            Mapa de enchufes
+        </h2>
+        <div id="map"></div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
         <div class="footer-content">
             <div class="footer-section">
                 <h3>PlugIn</h3>
-                <p style="color: var(--text-muted); line-height: 1.6;">La comunidad colaborativa para encontrar enchufes libres. Nunca más te quedarás sin batería.</p>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                    Tu comunidad colaborativa para encontrar enchufes libres.
+                </p>
             </div>
             <div class="footer-section">
-                <h3>Enlaces</h3>
-                <ul>
-                    <li><a onclick="showPage('about'); return false;">Sobre nosotros</a></li>
-                    <li><a onclick="document.querySelector('.how-it-works').scrollIntoView({behavior: 'smooth'}); return false;">Cómo funciona</a></li>
-                    <li><a onclick="showPage('terms'); return false;">Términos de uso</a></li>
-                    <li><a onclick="showPage('privacy'); return false;">Política de privacidad</a></li>
+                <h3>Legal</h3>
+                <ul class="footer-links">
+                    <li><a href="#" onclick="openLegalModal('privacy')">Política de Privacidad</a></li>
+                    <li><a href="#" onclick="openLegalModal('terms')">Términos y Condiciones</a></li>
+                    <li><a href="#" onclick="openLegalModal('cookies')">Política de Cookies</a></li>
                 </ul>
             </div>
             <div class="footer-section">
-                <h3>Soporte</h3>
-                <ul>
-                    <li><a onclick="showPage('faq'); return false;">Preguntas frecuentes</a></li>
-                    <li><a onclick="showPage('contact'); return false;">Contacto</a></li>
-                    <li><a onclick="window.open('mailto:holapluginapp@gmail.com?subject=Reporte de Problema&body=Describe el problema que encontraste:'); return false;">Reportar problema</a></li>
-                    <li><a onclick="window.open('mailto:holapluginapp@gmail.com?subject=Sugerencia&body=Mi sugerencia para PlugIn:'); return false;">Sugerencias</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Comunidad</h3>
-                <ul>
-                    <li><a href="#">Twitter</a></li>
-                    <li><a href="#">Instagram</a></li>
-                    <li><a href="#">Facebook</a></li>
-                    <li><a href="#">Discord</a></li>
+                <h3>Contacto</h3>
+                <ul class="footer-links">
+                    <li><a href="mailto:holapluginapp@gmail.com">Email</a></li>
+                    <li><a href="#" onclick="openLegalModal('contact')">Formulario de contacto</a></li>
+                    <li><a href="#" onclick="openLegalModal('suggestions')">Sugerencias</a></li>
+                    <li><a href="#" onclick="openLegalModal('report')">Reportar problema</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2025 PlugIn. Todos los derechos reservados. Hecho con ⚡ para la comunidad.</p>
+            <p>&copy; 2024 PlugIn. Todos los derechos reservados.</p>
         </div>
     </footer>
 
-    <!-- BOTTOM NAV (Mobile) -->
+    <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <a class="nav-item active" onclick="showSection('list'); return false;">
-            <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
-            <span>Lista</span>
+        <a href="#" class="nav-item active" onclick="showSection('home')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span>Inicio</span>
         </a>
-        <a class="nav-item" onclick="showSection('map'); return false;">
-            <svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
+        <a href="#map" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                <line x1="8" y1="2" x2="8" y2="18"/>
+                <line x1="16" y1="6" x2="16" y2="22"/>
+            </svg>
             <span>Mapa</span>
         </a>
-        <a class="nav-item" onclick="showSection('add'); return false;">
-            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <a href="#" class="nav-item" onclick="openAddModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
             <span>Agregar</span>
         </a>
-        <a class="nav-item" onclick="showUserProfile();">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+        <a href="#" class="nav-item" id="profileNavBtn" onclick="openProfileModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
             <span>Perfil</span>
         </a>
     </nav>
+
+    <!-- Add Outlet Modal -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">➕ Agregar enchufe</h2>
+                <button class="btn-close" onclick="closeAddModal()">&times;</button>
+            </div>
+            <form id="addOutletForm" onsubmit="addOutlet(event)">
+                <div class="form-group">
+                    <label class="form-label">Nombre del lugar</label>
+                    <input type="text" class="form-input" id="outletName" required placeholder="Ej: Starbucks Plaza Mayor">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ubicación (dirección)</label>
+                    <input type="text" class="form-input" id="outletLocation" required placeholder="Ej: Calle Mayor 1, Madrid">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Categoría</label>
+                    <select class="form-select" id="outletCategory" required>
+                        <option value="cafe">☕ Café</option>
+                        <option value="aeropuerto">✈️ Aeropuerto</option>
+                        <option value="biblioteca">📚 Biblioteca</option>
+                        <option value="parque">🌳 Parque</option>
+                        <option value="centro-comercial">🛍️ Centro Comercial</option>
+                        <option value="otro">🔌 Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select" id="outletStatus" required>
+                        <option value="disponible">✅ Disponible</option>
+                        <option value="ocupado">🔴 Ocupado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Calificación (1-5)</label>
+                    <input type="number" class="form-input" id="outletRating" min="1" max="5" value="5" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notas adicionales (opcional)</label>
+                    <textarea class="form-textarea" id="outletNotes" placeholder="Ej: Cerca de la ventana, necesita adaptador..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">📍 Selecciona ubicación en el mapa</label>
+                    <div id="mapPicker" class="map-picker"></div>
+                    <div class="map-instructions">
+                        💡 Haz clic en el mapa para marcar la ubicación exacta del enchufe
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">
+                    Agregar enchufe (+10 puntos)
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">👤 Mi Perfil</h2>
+                <button class="btn-close" onclick="closeProfileModal()">&times;</button>
+            </div>
+            <div id="profileContent">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    Inicia sesión para ver tu perfil
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Modal -->
+    <div class="modal" id="legalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="legalTitle">Información</h2>
+                <button class="btn-close" onclick="closeLegalModal()">&times;</button>
+            </div>
+            <div id="legalContent"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
         // Firebase Configuration
@@ -1056,768 +1048,781 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-
-        let plugsData = [];
-        let filteredPlugsData = [];
-        let currentUser = null;
-        let userPoints = parseInt(localStorage.getItem('userPoints') || '0');
-        let map, markers = [];
-        let userLocation = null;
-        let addMap, addMarker;
-        let selectedLocation = null;
         
-        // PAGINACIÓN
+        // Initialize messaging (for push notifications)
+        let messaging = null;
+        if (firebase.messaging.isSupported()) {
+            messaging = firebase.messaging();
+        }
+
+        // Global variables
+        let currentUser = null;
+        let userLocation = null;
+        let outlets = [];
+        let filteredOutlets = [];
+        let map = null;
+        let mapPicker = null;
+        let selectedLocation = null;
+        let markers = [];
         let currentPage = 1;
-        const itemsPerPage = 12;
+        const outletsPerPage = 12;
+
+        // Offline detection
+        window.addEventListener('online', () => {
+            document.getElementById('offlineIndicator').classList.remove('show');
+            loadOutlets();
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('offlineIndicator').classList.add('show');
+        });
+
+        // Check if cached data exists
+        function loadCachedOutlets() {
+            const cached = localStorage.getItem('cachedOutlets');
+            if (cached) {
+                outlets = JSON.parse(cached);
+                return true;
+            }
+            return false;
+        }
+
+        // Cache outlets for offline use
+        function cacheOutlets() {
+            localStorage.setItem('cachedOutlets', JSON.stringify(outlets));
+        }
+
+        // Example outlets with coordinates
+        const exampleOutlets = [
+            { id: '1', name: 'Starbucks Sol', location: 'Puerta del Sol, Madrid', lat: 40.4168, lng: -3.7038, category: 'cafe', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Enchufes cerca de la ventana' },
+            { id: '2', name: 'Biblioteca Nacional', location: 'Paseo de Recoletos, Madrid', lat: 40.4240, lng: -3.6890, category: 'biblioteca', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Muchos enchufes en salas de lectura' },
+            { id: '3', name: 'Aeropuerto Barajas T4', location: 'Terminal 4, Madrid', lat: 40.4983, lng: -3.5676, category: 'aeropuerto', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Zona de espera cerca de las puertas' },
+            { id: '4', name: 'Parque del Retiro', location: 'Entrada Puerta de Alcalá, Madrid', lat: 40.4153, lng: -3.6846, category: 'parque', status: 'disponible', rating: 3, timestamp: new Date(), addedBy: 'Sistema', notes: 'Bancos con enchufes solares' },
+            { id: '5', name: 'El Corte Inglés Castellana', location: 'Paseo de la Castellana, Madrid', lat: 40.4365, lng: -3.6889, category: 'centro-comercial', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Zona de restauración planta 9' },
+            { id: '6', name: 'Café Central', location: 'Plaza del Ángel, Madrid', lat: 40.4145, lng: -3.7015, category: 'cafe', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Bar con enchufes en barra' },
+            { id: '7', name: 'Renfe Atocha', location: 'Estación de Atocha, Madrid', lat: 40.4069, lng: -3.6919, category: 'otro', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Sala de espera' },
+            { id: '8', name: 'Federal Café', location: 'Plaza de las Comendadoras, Madrid', lat: 40.4282, lng: -3.7089, category: 'cafe', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Muchas mesas con enchufes' },
+            { id: '9', name: 'Casa del Libro Gran Vía', location: 'Gran Vía 29, Madrid', lat: 40.4206, lng: -3.7063, category: 'otro', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Zona de lectura con enchufes' },
+            { id: '10', name: 'Parque Juan Carlos I', location: 'Av. de Logroño, Madrid', lat: 40.4601, lng: -3.6103, category: 'parque', status: 'disponible', rating: 3, timestamp: new Date(), addedBy: 'Sistema', notes: 'Enchufes en zonas cubiertas' },
+            { id: '11', name: 'Biblioteca Eugenio Trías', location: 'Parque del Retiro, Madrid', lat: 40.4135, lng: -3.6796, category: 'biblioteca', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Enchufes en todas las mesas' },
+            { id: '12', name: 'Starbucks Goya', location: 'Calle Goya, Madrid', lat: 40.4250, lng: -3.6770, category: 'cafe', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Enchufes limitados' },
+            { id: '13', name: 'Aeropuerto El Prat T1', location: 'Terminal 1, Barcelona', lat: 41.2974, lng: 2.0833, category: 'aeropuerto', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Zonas de carga USB' },
+            { id: '14', name: 'Biblioteca Jaume Fuster', location: 'Plaça Lesseps, Barcelona', lat: 41.4036, lng: 2.1540, category: 'biblioteca', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Enchufes en todas las salas' },
+            { id: '15', name: 'Satan\'s Coffee Corner', location: 'Carrer de l\'Arc de Sant Ramon del Call, Barcelona', lat: 41.3825, lng: 2.1769, category: 'cafe', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Ambiente trabajo' },
+            { id: '16', name: 'Estación Joaquín Sorolla', location: 'Av. de les Corts Valencianes, Valencia', lat: 39.4666, lng: -0.3764, category: 'otro', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Sala VIP y zona espera' }
+        ];
 
         // Auth State Observer
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            updateAuthUI();
+            
             if (user) {
-                currentUser = user;
-                updateAuthUI(user);
-                syncUserPoints(user.uid);
-            } else {
-                currentUser = null;
-                updateAuthUI(null);
+                await loadUserPoints();
+                // Request notification permission
+                requestNotificationPermission();
             }
         });
 
-        // Login with Google - Fixed with direct handler
-        function handleLogin() {
-            console.log('🔐 Intentando login con Google...');
+        // Request notification permission
+        async function requestNotificationPermission() {
+            if (!messaging) return;
             
-            // Configurar el proveedor
-            googleProvider.setCustomParameters({
-                prompt: 'select_account'
-            });
-            
-            auth.signInWithPopup(googleProvider)
-                .then((result) => {
-                    console.log('✅ Login exitoso:', result.user.displayName);
-                    alert('✅ Bienvenido, ' + result.user.displayName + '!');
-                })
-                .catch((error) => {
-                    console.error('❌ Error al iniciar sesión:', error);
-                    console.error('Código de error:', error.code);
-                    console.error('Mensaje:', error.message);
-                    
-                    // Mensajes de error más claros
-                    if (error.code === 'auth/popup-blocked') {
-                        alert('⚠️ Tu navegador bloqueó la ventana emergente. Por favor, permite las ventanas emergentes y vuelve a intentar.');
-                    } else if (error.code === 'auth/popup-closed-by-user') {
-                        alert('⚠️ Cerraste la ventana de login. Inténtalo de nuevo.');
-                    } else if (error.code === 'auth/unauthorized-domain') {
-                        alert('⚠️ Este dominio no está autorizado. Contacta al administrador.');
-                    } else {
-                        alert('❌ Error al iniciar sesión: ' + error.message);
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    const token = await messaging.getToken({
+                        vapidKey: 'YOUR_VAPID_KEY' // Necesitas configurar esto en Firebase Console
+                    });
+                    console.log('FCM Token:', token);
+                    // Guardar token en Firestore para enviar notificaciones
+                    if (currentUser) {
+                        await db.collection('users').doc(currentUser.uid).update({
+                            fcmToken: token
+                        });
                     }
-                });
+                }
+            } catch (error) {
+                console.log('Error getting notification permission:', error);
+            }
         }
 
-        // Update Auth UI
-        function updateAuthUI(user) {
+        // Handle incoming messages
+        if (messaging) {
+            messaging.onMessage((payload) => {
+                console.log('Message received:', payload);
+                // Mostrar notificación personalizada
+                new Notification(payload.notification.title, {
+                    body: payload.notification.body,
+                    icon: '/icon.png'
+                });
+            });
+        }
+
+        // Login
+        async function handleLogin() {
+            try {
+                console.log('🔐 Intentando login con Google...');
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({
+                    prompt: 'select_account'
+                });
+                
+                const result = await auth.signInWithPopup(provider);
+                console.log('✅ Login exitoso:', result.user);
+                
+                // Create user document if doesn't exist
+                const userDoc = await db.collection('users').doc(result.user.uid).get();
+                if (!userDoc.exists) {
+                    await db.collection('users').doc(result.user.uid).set({
+                        email: result.user.email,
+                        displayName: result.user.displayName,
+                        photoURL: result.user.photoURL,
+                        points: 0,
+                        outletsAdded: 0,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                alert('✅ ¡Bienvenido a PlugIn!');
+            } catch (error) {
+                console.error('❌ Error al iniciar sesión:', error);
+                console.log('Código de error:', error.code);
+                console.log('Mensaje:', error.message);
+                
+                if (error.code === 'auth/popup-blocked') {
+                    alert('⚠️ El navegador bloqueó la ventana emergente. Por favor, permite ventanas emergentes para este sitio.');
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    alert('ℹ️ Cerraste la ventana de login.');
+                } else {
+                    alert('❌ Error al iniciar sesión: ' + error.message);
+                }
+            }
+        }
+
+        // Logout
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+                alert('✅ Sesión cerrada correctamente');
+            } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+                alert('❌ Error al cerrar sesión');
+            }
+        }
+
+        // Update UI based on auth state
+        function updateAuthUI() {
             const authContainer = document.getElementById('authContainer');
-            if (user) {
+            
+            if (currentUser) {
                 authContainer.innerHTML = `
-                    <div class="user-profile">
-                        <img src="${user.photoURL}" alt="${user.displayName}" class="user-avatar">
-                        <span class="user-name">${user.displayName}</span>
-                        <button class="logout-btn" onclick="firebase.auth().signOut()">Salir</button>
+                    <div class="user-info">
+                        <img src="${currentUser.photoURL}" alt="${currentUser.displayName}" class="user-avatar">
+                        <button class="btn-logout" onclick="handleLogout()">Salir</button>
                     </div>
                 `;
             } else {
                 authContainer.innerHTML = `
-                    <button class="login-btn" onclick="handleLogin()">
-                        <span>🔐</span>
-                        <span>Iniciar sesión</span>
+                    <button class="btn-login" onclick="handleLogin()">
+                        🔐 Iniciar sesión con Google
                     </button>
                 `;
             }
         }
 
-        // Sync User Points with Firestore
-        async function syncUserPoints(uid) {
+        // Load user points
+        async function loadUserPoints() {
+            if (!currentUser) return;
+            
             try {
-                const userDoc = await db.collection('users').doc(uid).get();
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
                 if (userDoc.exists) {
-                    userPoints = userDoc.data().points || 0;
-                } else {
-                    await db.collection('users').doc(uid).set({
-                        points: userPoints,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    const userData = userDoc.data();
+                    document.getElementById('pointsDisplay').textContent = userData.points || 0;
                 }
-                localStorage.setItem('userPoints', userPoints);
-                updateUserStats();
             } catch (error) {
-                console.error('Error syncing points:', error);
+                console.error('Error loading user points:', error);
             }
         }
 
-        // Initialize
-        updateUserStats();
-        loadPlugs();
-        initMap();
-        initAddMap();
-        setupEventListeners();
-
-        function setupEventListeners() {
-            // Search
-            document.getElementById('searchInput').addEventListener('input', filterPlugs);
-
-            // Filters
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    filterPlugs();
-                });
-            });
-
-            // Form
-            document.getElementById('addPlugForm').addEventListener('submit', handleAddPlug);
-            
-            // Pagination
-            document.getElementById('prevPageBtn').addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    displayPlugs(filteredPlugsData);
-                }
-            });
-            
-            document.getElementById('nextPageBtn').addEventListener('click', () => {
-                const totalPages = Math.ceil(filteredPlugsData.length / itemsPerPage);
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    displayPlugs(filteredPlugsData);
-                }
-            });
-
-            // Get user location
+        // Get user location
+        function getUserLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    userLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-                    map.setView([userLocation.lat, userLocation.lng], 13);
-                    L.marker([userLocation.lat, userLocation.lng], {
-                        icon: L.divIcon({
-                            html: '<div style="background: #3b82f6; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);"></div>',
-                            className: '',
-                            iconSize: [20, 20]
-                        })
-                    }).addTo(map).bindPopup('📍 Tu ubicación');
-                });
-            }
-        }
-
-        function initMap() {
-            map = L.map('map').setView([40.4168, -3.7038], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-        }
-
-        function initAddMap() {
-            addMap = L.map('addMap').setView([40.4168, -3.7038], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(addMap);
-
-            addMap.on('click', function(e) {
-                selectedLocation = e.latlng;
-                
-                if (addMarker) {
-                    addMap.removeLayer(addMarker);
-                }
-                
-                addMarker = L.marker([e.latlng.lat, e.latlng.lng], {
-                    icon: L.divIcon({
-                        html: '<div style="background: #10b981; width: 30px; height: 30px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.5);"></div>',
-                        className: '',
-                        iconSize: [30, 30]
-                    })
-                }).addTo(addMap);
-                
-                addMarker.bindPopup('📍 Ubicación seleccionada').openPopup();
-            });
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    addMap.setView([lat, lng], 15);
-                });
-            }
-        }
-
-        async function loadPlugs() {
-            console.log('🔄 Iniciando carga de enchufes desde Firebase...');
-            try {
-                const snapshot = await db.collection('plugs').orderBy('timestamp', 'desc').get();
-                plugsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log(`✅ Enchufes cargados: ${plugsData.length}`);
-                
-                if (plugsData.length === 0) {
-                    console.warn('⚠️ No hay enchufes en la base de datos');
-                    // Enchufes de ejemplo
-                    plugsData = generateExamplePlugs();
-                }
-                
-                filteredPlugsData = [...plugsData];
-                displayPlugs(filteredPlugsData);
-                updateMap(filteredPlugsData);
-            } catch (error) {
-                console.error('❌ Error loading plugs:', error);
-                document.getElementById('plugsList').innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">Error al cargar enchufes. Intenta recargar la página.</p>';
-            }
-        }
-
-        function generateExamplePlugs() {
-            const examples = [
-                { name: "Starbucks Gran Vía", location: "Gran Vía 28, Madrid", category: "cafe", status: "disponible", rating: 4, notes: "Muchos enchufes disponibles en las mesas del fondo. WiFi rápido.", lat: 40.4200, lng: -3.7006 },
-                { name: "Aeropuerto Madrid-Barajas T2", location: "Terminal T2, Madrid", category: "aeropuerto", status: "disponible", rating: 5, notes: "Múltiples puntos de carga en zonas de espera. GRATIS", lat: 40.4719, lng: -3.5626 },
-                { name: "Biblioteca Ángel González", location: "Madrid", category: "biblioteca", status: "disponible", rating: 3, notes: "Única biblioteca municipal con enchufes permitidos. GRATIS", lat: 40.4168, lng: -3.7038 },
-                { name: "Centro Comercial La Vaguada", location: "Avenida de Monforte de Lemos, 36, Madrid", category: "centro-comercial", status: "disponible", rating: 4, notes: "Zona de descanso con enchufes y WiFi. GRATIS para clientes", lat: 40.4761, lng: -3.7132 },
-                { name: "Betahaus Barcelona", location: "Carrer de Vilafranca, 7, Gracia, Barcelona", category: "cafe", status: "disponible", rating: 5, notes: "Coworking con terraza. WiFi rápido, enchufes en todas las mesas. DE PAGO: 20€/día", lat: 41.4021, lng: 2.1572 },
-                { name: "Aeropuerto Barcelona-El Prat T1", location: "Terminal T1, Barcelona", category: "aeropuerto", status: "disponible", rating: 5, notes: "Puntos de carga en zonas de espera. GRATIS", lat: 41.2974, lng: 2.0833 },
-                { name: "Garage Coworking Valencia", location: "Barrio del Carmen, Valencia", category: "cafe", status: "disponible", rating: 4, notes: "Acceso 24h, terraza 200m2, internet 1GB/s. DE PAGO: desde 165€/mes", lat: 39.4779, lng: -0.3796 },
-                { name: "Aeropuerto de Valencia", location: "Valencia", category: "aeropuerto", status: "disponible", rating: 4, notes: "20 puntos de recarga sin coste en zonas de espera. GRATIS", lat: 39.4893, lng: -0.4817 },
-                { name: "Mercadona Cualquier Ubicación", location: "España (1500+ ubicaciones)", category: "centro-comercial", status: "disponible", rating: 3, notes: "Puntos de carga en aparcamientos. GRATIS con compra mínima", lat: 40.4168, lng: -3.7038 },
-                { name: "IKEA España", location: "España (múltiples ubicaciones)", category: "centro-comercial", status: "disponible", rating: 4, notes: "Puntos de carga en aparcamientos. GRATIS para clientes", lat: 40.4500, lng: -3.7000 },
-                { name: "La Bicicleta Café", location: "Plaza de San Ildefonso, 9, Malasaña, Madrid", category: "cafe", status: "disponible", rating: 4, notes: "Cycling café con zona para trabajar. WiFi rápido e ilimitado. GRATIS", lat: 40.4257, lng: -3.7023 },
-                { name: "Casa Encendida Café", location: "Ronda de Valencia, 1, Lavapiés, Madrid", category: "cafe", status: "disponible", rating: 4, notes: "Varios enchufes distribuidos. WiFi gratis, música jazz. GRATIS", lat: 40.4095, lng: -3.6946 },
-                { name: "Centro Comercial Oasiz", location: "Avenida Premios Nobel, 15, Torrejón de Ardoz, Madrid", category: "centro-comercial", status: "disponible", rating: 3, notes: "Puntos de carga para móviles en zona de descanso. GRATIS para clientes", lat: 40.4619, lng: -3.4728 },
-                { name: "The Social Hub Barcelona", location: "Carrer de Cristóbal de Moura, 49, Poblenou, Barcelona", category: "cafe", status: "disponible", rating: 5, notes: "Coworking + hotel. Piscina, gimnasio, espacios compartidos. DE PAGO: desde 109€/mes", lat: 41.4077, lng: 2.2008 },
-                { name: "Botánico Coworking Valencia", location: "Valencia", category: "cafe", status: "disponible", rating: 4, notes: "Café espresso gratis, té y agua. Acceso L-V 8:00-20:00. DE PAGO", lat: 39.4699, lng: -0.3763 },
-                { name: "Lidl España", location: "España (100+ ubicaciones con carga)", category: "centro-comercial", status: "disponible", rating: 3, notes: "Puntos de carga gratuitos. Límite 30 minutos. GRATIS", lat: 40.4000, lng: -3.7200 }
-            ];
-            return examples.map((plug, index) => ({ ...plug, id: `example${index + 1}` }));
-        }
-
-        function displayPlugs(plugs) {
-            const container = document.getElementById('plugsList');
-            const totalPages = Math.ceil(plugs.length / itemsPerPage);
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginatedPlugs = plugs.slice(startIndex, endIndex);
-            
-            if (paginatedPlugs.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">No se encontraron enchufes. ¡Sé el primero en agregar uno!</p>';
-                document.getElementById('pageInfo').textContent = 'Sin resultados';
-                document.getElementById('prevPageBtn').disabled = true;
-                document.getElementById('nextPageBtn').disabled = true;
-                return;
-            }
-
-            container.innerHTML = paginatedPlugs.map(plug => {
-                const distance = userLocation ? calculateDistance(userLocation.lat, userLocation.lng, plug.lat, plug.lng) : null;
-                return `
-                    <div class="plug-card ${plug.category}">
-                        <div class="plug-card-content">
-                            <div class="plug-header">
-                                <div>
-                                    <div class="plug-title">${plug.name}</div>
-                                    <div class="plug-category">
-                                        <span class="category-icon">${getCategoryIcon(plug.category)}</span>
-                                        ${plug.category}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="plug-meta">
-                                <div class="meta-item click-hint" onclick="showPlugInMap('${plug.id}')" style="cursor: pointer; color: var(--secondary); font-weight: 600;">
-                                    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-                                    ${plug.location} 👁️ Ver en mapa
-                                </div>
-                                ${distance ? `
-                                <div class="meta-item">
-                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                                    A ${distance.toFixed(1)} km de ti
-                                </div>
-                                ` : ''}
-                                <div class="meta-item">
-                                    <div class="rating">
-                                        ${Array.from({length: 5}, (_, i) => 
-                                            `<svg class="star ${i < plug.rating ? '' : 'empty'}" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>`
-                                        ).join('')}
-                                    </div>
-                                </div>
-                                <div class="status-badge ${plug.status}">
-                                    ${plug.status === 'disponible' ? '✅ Disponible' : '⚠️ Ocupado'}
-                                </div>
-                                ${plug.notes ? `<div class="meta-item">${plug.notes}</div>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            // Update pagination controls
-            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
-            document.getElementById('prevPageBtn').disabled = currentPage === 1;
-            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
-        }
-
-        function updateMap(plugs) {
-            markers.forEach(m => map.removeLayer(m));
-            markers = [];
-
-            plugs.forEach(plug => {
-                const categoryColors = {
-                    'cafe': '#8b5cf6',
-                    'aeropuerto': '#3b82f6', 
-                    'biblioteca': '#10b981',
-                    'parque': '#84cc16',
-                    'centro-comercial': '#f59e0b',
-                    'otro': '#64748b'
-                };
-                
-                const color = categoryColors[plug.category] || '#64748b';
-                const statusIcon = plug.status === 'disponible' ? '⚡' : '⚠️';
-                
-                const customIcon = L.divIcon({
-                    html: `<div style="
-                        background: ${color}; 
-                        width: 30px; 
-                        height: 30px; 
-                        border-radius: 50%; 
-                        border: 3px solid white; 
-                        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 14px;
-                    ">${statusIcon}</div>`,
-                    className: '',
-                    iconSize: [30, 30]
-                });
-
-                const marker = L.marker([plug.lat, plug.lng], { icon: customIcon }).addTo(map);
-                
-                const distance = userLocation ? calculateDistance(userLocation.lat, userLocation.lng, plug.lat, plug.lng) : null;
-                const distanceText = distance ? `<br>📍 A ${distance.toFixed(1)} km de ti` : '';
-                
-                marker.bindPopup(`
-                    <div style="min-width: 250px;">
-                        <h3 style="margin: 0 0 10px 0; color: ${color};">${getCategoryIcon(plug.category)} ${plug.name}</h3>
-                        <p style="margin: 5px 0;"><strong>📍 Ubicación:</strong><br>${plug.location}${distanceText}</p>
-                        <p style="margin: 5px 0;"><strong>Estado:</strong> ${plug.status === 'disponible' ? '✅ Disponible' : '⚠️ Ocupado'}</p>
-                        <p style="margin: 5px 0;"><strong>Calificación:</strong> ${Array(plug.rating).fill('⭐').join('')} (${plug.rating}/5)</p>
-                        ${plug.notes ? `<p style="margin: 5px 0;"><strong>Notas:</strong> ${plug.notes}</p>` : ''}
-                    </div>
-                `);
-                
-                markers.push(marker);
-            });
-            
-            if (markers.length > 0) {
-                const group = new L.featureGroup(markers);
-                if (userLocation) {
-                    const bounds = group.getBounds();
-                    bounds.extend([userLocation.lat, userLocation.lng]);
-                    map.fitBounds(bounds, { padding: [20, 20] });
-                } else {
-                    map.fitBounds(group.getBounds(), { padding: [20, 20] });
-                }
-            }
-        }
-
-        function filterPlugs() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-
-            let filtered = plugsData;
-
-            if (activeFilter !== 'todos') {
-                filtered = filtered.filter(p => p.category === activeFilter);
-            }
-
-            if (searchTerm) {
-                filtered = filtered.filter(p => 
-                    p.name.toLowerCase().includes(searchTerm) ||
-                    p.location.toLowerCase().includes(searchTerm) ||
-                    p.category.toLowerCase().includes(searchTerm)
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        console.log('📍 Ubicación obtenida:', userLocation);
+                        
+                        // Update map to show user location
+                        if (map) {
+                            L.marker([userLocation.lat, userLocation.lng], {
+                                icon: L.divIcon({
+                                    className: 'user-location-marker',
+                                    html: '<div style="background: #20d4e8; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(32,212,232,0.5);"></div>',
+                                    iconSize: [22, 22]
+                                })
+                            }).addTo(map).bindPopup('Tu ubicación');
+                        }
+                        
+                        // Calculate distances and re-render
+                        calculateDistances();
+                        renderOutlets();
+                        
+                        // Show nearest button
+                        document.getElementById('btnNearest').style.display = 'flex';
+                    },
+                    (error) => {
+                        console.log('❌ Error obteniendo ubicación:', error);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
                 );
             }
-
-            filteredPlugsData = filtered;
-            currentPage = 1; // Reset to first page
-            displayPlugs(filteredPlugsData);
-            updateMap(filteredPlugsData);
         }
 
-        async function handleAddPlug(e) {
-            e.preventDefault();
-
-            if (!selectedLocation) {
-                alert('⚠️ Por favor, haz clic en el mapa para marcar la ubicación del enchufe');
-                return;
-            }
-
-            const plug = {
-                name: document.getElementById('plugName').value,
-                location: document.getElementById('plugLocation').value,
-                category: document.getElementById('plugCategory').value,
-                status: document.getElementById('plugStatus').value,
-                rating: parseInt(document.getElementById('plugRating').value),
-                notes: document.getElementById('plugNotes').value,
-                lat: selectedLocation.lat,
-                lng: selectedLocation.lng,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            try {
-                await db.collection('plugs').add(plug);
-                userPoints += 10;
-                localStorage.setItem('userPoints', userPoints);
-                
-                if (currentUser) {
-                    await db.collection('users').doc(currentUser.uid).update({
-                        points: firebase.firestore.FieldValue.increment(10)
-                    });
-                }
-                
-                updateUserStats();
-                alert('¡Enchufe agregado! +10 puntos 🎉');
-                document.getElementById('addPlugForm').reset();
-                selectedLocation = null;
-                if (addMarker) {
-                    addMap.removeLayer(addMarker);
-                    addMarker = null;
-                }
-                showSection('list');
-                loadPlugs();
-            } catch (error) {
-                console.error('Error adding plug:', error);
-                alert('Error al agregar enchufe. Intenta de nuevo.');
-            }
-        }
-
-        function updateUserStats() {
-            document.getElementById('userPoints').textContent = userPoints;
-            
-            let level = 'Explorador';
-            if (userPoints >= 100) level = 'Leyenda';
-            else if (userPoints >= 50) level = 'Maestro';
-            else if (userPoints >= 20) level = 'Cazador';
-            
-            document.getElementById('userLevel').textContent = level;
-        }
-
+        // Calculate distance between two points (Haversine formula)
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
+            const R = 6371; // Radius of Earth in km
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
+                     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                     Math.sin(dLon/2) * Math.sin(dLon/2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             return R * c;
         }
 
-        function getCategoryIcon(category) {
-            const icons = {
-                'cafe': '☕',
-                'aeropuerto': '✈️',
-                'biblioteca': '📚',
-                'parque': '🌳',
-                'centro-comercial': '🛍️',
-                'otro': '🔌'
-            };
-            return icons[category] || '🔌';
+        // Calculate distances to all outlets
+        function calculateDistances() {
+            if (!userLocation) return;
+            
+            outlets.forEach(outlet => {
+                outlet.distance = calculateDistance(
+                    userLocation.lat,
+                    userLocation.lng,
+                    outlet.lat,
+                    outlet.lng
+                );
+            });
+            
+            // Sort by distance
+            outlets.sort((a, b) => {
+                if (a.distance === undefined) return 1;
+                if (b.distance === undefined) return -1;
+                return a.distance - b.distance;
+            });
         }
 
-        window.showSection = function(section) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(`${section}-section`).classList.add('active');
-
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            const tabIndex = ['list', 'map', 'add'].indexOf(section);
-            if (tabIndex !== -1) {
-                document.querySelectorAll('.tab')[tabIndex].classList.add('active');
+        // Go to nearest outlet
+        function goToNearestOutlet() {
+            if (!userLocation || outlets.length === 0) {
+                alert('⚠️ No se pudo determinar tu ubicación o no hay enchufes disponibles');
+                return;
             }
-
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const navIndex = ['list', 'map', 'add'].indexOf(section);
-            if (navIndex !== -1) {
-                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            
+            calculateDistances();
+            const nearest = outlets[0];
+            
+            if (!nearest.distance) {
+                alert('⚠️ No se pudo calcular la distancia');
+                return;
             }
-
-            if (section === 'map') {
-                setTimeout(() => {
-                    map.invalidateSize();
-                    if (plugsData.length > 0) {
-                        updateMap(plugsData);
-                    }
-                }, 100);
-            }
-            if (section === 'add') {
-                setTimeout(() => addMap.invalidateSize(), 100);
-            }
-        };
-
-        window.showPlugInMap = function(plugId) {
-            const plug = plugsData.find(p => p.id === plugId);
-            if (!plug) return;
-
-            showSection('map');
-
-            setTimeout(() => {
-                map.setView([plug.lat, plug.lng], 16);
-                
+            
+            // Open Google Maps with directions
+            const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${nearest.lat},${nearest.lng}&travelmode=walking`;
+            window.open(url, '_blank');
+            
+            // Highlight on map
+            if (map) {
+                map.setView([nearest.lat, nearest.lng], 16);
                 markers.forEach(marker => {
-                    const markerLatLng = marker.getLatLng();
-                    if (Math.abs(markerLatLng.lat - plug.lat) < 0.0001 && 
-                        Math.abs(markerLatLng.lng - plug.lng) < 0.0001) {
+                    if (marker.getLatLng().lat === nearest.lat && marker.getLatLng().lng === nearest.lng) {
                         marker.openPopup();
                     }
                 });
-            }, 200);
-        };
+            }
+        }
 
-        window.showPage = function(page) {
-            const pages = {
-                'about': {
-                    title: 'Sobre PlugIn',
-                    content: `
-                        <h2>🔌 Sobre PlugIn</h2>
-                        <p>PlugIn nació de una necesidad real: estar en un café con la batería al 0% y no saber dónde encontrar un enchufe libre.</p>
-                        <p>Somos una comunidad colaborativa que ayuda a personas como tú a encontrar enchufes disponibles en cafés, aeropuertos, bibliotecas y más lugares públicos.</p>
-                        <h3>Nuestra Misión</h3>
-                        <p>Crear la red más grande de enchufes compartidos del mundo, donde nadie vuelva a quedarse sin batería.</p>
-                        <h3>¿Cómo empezó?</h3>
-                        <p>En 2025, un grupo de desarrolladores cansados de buscar enchufes decidió crear esta app. Hoy somos miles de usuarios ayudándonos mutuamente.</p>
-                    `
-                },
-                'faq': {
-                    title: 'Preguntas Frecuentes',
-                    content: `
-                        <h2>❓ Preguntas Frecuentes</h2>
-                        <h3>¿Cómo funciona PlugIn?</h3>
-                        <p>Es simple: busca enchufes cerca de ti en el mapa, agrega nuevos que encuentres y gana puntos por ayudar a la comunidad.</p>
-                        <h3>¿Es gratis?</h3>
-                        <p>¡Sí! PlugIn es 100% gratuito y siempre lo será.</p>
-                        <h3>¿Cómo gano puntos?</h3>
-                        <p>Ganas 10 puntos por cada enchufe que agregues. Con los puntos subes de nivel: Explorador → Cazador → Maestro → Leyenda.</p>
-                        <h3>¿Qué pasa si un enchufe ya no está disponible?</h3>
-                        <p>Próximamente podrás reportar enchufes ocupados o inexistentes para mantener la base de datos actualizada.</p>
-                        <h3>¿Necesito cuenta?</h3>
-                        <p>No es necesario crear cuenta para usar PlugIn, pero próximamente añadiremos perfiles para guardar tus enchufes favoritos.</p>
-                    `
-                },
-                'terms': {
-                    title: 'Términos de Uso',
-                    content: `
-                        <h2>📜 Términos de Uso</h2>
-                        <p><strong>Última actualización:</strong> Noviembre 2025</p>
-                        <h3>1. Aceptación de términos</h3>
-                        <p>Al usar PlugIn, aceptas estos términos de uso. Si no estás de acuerdo, por favor no uses la aplicación.</p>
-                        <h3>2. Uso de la aplicación</h3>
-                        <p>PlugIn es una plataforma colaborativa. Los usuarios son responsables de la información que comparten.</p>
-                        <h3>3. Contenido del usuario</h3>
-                        <p>Al agregar enchufes, garantizas que la información es precisa y no infringe derechos de terceros.</p>
-                        <h3>4. Privacidad</h3>
-                        <p>Respetamos tu privacidad. Solo recopilamos datos de ubicación cuando agregas enchufes, y nunca compartimos información personal.</p>
-                        <h3>5. Limitación de responsabilidad</h3>
-                        <p>PlugIn no garantiza la disponibilidad exacta de los enchufes. La información es proporcionada por la comunidad.</p>
-                        <h3>6. Modificaciones</h3>
-                        <p>Nos reservamos el derecho de modificar estos términos en cualquier momento.</p>
-                    `
-                },
-                'privacy': {
-                    title: 'Política de Privacidad',
-                    content: `
-                        <h2>🔒 Política de Privacidad</h2>
-                        <p><strong>Última actualización:</strong> Noviembre 2025</p>
-                        <h3>Información que recopilamos</h3>
-                        <p>• <strong>Ubicación:</strong> Solo cuando agregas un enchufe o buscas cerca de ti (con tu permiso).</p>
-                        <p>• <strong>Datos del enchufe:</strong> Nombre del lugar, dirección, categoría y calificación que proporcionas.</p>
-                        <p>• <strong>Puntos y nivel:</strong> Guardados localmente en tu navegador.</p>
-                        <h3>Cómo usamos la información</h3>
-                        <p>• Para mostrar enchufes en el mapa.</p>
-                        <p>• Para calcular distancias desde tu ubicación.</p>
-                        <p>• Para mejorar la experiencia del usuario.</p>
-                        <h3>No compartimos tu información</h3>
-                        <p>Nunca vendemos ni compartimos tus datos personales con terceros. Tu privacidad es nuestra prioridad.</p>
-                        <h3>Cookies</h3>
-                        <p>Usamos almacenamiento local (localStorage) para guardar tus puntos. No usamos cookies de terceros.</p>
-                        <h3>Tus derechos</h3>
-                        <p>Puedes solicitar la eliminación de enchufes que hayas agregado contactándonos en holapluginapp@gmail.com</p>
-                    `
-                },
-                'contact': {
-                    title: 'Contacto',
-                    content: `
-                        <h2>📧 Contacto</h2>
-                        <p>¿Tienes preguntas, sugerencias o necesitas ayuda? ¡Nos encantaría escucharte!</p>
-                        <h3>Email</h3>
-                        <p>📩 <strong>General:</strong> holapluginapp@gmail.com</p>
-                        <p>🛠️ <strong>Soporte técnico:</strong> holapluginapp@gmail.com</p>
-                        <p>💡 <strong>Sugerencias:</strong> holapluginapp@gmail.com</p>
-                        <p>🔒 <strong>Privacidad:</strong> holapluginapp@gmail.com</p>
-                        <h3>Redes Sociales</h3>
-                        <p>🐦 <strong>Twitter:</strong> @PlugInApp</p>
-                        <p>📸 <strong>Instagram:</strong> @plugin.app</p>
-                        <p>💬 <strong>Discord:</strong> discord.gg/plugin</p>
-                        <h3>Tiempo de respuesta</h3>
-                        <p>Respondemos normalmente en 24-48 horas. Para soporte urgente, escríbenos a holapluginapp@gmail.com</p>
-                    `
+        // Share outlet
+        function shareOutlet(outlet) {
+            const text = `🔌 Encontré un enchufe en ${outlet.name} (${outlet.location}) usando PlugIn!\n\n📍 Ver en mapa: https://www.google.com/maps?q=${outlet.lat},${outlet.lng}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: `Enchufe en ${outlet.name}`,
+                    text: text,
+                    url: window.location.href
+                }).catch(err => console.log('Error sharing:', err));
+            } else {
+                // Fallback: Copy to clipboard
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('📋 Enlace copiado al portapapeles');
+                });
+            }
+        }
+
+        // Load outlets
+        async function loadOutlets() {
+            try {
+                if (!navigator.onLine) {
+                    console.log('📡 Modo offline - usando datos en caché');
+                    if (!loadCachedOutlets()) {
+                        outlets = exampleOutlets;
+                    }
+                    filteredOutlets = [...outlets];
+                    renderOutlets();
+                    initMap();
+                    return;
                 }
-            };
 
-            const pageData = pages[page];
-            if (!pageData) return;
+                const snapshot = await db.collection('plugs').orderBy('timestamp', 'desc').get();
+                
+                if (snapshot.empty) {
+                    console.log('No hay enchufes en Firebase, usando ejemplos');
+                    outlets = exampleOutlets;
+                } else {
+                    outlets = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        timestamp: doc.data().timestamp?.toDate() || new Date()
+                    }));
+                }
+                
+                // Cache for offline use
+                cacheOutlets();
+                
+                filteredOutlets = [...outlets];
+                document.getElementById('outletCount').textContent = outlets.length;
+                
+                renderOutlets();
+                initMap();
+                
+            } catch (error) {
+                console.error('Error loading outlets:', error);
+                // Use cached data on error
+                if (loadCachedOutlets()) {
+                    filteredOutlets = [...outlets];
+                    renderOutlets();
+                    initMap();
+                } else {
+                    outlets = exampleOutlets;
+                    filteredOutlets = [...outlets];
+                    renderOutlets();
+                    initMap();
+                }
+            }
+        }
 
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.8);
-                z-index: 10000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 1rem;
-            `;
+        // Render outlets with pagination
+        function renderOutlets() {
+            const grid = document.getElementById('outletsGrid');
+            const startIndex = (currentPage - 1) * outletsPerPage;
+            const endIndex = startIndex + outletsPerPage;
+            const paginatedOutlets = filteredOutlets.slice(startIndex, endIndex);
+            
+            grid.innerHTML = paginatedOutlets.map(outlet => {
+                const categoryEmoji = {
+                    'cafe': '☕',
+                    'aeropuerto': '✈️',
+                    'biblioteca': '📚',
+                    'parque': '🌳',
+                    'centro-comercial': '🛍️',
+                    'otro': '🔌'
+                };
 
-            modal.innerHTML = `
-                <div style="
-                    background: var(--surface);
-                    max-width: 800px;
-                    width: 100%;
-                    max-height: 80vh;
-                    overflow-y: auto;
-                    border-radius: 16px;
-                    padding: 2rem;
-                    position: relative;
-                    border: 1px solid var(--border);
-                ">
-                    <button onclick="this.closest('div').parentElement.remove()" style="
-                        position: absolute;
-                        top: 1rem;
-                        right: 1rem;
-                        background: var(--border);
-                        border: none;
-                        color: var(--text);
-                        width: 32px;
-                        height: 32px;
-                        border-radius: 50%;
-                        cursor: pointer;
-                        font-size: 1.5rem;
-                        line-height: 1;
-                    ">×</button>
-                    ${pageData.content}
-                </div>
-            `;
+                const distanceText = outlet.distance ? 
+                    `📍 ${outlet.distance.toFixed(1)} km de distancia` : '';
 
-            modal.onclick = (e) => {
-                if (e.target === modal) modal.remove();
-            };
+                return `
+                    <div class="outlet-card" onclick="showOnMap(${outlet.lat}, ${outlet.lng})">
+                        <div class="outlet-header">
+                            <div class="outlet-name">${outlet.name}</div>
+                            <span class="outlet-category category-${outlet.category}">
+                                ${categoryEmoji[outlet.category]} ${outlet.category}
+                            </span>
+                        </div>
+                        <div class="outlet-location">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            ${outlet.location}
+                        </div>
+                        ${distanceText ? `<div class="outlet-distance">${distanceText}</div>` : ''}
+                        ${outlet.notes ? `<div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">💡 ${outlet.notes}</div>` : ''}
+                        <div class="outlet-meta">
+                            <div class="meta-item">
+                                ${outlet.status === 'disponible' ? '✅' : '🔴'}
+                                ${outlet.status}
+                            </div>
+                            <div class="meta-item">
+                                ⭐ ${outlet.rating}/5
+                            </div>
+                            <div class="meta-item">
+                                👤 ${outlet.addedBy || 'Anónimo'}
+                            </div>
+                        </div>
+                        <div class="outlet-actions">
+                            <button class="btn-action" onclick="event.stopPropagation(); showOnMap(${outlet.lat}, ${outlet.lng})">
+                                📍 Ver en mapa
+                            </button>
+                            <button class="btn-action btn-share" onclick="event.stopPropagation(); shareOutlet(${JSON.stringify(outlet).replace(/"/g, '&quot;')})">
+                                📤 Compartir
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
 
-            document.body.appendChild(modal);
-        };
+            // Update pagination
+            const totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
+            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+        }
 
-        window.showUserProfile = function() {
-            if (!currentUser) {
-                alert('⚠️ Inicia sesión para ver tu perfil');
+        // Change page
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
+            currentPage += direction;
+            currentPage = Math.max(1, Math.min(currentPage, totalPages));
+            renderOutlets();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize map
+        function initMap() {
+            if (map) {
+                map.remove();
+            }
+
+            map = L.map('map').setView([40.4168, -3.7038], 6);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            updateMapMarkers();
+
+            // Add user location if available
+            if (userLocation) {
+                L.marker([userLocation.lat, userLocation.lng], {
+                    icon: L.divIcon({
+                        className: 'user-location-marker',
+                        html: '<div style="background: #20d4e8; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(32,212,232,0.5);"></div>',
+                        iconSize: [22, 22]
+                    })
+                }).addTo(map).bindPopup('Tu ubicación');
+            }
+        }
+
+        // Update map markers
+        function updateMapMarkers() {
+            if (!map) return;
+
+            markers.forEach(marker => marker.remove());
+            markers = [];
+
+            const bounds = [];
+
+            filteredOutlets.forEach(outlet => {
+                const color = {
+                    'cafe': '#a855f7',
+                    'aeropuerto': '#3b82f6',
+                    'biblioteca': '#22c55e',
+                    'parque': '#84cc16',
+                    'centro-comercial': '#f97316',
+                    'otro': '#9ca3af'
+                }[outlet.category];
+
+                const icon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="background: ${color}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 16px;">⚡</div>`,
+                    iconSize: [30, 30]
+                });
+
+                const marker = L.marker([outlet.lat, outlet.lng], { icon })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="font-family: sans-serif;">
+                            <strong style="font-size: 1.1rem; color: #20d4e8;">${outlet.name}</strong><br>
+                            <span style="color: #666;">${outlet.location}</span><br>
+                            ${outlet.notes ? `<div style="margin-top: 0.5rem; font-size: 0.9rem;">💡 ${outlet.notes}</div>` : ''}
+                            <div style="margin-top: 0.5rem;">
+                                ${outlet.status === 'disponible' ? '✅' : '🔴'} ${outlet.status} | ⭐ ${outlet.rating}/5
+                            </div>
+                            ${outlet.distance ? `<div style="color: #20d4e8; margin-top: 0.5rem;">📍 ${outlet.distance.toFixed(1)} km</div>` : ''}
+                        </div>
+                    `);
+
+                markers.push(marker);
+                bounds.push([outlet.lat, outlet.lng]);
+            });
+
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+
+        // Show on map
+        function showOnMap(lat, lng) {
+            if (map) {
+                map.setView([lat, lng], 15);
+                markers.forEach(marker => {
+                    if (marker.getLatLng().lat === lat && marker.getLatLng().lng === lng) {
+                        marker.openPopup();
+                    }
+                });
+                document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredOutlets = outlets.filter(outlet => 
+                outlet.name.toLowerCase().includes(searchTerm) ||
+                outlet.location.toLowerCase().includes(searchTerm) ||
+                outlet.category.toLowerCase().includes(searchTerm)
+            );
+            currentPage = 1;
+            renderOutlets();
+            updateMapMarkers();
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                if (filter === 'all') {
+                    filteredOutlets = [...outlets];
+                } else {
+                    filteredOutlets = outlets.filter(outlet => outlet.category === filter);
+                }
+                currentPage = 1;
+                renderOutlets();
+                updateMapMarkers();
+            });
+        });
+
+        // Add outlet modal
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('active');
+            
+            if (!mapPicker) {
+                mapPicker = L.map('mapPicker').setView([40.4168, -3.7038], 13);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(mapPicker);
+
+                let tempMarker = null;
+                
+                mapPicker.on('click', (e) => {
+                    if (tempMarker) {
+                        mapPicker.removeLayer(tempMarker);
+                    }
+                    
+                    selectedLocation = e.latlng;
+                    
+                    tempMarker = L.marker([selectedLocation.lat, selectedLocation.lng], {
+                        icon: L.divIcon({
+                            className: 'custom-marker',
+                            html: '<div style="background: #20d4e8; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 16px;">📍</div>',
+                            iconSize: [30, 30]
+                        })
+                    }).addTo(mapPicker);
+                });
+
+                // Set initial location if user location is available
+                if (userLocation) {
+                    mapPicker.setView([userLocation.lat, userLocation.lng], 15);
+                }
+            }
+            
+            setTimeout(() => mapPicker.invalidateSize(), 100);
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
+            document.getElementById('addOutletForm').reset();
+            selectedLocation = null;
+        }
+
+        // Add outlet
+        async function addOutlet(e) {
+            e.preventDefault();
+            
+            if (!selectedLocation) {
+                alert('⚠️ Por favor, selecciona una ubicación en el mapa');
                 return;
             }
 
-            const level = userPoints >= 100 ? 'Leyenda' : userPoints >= 50 ? 'Maestro' : userPoints >= 20 ? 'Cazador' : 'Explorador';
-            const userPlugsCount = plugsData.filter(p => p.userId === currentUser.uid).length;
-
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.8);
-                z-index: 10000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 1rem;
-            `;
-
-            modal.innerHTML = `
-                <div style="
-                    background: var(--surface);
-                    max-width: 500px;
-                    width: 100%;
-                    border-radius: 16px;
-                    padding: 2rem;
-                    position: relative;
-                    border: 1px solid var(--border);
-                    text-align: center;
-                ">
-                    <button onclick="this.closest('div').parentElement.remove()" style="
-                        position: absolute;
-                        top: 1rem;
-                        right: 1rem;
-                        background: var(--border);
-                        border: none;
-                        color: var(--text);
-                        width: 32px;
-                        height: 32px;
-                        border-radius: 50%;
-                        cursor: pointer;
-                        font-size: 1.5rem;
-                        line-height: 1;
-                    ">×</button>
-                    
-                    <img src="${currentUser.photoURL}" alt="${currentUser.displayName}" style="
-                        width: 100px;
-                        height: 100px;
-                        border-radius: 50%;
-                        border: 4px solid var(--secondary);
-                        margin-bottom: 1rem;
-                    ">
-                    
-                    <h2 style="margin: 0.5rem 0; color: var(--text);">${currentUser.displayName}</h2>
-                    <p style="color: var(--text-muted); margin-bottom: 2rem;">${currentUser.email}</p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem;">
-                        <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">
-                            <div style="font-size: 2rem; font-weight: 700; color: var(--secondary);">${userPoints}</div>
-                            <div style="color: var(--text-muted); font-size: 0.875rem;">Puntos</div>
-                        </div>
-                        <div style="background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3);">
-                            <div style="font-size: 2rem; font-weight: 700; color: #3b82f6;">${level}</div>
-                            <div style="color: var(--text-muted); font-size: 0.875rem;">Nivel</div>
-                        </div>
-                        <div style="background: rgba(249, 115, 22, 0.1); padding: 1rem; border-radius: 12px; border: 1px solid rgba(249, 115, 22, 0.3); grid-column: 1 / -1;">
-                            <div style="font-size: 2rem; font-weight: 700; color: var(--accent);">${userPlugsCount}</div>
-                            <div style="color: var(--text-muted); font-size: 0.875rem;">Enchufes agregados</div>
-                        </div>
-                    </div>
-                    
-                    <button onclick="firebase.auth().signOut(); this.closest('div').parentElement.remove();" style="
-                        width: 100%;
-                        padding: 0.75rem;
-                        background: rgba(239, 68, 68, 0.2);
-                        border: 1px solid #ef4444;
-                        color: #ef4444;
-                        border-radius: 12px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                    ">Cerrar sesión</button>
-                </div>
-            `;
-
-            modal.onclick = (e) => {
-                if (e.target === modal) modal.remove();
+            const outletData = {
+                name: document.getElementById('outletName').value,
+                location: document.getElementById('outletLocation').value,
+                lat: selectedLocation.lat,
+                lng: selectedLocation.lng,
+                category: document.getElementById('outletCategory').value,
+                status: document.getElementById('outletStatus').value,
+                rating: parseInt(document.getElementById('outletRating').value),
+                notes: document.getElementById('outletNotes').value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                addedBy: currentUser ? currentUser.displayName : 'Anónimo',
+                userId: currentUser ? currentUser.uid : null
             };
 
-            document.body.appendChild(modal);
-        };
+            try {
+                if (!navigator.onLine) {
+                    alert('⚠️ Sin conexión. El enchufe se guardará cuando vuelvas a estar en línea.');
+                    // Store in localStorage for later sync
+                    const pendingOutlets = JSON.parse(localStorage.getItem('pendingOutlets') || '[]');
+                    pendingOutlets.push(outletData);
+                    localStorage.setItem('pendingOutlets', JSON.stringify(pendingOutlets));
+                    closeAddModal();
+                    return;
+                }
+
+                await db.collection('plugs').add(outletData);
+                
+                // Award points if user is logged in
+                if (currentUser) {
+                    const userRef = db.collection('users').doc(currentUser.uid);
+                    await userRef.update({
+                        points: firebase.firestore.FieldValue.increment(10),
+                        outletsAdded: firebase.firestore.FieldValue.increment(1)
+                    });
+                    await loadUserPoints();
+                }
+                
+                alert('✅ ¡Enchufe agregado correctamente! ' + (currentUser ? '+10 puntos' : ''));
+                closeAddModal();
+                await loadOutlets();
+                
+            } catch (error) {
+                console.error('Error adding outlet:', error);
+                alert('❌ Error al agregar enchufe. Por favor, intenta de nuevo.');
+            }
+        }
+
+        // Sync pending outlets when back online
+        window.addEventListener('online', async () => {
+            const pendingOutlets = JSON.parse(localStorage.getItem('pendingOutlets') || '[]');
+            if (pendingOutlets.length > 0) {
+                console.log('Sincronizando enchufes pendientes...');
+                for (const outlet of pendingOutlets) {
+                    try {
+                        await db.collection('plugs').add(outlet);
+                    } catch (error) {
+                        console.error('Error syncing outlet:', error);
+                    }
+                }
+                localStorage.removeItem('pendingOutlets');
+                await loadOutlets();
+                alert('✅ Enchufes sincronizados correctamente');
+            }
+        });
+
+        // Profile modal
+        function openProfileModal() {
+            if (!currentUser) {
+                alert('⚠️ Debes iniciar sesión para ver tu perfil');
+                return;
+            }
+            
+            document.getElementById('profileModal').classList.add('active');
+            loadProfile();
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        async function loadProfile() {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                const userData = userDoc.data();
+                
+                const level = userData.points >= 100 ? 'Leyenda' :
+                             userData.points >= 50 ? 'Maestro' :
+                             userData.points >= 20 ? 'Cazador' : 'Explorador';
+                
+                document.getElementById('profileContent').innerHTML = `
+                    <div class="profile-header">
+                        <img src="${currentUser.photoURL}" alt="${currentUser.displayName}" class="profile-avatar">
+                        <h3 class="profile-name">${currentUser.displayName}</h3>
+                        <p class="profile-email">${currentUser.email}</p>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <div class="profile-stat-value">⭐ ${userData.points || 0}</div>
+                            <div class="profile-stat-label">Puntos</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value">🏆 ${level}</div>
+                            <div class="profile-stat-label">Nivel</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value">🔌 ${userData.outletsAdded || 0}</div>
+                            <div class="profile-stat-label">Enchufes</div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // Legal modals
+        function openLegalModal(type) {
+            document.getElementById('legalModal').classList.add('active');
+            
+            const titles = {
+                'privacy': 'Política de Privacidad',
+                'terms': 'Términos y Condiciones',
+                'cookies': 'Política de Cookies',
+                'contact': 'Contacto',
+                'suggestions': 'Sugerencias',
+                'report': 'Reportar Problema'
+            };
+            
+            const contents = {
+                'privacy': '<p>En PlugIn, nos tomamos muy en serio tu privacidad...</p>',
+                'terms': '<p>Al usar PlugIn, aceptas los siguientes términos...</p>',
+                'cookies': '<p>Utilizamos cookies para mejorar tu experiencia...</p>',
+                'contact': '<p>📧 Email: holapluginapp@gmail.com</p>',
+                'suggestions': '<p>¿Tienes una sugerencia? Envíanos un email a holapluginapp@gmail.com</p>',
+                'report': '<p>Si encuentras algún problema, por favor contáctanos en holapluginapp@gmail.com</p>'
+            };
+            
+            document.getElementById('legalTitle').textContent = titles[type];
+            document.getElementById('legalContent').innerHTML = contents[type];
+        }
+
+        function closeLegalModal() {
+            document.getElementById('legalModal').classList.remove('active');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOutlets();
+            getUserLocation();
+            
+            // Setup nearest button
+            document.getElementById('btnNearest').addEventListener('click', goToNearestOutlet);
+        });
     </script>
 </body>
 </html>
