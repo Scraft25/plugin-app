@@ -1085,13 +1085,33 @@
 
         // Login with Google - Fixed with direct handler
         function handleLogin() {
+            console.log('🔐 Intentando login con Google...');
+            
+            // Configurar el proveedor
+            googleProvider.setCustomParameters({
+                prompt: 'select_account'
+            });
+            
             auth.signInWithPopup(googleProvider)
                 .then((result) => {
                     console.log('✅ Login exitoso:', result.user.displayName);
+                    alert('✅ Bienvenido, ' + result.user.displayName + '!');
                 })
                 .catch((error) => {
                     console.error('❌ Error al iniciar sesión:', error);
-                    alert('Error al iniciar sesión: ' + error.message);
+                    console.error('Código de error:', error.code);
+                    console.error('Mensaje:', error.message);
+                    
+                    // Mensajes de error más claros
+                    if (error.code === 'auth/popup-blocked') {
+                        alert('⚠️ Tu navegador bloqueó la ventana emergente. Por favor, permite las ventanas emergentes y vuelve a intentar.');
+                    } else if (error.code === 'auth/popup-closed-by-user') {
+                        alert('⚠️ Cerraste la ventana de login. Inténtalo de nuevo.');
+                    } else if (error.code === 'auth/unauthorized-domain') {
+                        alert('⚠️ Este dominio no está autorizado. Contacta al administrador.');
+                    } else {
+                        alert('❌ Error al iniciar sesión: ' + error.message);
+                    }
                 });
         }
 
