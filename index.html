@@ -1345,7 +1345,7 @@
             if (!currentUser) return;
             try {
                 const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                if (userDoc.exists()) {
+                if (userDoc.exists) {
                     const userData = userDoc.data();
                     document.getElementById('pointsDisplay').textContent = userData.points || 0;
                 }
