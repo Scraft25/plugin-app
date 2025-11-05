@@ -3,532 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlugIn - Encuentra enchufes libres cerca de ti</title>
-    <meta name="description" content="Cable bajo la mesa, batería en 0%... Localiza un enchufe libre en segundos. Comunidad colaborativa para encontrar enchufes en cafés, aeropuertos, bibliotecas y más.">
-    <meta name="keywords" content="enchufes, cargar móvil, batería, cafés, aeropuertos, bibliotecas, enchufes gratis">
+    <title>DoggoMap - Encuentra lugares pet-friendly cerca de ti 🐕</title>
+    <meta name="description" content="Descubre restaurantes, cafeterías, hoteles y parques que aceptan perros en toda España. La mejor app para viajar con tu mascota.">
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://plugin-app.vercel.app/">
-    <meta property="og:title" content="PlugIn - Encuentra enchufes libres cerca de ti">
-    <meta property="og:description" content="Cable bajo la mesa, batería en 0%... Localiza un enchufe libre en segundos">
-    <meta property="og:image" content="https://plugin-app.vercel.app/og-image.png">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://plugin-app.vercel.app/">
-    <meta property="twitter:title" content="PlugIn - Encuentra enchufes libres cerca de ti">
-    <meta property="twitter:description" content="Cable bajo la mesa, batería en 0%... Localiza un enchufe libre en segundos">
-    <meta property="twitter:image" content="https://plugin-app.vercel.app/og-image.png">
-
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
+        :root {
+            --primary-color: #ff6b35;
+            --primary-hover: #ff8555;
+            --secondary-color: #4ecdc4;
+            --accent-color: #f7b731;
+            --text-color: #2d3436;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+            --success-color: #26de81;
+            --danger-color: #fc5c65;
+            
+            --restaurant-color: #ff6b6b;
+            --cafe-color: #ee5a6f;
+            --park-color: #4ecdc4;
+            --beach-color: #45aaf2;
+            --hotel-color: #a55eea;
+            --shop-color: #26de81;
+            --vet-color: #fd79a8;
+            --grooming-color: #fdcb6e;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        :root {
-            --primary: #20d4e8;
-            --primary-dark: #1ab8cc;
-            --secondary: #1e293b;
-            --bg-dark: #0f172a;
-            --bg-darker: #0a0f1a;
-            --text: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border: rgba(255, 255, 255, 0.1);
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
-            color: var(--text);
-            min-height: 100vh;
-            padding-bottom: 80px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
 
-        /* Header */
-        .header {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem;
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
         .header-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 0.75rem;
-            flex-wrap: wrap;
+            align-items: center;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 1.25rem;
+            font-size: 1.8rem;
             font-weight: bold;
-            color: var(--primary);
         }
 
-        .logo svg {
-            width: 28px;
-            height: 28px;
+        .logo::before {
+            content: "🐕";
+            font-size: 2rem;
         }
 
-        .stats {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .stat {
+        .user-section {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            background: rgba(32, 212, 232, 0.1);
-            padding: 0.4rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            border: 1px solid rgba(32, 212, 232, 0.2);
+            gap: 1rem;
         }
 
-        .stat svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .btn-login {
-            background: var(--primary);
-            color: var(--bg-dark);
-            border: none;
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: rgba(255,255,255,0.2);
             padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
+            border-radius: 50px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
+            transition: background 0.3s;
         }
 
-        .btn-login:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+        .user-profile:hover {
+            background: rgba(255,255,255,0.3);
         }
 
         .user-avatar {
-            width: 36px;
-            height: 36px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
-            border: 2px solid var(--primary);
+            border: 2px solid white;
         }
 
-        .btn-logout {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--error);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 0.4rem 0.75rem;
-            border-radius: 16px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .user-info {
+            text-align: left;
         }
 
-        .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.2);
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
-        /* Botón flotante enchufe más cercano */
-        .btn-nearest {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
+        .user-points {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .btn {
+            padding: 0.6rem 1.5rem;
             border: none;
-            padding: 16px;
-            border-radius: 50%;
-            width: 64px;
-            height: 64px;
+            border-radius: 25px;
             cursor: pointer;
-            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .btn-nearest:hover {
-            transform: scale(1.1);
-            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.6);
-        }
-
-        .btn-nearest svg {
-            width: 32px;
-            height: 32px;
-        }
-
-        /* Hero */
-        .hero {
-            text-align: center;
-            padding: 2.5rem 1rem;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .hero h1 {
-            font-size: 2rem;
-            margin-bottom: 0.75rem;
-            background: linear-gradient(135deg, var(--primary) 0%, #60a5fa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero p {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-        }
-
-        /* Search & Filters */
-        .search-section {
-            max-width: 1200px;
-            margin: 0 auto 2rem;
-            padding: 0 1rem;
-        }
-
-        .search-bar {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .search-input {
-            flex: 1;
-            min-width: 200px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            color: var(--text);
+            font-weight: 600;
+            transition: all 0.3s;
             font-size: 0.95rem;
         }
 
-        .search-input::placeholder {
-            color: var(--text-secondary);
-        }
-
         .btn-primary {
-            background: var(--primary);
-            color: var(--bg-dark);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
+            background: white;
+            color: var(--primary-color);
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        .filters {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
         }
 
-        .filter-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .btn-secondary:hover {
+            background: #45b8b0;
         }
 
-        .filter-btn.active {
-            background: var(--primary);
-            color: var(--bg-dark);
-            border-color: var(--primary);
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
         }
 
-        /* Outlets Grid */
-        .outlets-section {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .outlets-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.25rem;
+        .search-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             margin-bottom: 2rem;
         }
 
-        .outlet-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.25rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .outlet-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: 0 8px 24px rgba(32, 212, 232, 0.2);
-        }
-
-        .outlet-header {
+        .search-header {
             display: flex;
             justify-content: space-between;
-            align-items: start;
-            margin-bottom: 0.75rem;
-        }
-
-        .outlet-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .outlet-category {
-            display: inline-flex;
             align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
+            margin-bottom: 1.5rem;
         }
 
-        .category-cafe { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
-        .category-aeropuerto { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        .category-biblioteca { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-        .category-parque { background: rgba(132, 204, 22, 0.2); color: #a3e635; }
-        .category-centro-comercial { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
-        .category-otro { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
+        .search-header h2 {
+            font-size: 1.5rem;
+            color: var(--text-color);
+        }
 
-        .outlet-location {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 0.75rem;
+        .search-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            flex-direction: column;
         }
 
-        .outlet-distance {
-            color: var(--primary);
+        .form-group label {
             font-size: 0.85rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
+            color: var(--text-color);
         }
 
-        .outlet-meta {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.75rem;
-            padding-top: 0.75rem;
-            border-top: 1px solid var(--border);
+        .form-control {
+            padding: 0.8rem;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
         }
 
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .outlet-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .btn-action {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.5rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.25rem;
-        }
-
-        .btn-action:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--primary);
-        }
-
-        .btn-share {
-            background: rgba(34, 197, 94, 0.1);
-            border-color: rgba(34, 197, 94, 0.3);
-            color: var(--success);
-        }
-
-        .btn-share:hover {
-            background: rgba(34, 197, 94, 0.2);
-        }
-
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-
-        .pagination button {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .pagination button:hover:not(:disabled) {
-            background: var(--primary);
-            color: var(--bg-dark);
-            border-color: var(--primary);
-        }
-
-        .pagination button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .pagination span {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        /* Map */
-        .map-section {
-            max-width: 1200px;
-            margin: 3rem auto;
-            padding: 0 1rem;
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
         }
 
         #map {
             height: 500px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
         }
 
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border);
-            padding: 0.75rem;
-            display: flex;
-            justify-content: space-around;
-            z-index: 1000;
+        .places-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.7rem;
+        .place-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .nav-item.active, .nav-item:hover {
-            color: var(--primary);
+        .place-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
+        .place-header {
+            padding: 1.2rem;
+            position: relative;
         }
 
-        /* Modal */
+        .place-category {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.8rem;
+        }
+
+        .category-restaurante { background: var(--restaurant-color); }
+        .category-cafeteria { background: var(--cafe-color); }
+        .category-parque { background: var(--park-color); }
+        .category-playa { background: var(--beach-color); }
+        .category-hotel { background: var(--hotel-color); }
+        .category-tienda { background: var(--shop-color); }
+        .category-veterinaria { background: var(--vet-color); }
+        .category-peluqueria { background: var(--grooming-color); }
+
+        .place-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .place-location {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .place-body {
+            padding: 0 1.2rem 1.2rem 1.2rem;
+        }
+
+        .place-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-badge {
+            background: var(--bg-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .place-rating {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .star {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+
+        .star.empty {
+            color: #ddd;
+        }
+
+        .place-notes {
+            color: #636e72;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-top: 0.5rem;
+        }
+
+        .place-footer {
+            padding: 1rem 1.2rem;
+            background: var(--bg-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .place-meta {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+        }
+
+        .page-btn {
+            padding: 0.6rem 1rem;
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .page-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
         .modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(4px);
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
             z-index: 2000;
-            padding: 1rem;
-            overflow-y: auto;
-        }
-
-        .modal.active {
-            display: flex;
             align-items: center;
             justify-content: center;
         }
 
+        .modal.active {
+            display: flex;
+        }
+
         .modal-content {
-            background: var(--secondary);
-            border: 1px solid var(--border);
-            border-radius: 20px;
+            background: white;
             padding: 2rem;
+            border-radius: 20px;
             max-width: 500px;
-            width: 100%;
+            width: 90%;
             max-height: 90vh;
             overflow-y: auto;
         }
@@ -540,1288 +391,829 @@
             margin-bottom: 1.5rem;
         }
 
-        .modal-title {
+        .modal-header h3 {
             font-size: 1.5rem;
-            font-weight: 600;
+            color: var(--text-color);
         }
 
-        .btn-close {
+        .close-btn {
             background: none;
             border: none;
-            color: var(--text-secondary);
+            font-size: 1.5rem;
             cursor: pointer;
-            font-size: 1.5rem;
-            padding: 0;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            color: #7f8c8d;
         }
 
-        .btn-close:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text);
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text);
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            padding: 0.75rem;
-            border-radius: 12px;
-            color: var(--text);
-            font-size: 0.95rem;
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .map-picker {
-            height: 300px;
-            border-radius: 12px;
-            margin-top: 0.5rem;
-            border: 1px solid var(--border);
-        }
-
-        .map-instructions {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-            padding: 0.75rem;
-            background: rgba(32, 212, 232, 0.1);
-            border-radius: 8px;
-            border: 1px solid rgba(32, 212, 232, 0.2);
-        }
-
-        /* Profile */
-        .profile-header {
+        footer {
+            background: var(--text-color);
+            color: white;
             text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 3px solid var(--primary);
-            margin: 0 auto 1rem;
-        }
-
-        .profile-name {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .profile-email {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .profile-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .profile-stat {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1rem;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-
-        .profile-stat-value {
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .profile-stat-label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        /* Footer */
-        .footer {
-            background: rgba(15, 23, 42, 0.95);
-            border-top: 1px solid var(--border);
-            padding: 2rem 1rem;
+            padding: 2rem;
             margin-top: 4rem;
-            margin-bottom: 80px;
         }
 
         .footer-content {
             max-width: 1200px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-        }
-
-        .footer-section h3 {
-            font-size: 1rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
         }
 
         .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
         }
 
         .footer-links a {
-            color: var(--text-secondary);
+            color: white;
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
+            opacity: 0.8;
+            transition: opacity 0.3s;
         }
 
         .footer-links a:hover {
-            color: var(--primary);
+            opacity: 1;
         }
 
-        .footer-bottom {
-            text-align: center;
-            padding-top: 2rem;
-            margin-top: 2rem;
-            border-top: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-size: 0.85rem;
+        .spinner {
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
         }
 
-        /* Responsive */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 1.5rem;
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
             }
 
-            .outlets-grid {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .search-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .places-grid {
                 grid-template-columns: 1fr;
             }
 
             #map {
                 height: 350px;
             }
-
-            .header-content {
-                font-size: 0.9rem;
-            }
-
-            .logo {
-                font-size: 1rem;
-            }
-
-            .stat {
-                font-size: 0.75rem;
-                padding: 0.35rem 0.6rem;
-            }
-
-            .btn-login {
-                font-size: 0.75rem;
-                padding: 0.4rem 0.8rem;
-            }
         }
 
-        /* Offline indicator */
-        .offline-indicator {
+        .fab {
             position: fixed;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(239, 68, 68, 0.95);
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
             color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 24px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            z-index: 2001;
-            display: none;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+            z-index: 999;
         }
 
-        .offline-indicator.show {
-            display: block;
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #7f8c8d;
         }
     </style>
 </head>
 <body>
-    <!-- Offline Indicator -->
-    <div class="offline-indicator" id="offlineIndicator">
-        📡 Sin conexión - Modo offline
-    </div>
-
-    <!-- Header -->
-    <header class="header">
+    <header>
         <div class="header-content">
-            <div class="logo">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                </svg>
-                <span>PlugIn</span>
-            </div>
-            
-            <div class="stats">
-                <div class="stat">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                    </svg>
-                    <span id="outletCount">16</span> enchufes
+            <div class="logo">DoggoMap</div>
+            <div class="user-section">
+                <div id="loginSection">
+                    <button class="btn btn-primary" onclick="loginWithGoogle()">🐕 Iniciar sesión</button>
                 </div>
-                <div class="stat">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                    </svg>
-                    <span id="pointsDisplay">0</span> Puntos
+                <div id="userSection" style="display: none;">
+                    <div class="user-profile">
+                        <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
+                        <div class="user-info">
+                            <div class="user-name" id="userName"></div>
+                            <div class="user-points" id="userPoints"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="logout()">Cerrar sesión</button>
                 </div>
-            </div>
-
-            <div id="authContainer">
-                <button class="btn-login" onclick="handleLogin()">
-                    🔐 Iniciar sesión con Google
-                </button>
             </div>
         </div>
     </header>
 
-    <!-- Botón flotante enchufe más cercano -->
-    <button class="btn-nearest" id="btnNearest" title="Ir al enchufe más cercano" style="display: none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <circle cx="12" cy="12" r="10"/>
-            <circle cx="12" cy="12" r="3"/>
-        </svg>
-    </button>
+    <div class="container">
+        <div class="search-section">
+            <div class="search-header">
+                <h2>🔍 Encuentra lugares pet-friendly</h2>
+                <button class="btn btn-primary" onclick="openAddPlaceModal()">➕ Agregar lugar</button>
+            </div>
+            
+            <div class="search-controls">
+                <div class="form-group">
+                    <label>🏷️ Categoría</label>
+                    <select id="filterCategory" class="form-control" onchange="filterPlaces()">
+                        <option value="">Todas</option>
+                        <option value="restaurante">🍽️ Restaurante</option>
+                        <option value="cafeteria">☕ Cafetería</option>
+                        <option value="parque">🌳 Parque</option>
+                        <option value="playa">🏖️ Playa</option>
+                        <option value="hotel">🏨 Hotel</option>
+                        <option value="tienda">🛍️ Tienda</option>
+                        <option value="veterinaria">🏥 Veterinaria</option>
+                        <option value="peluqueria">✂️ Peluquería</option>
+                    </select>
+                </div>
 
-    <!-- Hero -->
-    <section class="hero">
-        <h1>¿Batería en 0%?</h1>
-        <p>Encuentra enchufes libres cerca de ti. Tu comunidad, tu solución.</p>
-    </section>
+                <div class="form-group">
+                    <label>📏 Tamaño de perro</label>
+                    <select id="filterSize" class="form-control" onchange="filterPlaces()">
+                        <option value="">Todos</option>
+                        <option value="pequeno">Pequeño</option>
+                        <option value="mediano">Mediano</option>
+                        <option value="grande">Grande</option>
+                    </select>
+                </div>
 
-    <!-- Search & Filters -->
-    <div class="search-section">
-        <div class="search-bar">
-            <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre, ubicación...">
-            <button class="btn-primary" onclick="openAddModal()">➕ Agregar enchufe</button>
+                <div class="form-group">
+                    <label>🏠 Ubicación</label>
+                    <select id="filterLocation" class="form-control" onchange="filterPlaces()">
+                        <option value="">Todas</option>
+                        <option value="interior">Interior</option>
+                        <option value="terraza">Terraza</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>⭐ Valoración mínima</label>
+                    <select id="filterRating" class="form-control" onchange="filterPlaces()">
+                        <option value="0">Todas</option>
+                        <option value="4">4+ estrellas</option>
+                        <option value="3">3+ estrellas</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>🔎 Buscar por nombre o ubicación</label>
+                <input type="text" id="searchInput" class="form-control" placeholder="Escribe para buscar..." oninput="filterPlaces()">
+            </div>
         </div>
-        
-        <div class="filters">
-            <button class="filter-btn active" data-filter="all">Todos</button>
-            <button class="filter-btn" data-filter="cafe">☕ Cafés</button>
-            <button class="filter-btn" data-filter="aeropuerto">✈️ Aeropuertos</button>
-            <button class="filter-btn" data-filter="biblioteca">📚 Bibliotecas</button>
-            <button class="filter-btn" data-filter="parque">🌳 Parques</button>
-            <button class="filter-btn" data-filter="centro-comercial">🛍️ Centros C.</button>
-            <button class="filter-btn" data-filter="otro">🔌 Otro</button>
+
+        <div id="map"></div>
+
+        <div id="loading" style="display: none;">
+            <div class="spinner"></div>
         </div>
+
+        <div id="placesContainer" class="places-grid"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">🐕</div>
+            <h3>No se encontraron lugares</h3>
+            <p>Intenta cambiar los filtros o sé el primero en agregar un lugar pet-friendly</p>
+        </div>
+
+        <div id="pagination" class="pagination"></div>
     </div>
 
-    <!-- Outlets -->
-    <section class="outlets-section">
-        <h2 class="section-title">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                <circle cx="12" cy="10" r="3"/>
-            </svg>
-            Enchufes disponibles
-        </h2>
-        <div class="outlets-grid" id="outletsGrid"></div>
+    <button class="fab" onclick="openAddPlaceModal()">+</button>
 
-        <!-- Pagination -->
-        <div class="pagination">
-            <button id="prevPage" onclick="changePage(-1)">← Anterior</button>
-            <span id="pageInfo">Página 1</span>
-            <button id="nextPage" onclick="changePage(1)">Siguiente →</button>
-        </div>
-    </section>
-
-    <!-- Map -->
-    <section class="map-section">
-        <h2 class="section-title">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-                <line x1="8" y1="2" x2="8" y2="18"/>
-                <line x1="16" y1="6" x2="16" y2="22"/>
-            </svg>
-            Mapa de enchufes
-        </h2>
-        <div id="map"></div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>PlugIn</h3>
-                <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                    Tu comunidad colaborativa para encontrar enchufes libres.
-                </p>
-            </div>
-            <div class="footer-section">
-                <h3>Legal</h3>
-                <ul class="footer-links">
-                    <li><a href="#" onclick="openLegalModal('privacy')">Política de Privacidad</a></li>
-                    <li><a href="#" onclick="openLegalModal('terms')">Términos y Condiciones</a></li>
-                    <li><a href="#" onclick="openLegalModal('cookies')">Política de Cookies</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Contacto</h3>
-                <ul class="footer-links">
-                    <li><a href="mailto:holapluginapp@gmail.com">Email</a></li>
-                    <li><a href="#" onclick="openLegalModal('contact')">Formulario de contacto</a></li>
-                    <li><a href="#" onclick="openLegalModal('suggestions')">Sugerencias</a></li>
-                    <li><a href="#" onclick="openLegalModal('report')">Reportar problema</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2024 PlugIn. Todos los derechos reservados.</p>
-        </div>
-    </footer>
-
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-        <a href="#" class="nav-item active" onclick="showSection('home')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-            <span>Inicio</span>
-        </a>
-        <a href="#map" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-                <line x1="8" y1="2" x2="8" y2="18"/>
-                <line x1="16" y1="6" x2="16" y2="22"/>
-            </svg>
-            <span>Mapa</span>
-        </a>
-        <a href="#" class="nav-item" onclick="openAddModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="16"/>
-                <line x1="8" y1="12" x2="16" y2="12"/>
-            </svg>
-            <span>Agregar</span>
-        </a>
-        <a href="#" class="nav-item" id="profileNavBtn" onclick="openProfileModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <span>Perfil</span>
-        </a>
-    </nav>
-
-    <!-- Add Outlet Modal -->
-    <div class="modal" id="addModal">
+    <div id="addPlaceModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">➕ Agregar enchufe</h2>
-                <button class="btn-close" onclick="closeAddModal()">&times;</button>
+                <h3>➕ Agregar lugar pet-friendly</h3>
+                <button class="close-btn" onclick="closeAddPlaceModal()">×</button>
             </div>
-            <form id="addOutletForm" onsubmit="addOutlet(event)">
+            
+            <form id="addPlaceForm" onsubmit="addPlace(event)">
                 <div class="form-group">
-                    <label class="form-label">Nombre del lugar</label>
-                    <input type="text" class="form-input" id="outletName" required placeholder="Ej: Starbucks Plaza Mayor">
+                    <label>Nombre del lugar *</label>
+                    <input type="text" id="placeName" class="form-control" required placeholder="Ej: Café Central">
                 </div>
+
                 <div class="form-group">
-                    <label class="form-label">Ubicación (dirección)</label>
-                    <input type="text" class="form-input" id="outletLocation" required placeholder="Ej: Calle Mayor 1, Madrid">
+                    <label>Dirección *</label>
+                    <input type="text" id="placeAddress" class="form-control" required placeholder="Ej: Calle Mayor 15">
                 </div>
+
                 <div class="form-group">
-                    <label class="form-label">Categoría</label>
-                    <select class="form-select" id="outletCategory" required>
-                        <option value="cafe">☕ Café</option>
-                        <option value="aeropuerto">✈️ Aeropuerto</option>
-                        <option value="biblioteca">📚 Biblioteca</option>
+                    <label>Categoría *</label>
+                    <select id="placeCategory" class="form-control" required>
+                        <option value="">Selecciona...</option>
+                        <option value="restaurante">🍽️ Restaurante</option>
+                        <option value="cafeteria">☕ Cafetería</option>
                         <option value="parque">🌳 Parque</option>
-                        <option value="centro-comercial">🛍️ Centro Comercial</option>
-                        <option value="otro">🔌 Otro</option>
+                        <option value="playa">🏖️ Playa</option>
+                        <option value="hotel">🏨 Hotel</option>
+                        <option value="tienda">🛍️ Tienda</option>
+                        <option value="veterinaria">🏥 Veterinaria</option>
+                        <option value="peluqueria">✂️ Peluquería</option>
                     </select>
                 </div>
+
                 <div class="form-group">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select" id="outletStatus" required>
-                        <option value="disponible">✅ Disponible</option>
-                        <option value="ocupado">🔴 Ocupado</option>
+                    <label>Tamaño de perro aceptado *</label>
+                    <select id="placeSize" class="form-control" required>
+                        <option value="">Selecciona...</option>
+                        <option value="pequeno">🐕 Pequeño</option>
+                        <option value="mediano">🐕 Mediano</option>
+                        <option value="grande">🐕 Grande</option>
+                        <option value="todos">🐕 Todos los tamaños</option>
                     </select>
                 </div>
+
                 <div class="form-group">
-                    <label class="form-label">Calificación (1-5)</label>
-                    <input type="number" class="form-input" id="outletRating" min="1" max="5" value="5" required>
+                    <label>Ubicación permitida *</label>
+                    <select id="placeLocationType" class="form-control" required>
+                        <option value="">Selecciona...</option>
+                        <option value="interior">🏠 Interior</option>
+                        <option value="terraza">☀️ Terraza</option>
+                        <option value="ambos">🏠☀️ Ambos</option>
+                    </select>
                 </div>
+
                 <div class="form-group">
-                    <label class="form-label">Notas adicionales (opcional)</label>
-                    <textarea class="form-textarea" id="outletNotes" placeholder="Ej: Cerca de la ventana, necesita adaptador..."></textarea>
+                    <label>¿Tiene agua para perros? *</label>
+                    <select id="placeWater" class="form-control" required>
+                        <option value="">Selecciona...</option>
+                        <option value="si">💧 Sí</option>
+                        <option value="no">❌ No</option>
+                    </select>
                 </div>
+
                 <div class="form-group">
-                    <label class="form-label">📍 Selecciona ubicación en el mapa</label>
-                    <div id="mapPicker" class="map-picker"></div>
-                    <div class="map-instructions">
-                        💡 Haz clic en el mapa para marcar la ubicación exacta del enchufe
-                    </div>
+                    <label>¿Correa obligatoria? *</label>
+                    <select id="placeLeash" class="form-control" required>
+                        <option value="">Selecciona...</option>
+                        <option value="si">🦮 Sí</option>
+                        <option value="no">🐕 No</option>
+                    </select>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">
-                    Agregar enchufe (+10 puntos)
-                </button>
+
+                <div class="form-group">
+                    <label>Valoración *</label>
+                    <select id="placeRating" class="form-control" required>
+                        <option value="">Selecciona...</option>
+                        <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+                        <option value="4">⭐⭐⭐⭐ Muy bueno</option>
+                        <option value="3">⭐⭐⭐ Bueno</option>
+                        <option value="2">⭐⭐ Regular</option>
+                        <option value="1">⭐ Malo</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Notas adicionales (opcional)</label>
+                    <textarea id="placeNotes" class="form-control" rows="3" placeholder="Ej: Tienen menú especial para perros, muy amables con las mascotas"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Agregar lugar 🐕</button>
             </form>
         </div>
     </div>
 
-    <!-- Profile Modal -->
-    <div class="modal" id="profileModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">👤 Mi Perfil</h2>
-                <button class="btn-close" onclick="closeProfileModal()">&times;</button>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#">Sobre nosotros</a>
+                <a href="#">Contacto</a>
+                <a href="mailto:holapluginapp@gmail.com">Email</a>
             </div>
-            <div id="profileContent">
-                <p style="text-align: center; color: var(--text-secondary);">
-                    Inicia sesión para ver tu perfil
-                </p>
-            </div>
+            <p>&copy; 2025 DoggoMap. Encuentra los mejores lugares para tu mejor amigo 🐕❤️</p>
         </div>
-    </div>
+    </footer>
 
-    <!-- Legal Modal -->
-    <div class="modal" id="legalModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="legalTitle">Información</h2>
-                <button class="btn-close" onclick="closeLegalModal()">&times;</button>
-            </div>
-            <div id="legalContent"></div>
-        </div>
-    </div>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
-
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <script>
-        // Firebase Configuration
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { doc, setDoc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
         const firebaseConfig = {
-            apiKey: "AIzaSyDMWRD3d3I4qQKMI92d4uXXD7kr82eK3Kg",
+            apiKey: "AIzaSyDNL4d-peCEhqE6dV6wJvHZUyI9D7LiC_Y",
             authDomain: "plugin-app-6e530.firebaseapp.com",
             projectId: "plugin-app-6e530",
             storageBucket: "plugin-app-6e530.firebasestorage.app",
-            messagingSenderId: "341027766221",
-            appId: "1:341027766221:web:df9b7db73457cec5944e84"
+            messagingSenderId: "1048836630086",
+            appId: "1:1048836630086:web:8b3a2b1dc925f06e3e9d34"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        
-        // Initialize messaging (for push notifications)
-        let messaging = null;
-        if (firebase.messaging.isSupported()) {
-            messaging = firebase.messaging();
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-        // Global variables
-        let currentUser = null;
-        let userLocation = null;
-        let outlets = [];
-        let filteredOutlets = [];
-        let map = null;
-        let mapPicker = null;
-        let selectedLocation = null;
+        let map;
         let markers = [];
+        let allPlaces = [];
+        let filteredPlaces = [];
+        let currentUser = null;
         let currentPage = 1;
-        const outletsPerPage = 12;
+        const placesPerPage = 12;
 
-        // Offline detection
-        window.addEventListener('online', () => {
-            document.getElementById('offlineIndicator').classList.remove('show');
-            loadOutlets();
-        });
+        // LUGARES PRE-CARGADOS (30+ LUGARES REALES PET-FRIENDLY DE ESPAÑA)
+        const initialPlaces = [
+            // MADRID
+            { name: "Perrisimo Dog Cafe & Bar", location: "Calle Pez 27, Madrid", lat: 40.4273, lng: -3.7035, category: "cafeteria", size: "todos", locationType: "ambos", hasWater: "si", leashRequired: "no", rating: 5, notes: "Cafetería especializada en perros. Tienen menú especial para mascotas y snacks." },
+            { name: "El Perro de Pavlov", location: "La Latina, Madrid", lat: 40.4091, lng: -3.7094, category: "cafeteria", size: "todos", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 5, notes: "Muy dog-friendly, ambiente acogedor." },
+            { name: "Cafelito", location: "Centro, Madrid", lat: 40.4168, lng: -3.7038, category: "cafeteria", size: "mediano", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 4, notes: "Ideal para desayunos con tu perro." },
+            { name: "Freedom Cakes", location: "Puerta del Sol, Madrid", lat: 40.4169, lng: -3.7033, category: "cafeteria", size: "todos", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 5, notes: "Repostería vegana, muy pet-friendly." },
+            { name: "Delish Vegan Doughnuts", location: "Plaza España, Madrid", lat: 40.4238, lng: -3.7122, category: "cafeteria", size: "pequeno", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 4, notes: "Donuts veganos deliciosos, admiten perros en terraza." },
+            { name: "Botánica", location: "Madrid Centro", lat: 40.4215, lng: -3.6994, category: "cafeteria", size: "todos", locationType: "ambos", hasWater: "si", leashRequired: "si", rating: 4, notes: "Cafetería acogedora con jardín." },
+            { name: "CocoMad Bakery", location: "Madrid", lat: 40.4301, lng: -3.6889, category: "cafeteria", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Repostería artesanal, acepta perros." },
+            { name: "Parque del Retiro - Zona Canina", location: "Retiro, Madrid", lat: 40.4153, lng: -3.6844, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "Zona canina amplia con agility y bebederos." },
+            { name: "Catalonia Puerta Del Sol", location: "Centro, Madrid", lat: 40.4174, lng: -3.7026, category: "hotel", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Hotel céntrico que acepta mascotas." },
+            { name: "Dehesa de la Villa", location: "Noroeste Madrid", lat: 40.4556, lng: -3.7269, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "Gran parque con zonas para perros sueltos." },
 
-        window.addEventListener('offline', () => {
-            document.getElementById('offlineIndicator').classList.add('show');
-        });
+            // BARCELONA
+            { name: "Brunch & Cake", location: "Varias ubicaciones, Barcelona", lat: 41.3851, lng: 2.1734, category: "restaurante", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 5, notes: "Famoso por sus brunches, muy dog-friendly." },
+            { name: "Federal Café", location: "Sant Antoni, Barcelona", lat: 41.3759, lng: 2.1648, category: "cafeteria", size: "mediano", locationType: "ambos", hasWater: "si", leashRequired: "si", rating: 5, notes: "Ambiente relajado, café excelente." },
+            { name: "Parc de la Ciutadella", location: "Ciutat Vella, Barcelona", lat: 41.3887, lng: 2.1871, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "Parque canino cerca del lago con juegos." },
+            { name: "Hotel Catalonia Magdalenes", location: "Centro, Barcelona", lat: 41.3851, lng: 2.1766, category: "hotel", size: "grande", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Hotel céntrico pet-friendly." },
+            { name: "Parque Joan Miró", location: "Eixample, Barcelona", lat: 41.3764, lng: 2.1509, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 4, notes: "Área canina bien equipada." },
+            { name: "Parque Estación del Norte", location: "Fort Pienc, Barcelona", lat: 41.3919, lng: 2.1804, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 4, notes: "Zona canina urbana." },
+            { name: "Diagonal Mar", location: "Sant Martí, Barcelona", lat: 41.4098, lng: 2.2162, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "Parque moderno con área de perros." },
+            { name: "Can Culleretes", location: "Ciutat Vella, Barcelona", lat: 41.3813, lng: 2.1739, category: "restaurante", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Restaurante histórico que acepta perros." },
 
-        // Check if cached data exists
-        function loadCachedOutlets() {
-            const cached = localStorage.getItem('cachedOutlets');
-            if (cached) {
-                outlets = JSON.parse(cached);
-                return true;
-            }
-            return false;
-        }
+            // VALENCIA
+            { name: "La Fábrica de Huellas", location: "Turia 60, Valencia", lat: 39.4781, lng: -0.3695, category: "cafeteria", size: "todos", locationType: "ambos", hasWater: "si", leashRequired: "no", rating: 5, notes: "Primer café de Valencia dedicado en exclusiva a perros." },
+            { name: "El Garaje Foodie", location: "Dr. Ferran 10, Valencia", lat: 39.4699, lng: -0.3763, category: "restaurante", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 5, notes: "6 food trucks diferentes, muy pet-friendly." },
+            { name: "La Consentida", location: "Dr. Serrano 22, Valencia", lat: 39.4733, lng: -0.3752, category: "restaurante", size: "mediano", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 4, notes: "Montaditos y tapas por 2€." },
+            { name: "Ubik Café", location: "Literato Azorín 13, Valencia", lat: 39.4629, lng: -0.3699, category: "cafeteria", size: "todos", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 5, notes: "Librería-café en Ruzafa, muy acogedor." },
+            { name: "Trencat Dolç i Salat", location: "Trench 21, Valencia", lat: 39.4655, lng: -0.3714, category: "cafeteria", size: "pequeno", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Pastelería donde los perros no estorban." },
+            { name: "Parque del Turia - Zona Agility", location: "Tramo 4, Valencia", lat: 39.4753, lng: -0.3707, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "Circuito de Agility público y zonas amplias." },
+            { name: "Federal Café Valencia", location: "Valencia Centro", lat: 39.4712, lng: -0.3780, category: "cafeteria", size: "mediano", locationType: "ambos", hasWater: "si", leashRequired: "si", rating: 5, notes: "Sucursal valenciana, excelente brunch." },
 
-        // Cache outlets for offline use
-        function cacheOutlets() {
-            localStorage.setItem('cachedOutlets', JSON.stringify(outlets));
-        }
+            // SEVILLA
+            { name: "Parque del Alamillo", location: "Isla de la Cartuja, Sevilla", lat: 37.4051, lng: -6.0080, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "3 hectáreas de zona canina con juegos." },
+            { name: "El Rinconcillo", location: "Casco Antiguo, Sevilla", lat: 37.3970, lng: -5.9878, category: "restaurante", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Bar histórico, acepta perros en interior." },
+            { name: "Parque Forestal Dehesa Doña María", location: "Dos Hermanas, Sevilla", lat: 37.2824, lng: -5.9231, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "4 pistas cerradas para perros y área de agility." },
 
-        // Example outlets with coordinates
-        const exampleOutlets = [
-            { id: '1', name: 'Starbucks Sol', location: 'Puerta del Sol, Madrid', lat: 40.4168, lng: -3.7038, category: 'cafe', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Enchufes cerca de la ventana' },
-            { id: '2', name: 'Biblioteca Nacional', location: 'Paseo de Recoletos, Madrid', lat: 40.4240, lng: -3.6890, category: 'biblioteca', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Muchos enchufes en salas de lectura' },
-            { id: '3', name: 'Aeropuerto Barajas T4', location: 'Terminal 4, Madrid', lat: 40.4983, lng: -3.5676, category: 'aeropuerto', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Zona de espera cerca de las puertas' },
-            { id: '4', name: 'Parque del Retiro', location: 'Entrada Puerta de Alcalá, Madrid', lat: 40.4153, lng: -3.6846, category: 'parque', status: 'disponible', rating: 3, timestamp: new Date(), addedBy: 'Sistema', notes: 'Bancos con enchufes solares' },
-            { id: '5', name: 'El Corte Inglés Castellana', location: 'Paseo de la Castellana, Madrid', lat: 40.4365, lng: -3.6889, category: 'centro-comercial', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Zona de restauración planta 9' },
-            { id: '6', name: 'Café Central', location: 'Plaza del Ángel, Madrid', lat: 40.4145, lng: -3.7015, category: 'cafe', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Bar con enchufes en barra' },
-            { id: '7', name: 'Renfe Atocha', location: 'Estación de Atocha, Madrid', lat: 40.4069, lng: -3.6919, category: 'otro', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Sala de espera' },
-            { id: '8', name: 'Federal Café', location: 'Plaza de las Comendadoras, Madrid', lat: 40.4282, lng: -3.7089, category: 'cafe', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Muchas mesas con enchufes' },
-            { id: '9', name: 'Casa del Libro Gran Vía', location: 'Gran Vía 29, Madrid', lat: 40.4206, lng: -3.7063, category: 'otro', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Zona de lectura con enchufes' },
-            { id: '10', name: 'Parque Juan Carlos I', location: 'Av. de Logroño, Madrid', lat: 40.4601, lng: -3.6103, category: 'parque', status: 'disponible', rating: 3, timestamp: new Date(), addedBy: 'Sistema', notes: 'Enchufes en zonas cubiertas' },
-            { id: '11', name: 'Biblioteca Eugenio Trías', location: 'Parque del Retiro, Madrid', lat: 40.4135, lng: -3.6796, category: 'biblioteca', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Enchufes en todas las mesas' },
-            { id: '12', name: 'Starbucks Goya', location: 'Calle Goya, Madrid', lat: 40.4250, lng: -3.6770, category: 'cafe', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Enchufes limitados' },
-            { id: '13', name: 'Aeropuerto El Prat T1', location: 'Terminal 1, Barcelona', lat: 41.2974, lng: 2.0833, category: 'aeropuerto', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Zonas de carga USB' },
-            { id: '14', name: 'Biblioteca Jaume Fuster', location: 'Plaça Lesseps, Barcelona', lat: 41.4036, lng: 2.1540, category: 'biblioteca', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Enchufes en todas las salas' },
-            { id: '15', name: 'Satan\'s Coffee Corner', location: 'Carrer de l\'Arc de Sant Ramon del Call, Barcelona', lat: 41.3825, lng: 2.1769, category: 'cafe', status: 'disponible', rating: 5, timestamp: new Date(), addedBy: 'Sistema', notes: 'Ambiente trabajo' },
-            { id: '16', name: 'Estación Joaquín Sorolla', location: 'Av. de les Corts Valencianes, Valencia', lat: 39.4666, lng: -0.3764, category: 'otro', status: 'disponible', rating: 4, timestamp: new Date(), addedBy: 'Sistema', notes: 'Sala VIP y zona espera' }
+            // BILBAO
+            { name: "Petit Palace Arana", location: "Centro, Bilbao", lat: 43.2627, lng: -2.9253, category: "hotel", size: "grande", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Hotel céntrico pet-friendly, bien valorado." },
+            { name: "Spirit Apartamentos Atxuri", location: "Bilbao", lat: 43.2585, lng: -2.9171, category: "hotel", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Apartamentos que aceptan mascotas." },
+            { name: "NH Bilbao Deusto", location: "Deusto, Bilbao", lat: 43.2694, lng: -2.9465, category: "hotel", size: "grande", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Hotel moderno pet-friendly." },
+
+            // OTRAS CIUDADES
+            { name: "B&B Hotel Zaragoza Plaza Mozart", location: "Zaragoza Centro", lat: 41.6488, lng: -0.8891, category: "hotel", size: "grande", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Admite perros hasta 40kg, 20€/noche." },
+            { name: "Hotel Río Arga", location: "Centro Histórico, Zaragoza", lat: 41.6560, lng: -0.8773, category: "hotel", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Cerca de la Basílica del Pilar, admite perros hasta 15kg." },
+            { name: "Moon Dreams Portomagno", location: "Aguadulce, Almería", lat: 36.8138, lng: -2.5499, category: "hotel", size: "todos", locationType: "ambos", hasWater: "si", leashRequired: "si", rating: 5, notes: "Hotel todo incluido junto a playa de perros." },
+            { name: "Iberostar Albufera Park", location: "Playa del Muro, Mallorca", lat: 39.7881, lng: 3.1081, category: "hotel", size: "grande", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 5, notes: "Resort pet-friendly en Mallorca." }
         ];
 
-        // Auth State Observer
-        auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            updateAuthUI();
-            
-            if (user) {
-                await loadUserPoints();
-                // Request notification permission
-                requestNotificationPermission();
-            }
-        });
+        function initMap() {
+            map = L.map('map').setView([40.4168, -3.7038], 6);
 
-        // Request notification permission
-        async function requestNotificationPermission() {
-            if (!messaging) return;
-            
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    const token = await messaging.getToken({
-                        vapidKey: 'YOUR_VAPID_KEY' // Necesitas configurar esto en Firebase Console
-                    });
-                    console.log('FCM Token:', token);
-                    // Guardar token en Firestore para enviar notificaciones
-                    if (currentUser) {
-                        await db.collection('users').doc(currentUser.uid).update({
-                            fcmToken: token
-                        });
-                    }
-                }
-            } catch (error) {
-                console.log('Error getting notification permission:', error);
-            }
-        }
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
 
-        // Handle incoming messages
-        if (messaging) {
-            messaging.onMessage((payload) => {
-                console.log('Message received:', payload);
-                // Mostrar notificación personalizada
-                new Notification(payload.notification.title, {
-                    body: payload.notification.body,
-                    icon: '/icon.png'
-                });
-            });
-        }
-
-        // Login
-        async function handleLogin() {
-            try {
-                console.log('🔐 Intentando login con Google...');
-                const provider = new firebase.auth.GoogleAuthProvider();
-                provider.setCustomParameters({
-                    prompt: 'select_account'
-                });
-                
-                const result = await auth.signInWithPopup(provider);
-                console.log('✅ Login exitoso:', result.user);
-                
-                // Create user document if doesn't exist
-                const userDoc = await db.collection('users').doc(result.user.uid).get();
-                if (!userDoc.exists) {
-                    await db.collection('users').doc(result.user.uid).set({
-                        email: result.user.email,
-                        displayName: result.user.displayName,
-                        photoURL: result.user.photoURL,
-                        points: 0,
-                        outletsAdded: 0,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                
-                alert('✅ ¡Bienvenido a PlugIn!');
-            } catch (error) {
-                console.error('❌ Error al iniciar sesión:', error);
-                console.log('Código de error:', error.code);
-                console.log('Mensaje:', error.message);
-                
-                if (error.code === 'auth/popup-blocked') {
-                    alert('⚠️ El navegador bloqueó la ventana emergente. Por favor, permite ventanas emergentes para este sitio.');
-                } else if (error.code === 'auth/popup-closed-by-user') {
-                    alert('ℹ️ Cerraste la ventana de login.');
-                } else {
-                    alert('❌ Error al iniciar sesión: ' + error.message);
-                }
-            }
-        }
-
-        // Logout
-        async function handleLogout() {
-            try {
-                await auth.signOut();
-                alert('✅ Sesión cerrada correctamente');
-            } catch (error) {
-                console.error('Error al cerrar sesión:', error);
-                alert('❌ Error al cerrar sesión');
-            }
-        }
-
-        // Update UI based on auth state
-        function updateAuthUI() {
-            const authContainer = document.getElementById('authContainer');
-            
-            if (currentUser) {
-                authContainer.innerHTML = `
-                    <div class="user-info">
-                        <img src="${currentUser.photoURL}" alt="${currentUser.displayName}" class="user-avatar">
-                        <button class="btn-logout" onclick="handleLogout()">Salir</button>
-                    </div>
-                `;
-            } else {
-                authContainer.innerHTML = `
-                    <button class="btn-login" onclick="handleLogin()">
-                        🔐 Iniciar sesión con Google
-                    </button>
-                `;
-            }
-        }
-
-        // Load user points
-        async function loadUserPoints() {
-            if (!currentUser) return;
-            
-            try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    document.getElementById('pointsDisplay').textContent = userData.points || 0;
-                }
-            } catch (error) {
-                console.error('Error loading user points:', error);
-            }
-        }
-
-        // Get user location
-        function getUserLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        console.log('📍 Ubicación obtenida:', userLocation);
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        map.setView([lat, lng], 12);
                         
-                        // Update map to show user location
-                        if (map) {
-                            L.marker([userLocation.lat, userLocation.lng], {
-                                icon: L.divIcon({
-                                    className: 'user-location-marker',
-                                    html: '<div style="background: #20d4e8; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(32,212,232,0.5);"></div>',
-                                    iconSize: [22, 22]
-                                })
-                            }).addTo(map).bindPopup('Tu ubicación');
-                        }
-                        
-                        // Calculate distances and re-render
-                        calculateDistances();
-                        renderOutlets();
-                        
-                        // Show nearest button
-                        document.getElementById('btnNearest').style.display = 'flex';
+                        L.marker([lat, lng], {
+                            icon: L.icon({
+                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                                iconSize: [25, 41],
+                                iconAnchor: [12, 41],
+                                popupAnchor: [1, -34],
+                                shadowSize: [41, 41]
+                            })
+                        }).addTo(map).bindPopup('Estás aquí').openPopup();
                     },
                     (error) => {
-                        console.log('❌ Error obteniendo ubicación:', error);
+                        console.log('Error getting location:', error);
                     },
                     {
                         enableHighAccuracy: true,
-                        timeout: 5000,
+                        timeout: 10000,
                         maximumAge: 0
                     }
                 );
             }
         }
 
-        // Calculate distance between two points (Haversine formula)
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Radius of Earth in km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                     Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-
-        // Calculate distances to all outlets
-        function calculateDistances() {
-            if (!userLocation) return;
-            
-            outlets.forEach(outlet => {
-                outlet.distance = calculateDistance(
-                    userLocation.lat,
-                    userLocation.lng,
-                    outlet.lat,
-                    outlet.lng
-                );
-            });
-            
-            // Sort by distance
-            outlets.sort((a, b) => {
-                if (a.distance === undefined) return 1;
-                if (b.distance === undefined) return -1;
-                return a.distance - b.distance;
-            });
-        }
-
-        // Go to nearest outlet
-        function goToNearestOutlet() {
-            if (!userLocation || outlets.length === 0) {
-                alert('⚠️ No se pudo determinar tu ubicación o no hay enchufes disponibles');
-                return;
-            }
-            
-            calculateDistances();
-            const nearest = outlets[0];
-            
-            if (!nearest.distance) {
-                alert('⚠️ No se pudo calcular la distancia');
-                return;
-            }
-            
-            // Open Google Maps with directions
-            const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${nearest.lat},${nearest.lng}&travelmode=walking`;
-            window.open(url, '_blank');
-            
-            // Highlight on map
-            if (map) {
-                map.setView([nearest.lat, nearest.lng], 16);
-                markers.forEach(marker => {
-                    if (marker.getLatLng().lat === nearest.lat && marker.getLatLng().lng === nearest.lng) {
-                        marker.openPopup();
-                    }
-                });
-            }
-        }
-
-        // Share outlet
-        function shareOutlet(outlet) {
-            const text = `🔌 Encontré un enchufe en ${outlet.name} (${outlet.location}) usando PlugIn!\n\n📍 Ver en mapa: https://www.google.com/maps?q=${outlet.lat},${outlet.lng}`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: `Enchufe en ${outlet.name}`,
-                    text: text,
-                    url: window.location.href
-                }).catch(err => console.log('Error sharing:', err));
-            } else {
-                // Fallback: Copy to clipboard
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('📋 Enlace copiado al portapapeles');
-                });
-            }
-        }
-
-        // Load outlets
-        async function loadOutlets() {
+        window.loginWithGoogle = async function() {
             try {
-                if (!navigator.onLine) {
-                    console.log('📡 Modo offline - usando datos en caché');
-                    if (!loadCachedOutlets()) {
-                        outlets = exampleOutlets;
-                    }
-                    filteredOutlets = [...outlets];
-                    renderOutlets();
-                    initMap();
-                    return;
-                }
-
-                const snapshot = await db.collection('plugs').orderBy('timestamp', 'desc').get();
+                const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
                 
-                if (snapshot.empty) {
-                    console.log('No hay enchufes en Firebase, usando ejemplos');
-                    outlets = exampleOutlets;
+                if (isMobile) {
+                    await signInWithRedirect(auth, provider);
                 } else {
-                    outlets = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data(),
-                        timestamp: doc.data().timestamp?.toDate() || new Date()
-                    }));
+                    await signInWithPopup(auth, provider);
                 }
-                
-                // Cache for offline use
-                cacheOutlets();
-                
-                filteredOutlets = [...outlets];
-                document.getElementById('outletCount').textContent = outlets.length;
-                
-                renderOutlets();
-                initMap();
-                
             } catch (error) {
-                console.error('Error loading outlets:', error);
-                // Use cached data on error
-                if (loadCachedOutlets()) {
-                    filteredOutlets = [...outlets];
-                    renderOutlets();
-                    initMap();
-                } else {
-                    outlets = exampleOutlets;
-                    filteredOutlets = [...outlets];
-                    renderOutlets();
-                    initMap();
+                console.error('Error en login:', error);
+                alert('Error al iniciar sesión. Intenta de nuevo.');
+            }
+        };
+
+        getRedirectResult(auth)
+            .then((result) => {
+                if (result && result.user) {
+                    console.log('Login exitoso:', result.user.displayName);
                 }
+            })
+            .catch((error) => {
+                console.error('Error en redirect:', error);
+            });
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                currentUser = null;
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('userSection').style.display = 'none';
+            } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+            }
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('userSection').style.display = 'flex';
+                document.getElementById('userName').textContent = user.displayName || 'Usuario';
+                document.getElementById('userAvatar').src = user.photoURL || 'https://via.placeholder.com/40';
+
+                const userRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userRef);
+
+                if (!userDoc.exists()) {
+                    await setDoc(userRef, {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName,
+                        photoURL: user.photoURL,
+                        points: 0,
+                        level: 'Explorador Perruno',
+                        placesAdded: 0,
+                        createdAt: Timestamp.now(),
+                        lastLogin: Timestamp.now()
+                    });
+                    document.getElementById('userPoints').textContent = '0 puntos • Explorador Perruno';
+                } else {
+                    const userData = userDoc.data();
+                    document.getElementById('userPoints').textContent = `${userData.points} puntos • ${userData.level}`;
+                    
+                    await updateDoc(userRef, {
+                        lastLogin: Timestamp.now()
+                    });
+                }
+            } else {
+                currentUser = null;
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('userSection').style.display = 'none';
+            }
+        });
+
+        async function loadPlaces() {
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                const q = query(collection(db, 'places'), orderBy('timestamp', 'desc'));
+                const querySnapshot = await getDocs(q);
+                
+                allPlaces = [...initialPlaces];
+                
+                querySnapshot.forEach((doc) => {
+                    allPlaces.push({ id: doc.id, ...doc.data() });
+                });
+
+                filteredPlaces = [...allPlaces];
+                displayPlaces();
+                addMarkersToMap();
+            } catch (error) {
+                console.error('Error loading places:', error);
+                allPlaces = [...initialPlaces];
+                filteredPlaces = [...allPlaces];
+                displayPlaces();
+                addMarkersToMap();
+            } finally {
+                document.getElementById('loading').style.display = 'none';
             }
         }
 
-        // Render outlets with pagination
-        function renderOutlets() {
-            const grid = document.getElementById('outletsGrid');
-            const startIndex = (currentPage - 1) * outletsPerPage;
-            const endIndex = startIndex + outletsPerPage;
-            const paginatedOutlets = filteredOutlets.slice(startIndex, endIndex);
+        function displayPlaces() {
+            const container = document.getElementById('placesContainer');
+            const emptyState = document.getElementById('emptyState');
             
-            grid.innerHTML = paginatedOutlets.map(outlet => {
-                const categoryEmoji = {
-                    'cafe': '☕',
-                    'aeropuerto': '✈️',
-                    'biblioteca': '📚',
-                    'parque': '🌳',
-                    'centro-comercial': '🛍️',
-                    'otro': '🔌'
-                };
+            if (filteredPlaces.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
 
-                const distanceText = outlet.distance ? 
-                    `📍 ${outlet.distance.toFixed(1)} km de distancia` : '';
+            emptyState.style.display = 'none';
+            
+            const startIndex = (currentPage - 1) * placesPerPage;
+            const endIndex = startIndex + placesPerPage;
+            const placesToShow = filteredPlaces.slice(startIndex, endIndex);
 
+            container.innerHTML = placesToShow.map(place => {
+                const stars = '⭐'.repeat(place.rating) + '<span class="star empty">⭐</span>'.repeat(5 - place.rating);
+                
                 return `
-                    <div class="outlet-card" onclick="showOnMap(${outlet.lat}, ${outlet.lng})">
-                        <div class="outlet-header">
-                            <div class="outlet-name">${outlet.name}</div>
-                            <span class="outlet-category category-${outlet.category}">
-                                ${categoryEmoji[outlet.category]} ${outlet.category}
-                            </span>
+                    <div class="place-card">
+                        <div class="place-header">
+                            <span class="place-category category-${place.category}">${getCategoryEmoji(place.category)} ${getCategoryName(place.category)}</span>
+                            <h3 class="place-name">${place.name}</h3>
+                            <div class="place-location">📍 ${place.location}</div>
                         </div>
-                        <div class="outlet-location">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
-                            </svg>
-                            ${outlet.location}
+                        <div class="place-body">
+                            <div class="place-details">
+                                <span class="detail-badge">🐕 ${place.size === 'todos' ? 'Todos los tamaños' : place.size}</span>
+                                <span class="detail-badge">${place.locationType === 'ambos' ? '🏠☀️ Interior y terraza' : place.locationType === 'interior' ? '🏠 Interior' : '☀️ Terraza'}</span>
+                                ${place.hasWater === 'si' ? '<span class="detail-badge">💧 Tiene agua</span>' : ''}
+                                ${place.leashRequired === 'no' ? '<span class="detail-badge">🐕 Sin correa</span>' : '<span class="detail-badge">🦮 Correa requerida</span>'}
+                            </div>
+                            <div class="place-rating">${stars}</div>
+                            ${place.notes ? `<div class="place-notes">"${place.notes}"</div>` : ''}
                         </div>
-                        ${distanceText ? `<div class="outlet-distance">${distanceText}</div>` : ''}
-                        ${outlet.notes ? `<div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">💡 ${outlet.notes}</div>` : ''}
-                        <div class="outlet-meta">
-                            <div class="meta-item">
-                                ${outlet.status === 'disponible' ? '✅' : '🔴'}
-                                ${outlet.status}
-                            </div>
-                            <div class="meta-item">
-                                ⭐ ${outlet.rating}/5
-                            </div>
-                            <div class="meta-item">
-                                👤 ${outlet.addedBy || 'Anónimo'}
-                            </div>
-                        </div>
-                        <div class="outlet-actions">
-                            <button class="btn-action" onclick="event.stopPropagation(); showOnMap(${outlet.lat}, ${outlet.lng})">
-                                📍 Ver en mapa
-                            </button>
-                            <button class="btn-action btn-share" onclick="event.stopPropagation(); shareOutlet(${JSON.stringify(outlet).replace(/"/g, '&quot;')})">
-                                📤 Compartir
-                            </button>
+                        <div class="place-footer">
+                            <div class="place-meta">${place.userName ? 'Agregado por ' + place.userName : 'Verificado'}</div>
+                            <button class="btn btn-secondary" onclick="flyToPlace(${place.lat}, ${place.lng})">Ver en mapa</button>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            // Update pagination
-            const totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
-            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
-            document.getElementById('prevPage').disabled = currentPage === 1;
-            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+            createPagination();
         }
 
-        // Change page
-        function changePage(direction) {
-            const totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
-            currentPage += direction;
-            currentPage = Math.max(1, Math.min(currentPage, totalPages));
-            renderOutlets();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Initialize map
-        function initMap() {
-            if (map) {
-                map.remove();
-            }
-
-            map = L.map('map').setView([40.4168, -3.7038], 6);
+        function createPagination() {
+            const totalPages = Math.ceil(filteredPlaces.length / placesPerPage);
+            const paginationContainer = document.getElementById('pagination');
             
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-            updateMapMarkers();
-
-            // Add user location if available
-            if (userLocation) {
-                L.marker([userLocation.lat, userLocation.lng], {
-                    icon: L.divIcon({
-                        className: 'user-location-marker',
-                        html: '<div style="background: #20d4e8; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(32,212,232,0.5);"></div>',
-                        iconSize: [22, 22]
-                    })
-                }).addTo(map).bindPopup('Tu ubicación');
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
             }
+
+            let paginationHTML = '';
+            
+            if (currentPage > 1) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage - 1})">← Anterior</button>`;
+            }
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    paginationHTML += `<span class="page-btn">...</span>`;
+                }
+            }
+
+            if (currentPage < totalPages) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage + 1})">Siguiente →</button>`;
+            }
+
+            paginationContainer.innerHTML = paginationHTML;
         }
 
-        // Update map markers
-        function updateMapMarkers() {
-            if (!map) return;
+        window.changePage = function(page) {
+            currentPage = page;
+            displayPlaces();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
 
-            markers.forEach(marker => marker.remove());
+        window.filterPlaces = function() {
+            const categoryFilter = document.getElementById('filterCategory').value;
+            const sizeFilter = document.getElementById('filterSize').value;
+            const locationFilter = document.getElementById('filterLocation').value;
+            const ratingFilter = parseInt(document.getElementById('filterRating').value) || 0;
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+
+            filteredPlaces = allPlaces.filter(place => {
+                const matchesCategory = !categoryFilter || place.category === categoryFilter;
+                const matchesSize = !sizeFilter || place.size === sizeFilter || place.size === 'todos';
+                const matchesLocation = !locationFilter || place.locationType === locationFilter || place.locationType === 'ambos';
+                const matchesRating = place.rating >= ratingFilter;
+                const matchesSearch = place.name.toLowerCase().includes(searchText) || place.location.toLowerCase().includes(searchText);
+
+                return matchesCategory && matchesSize && matchesLocation && matchesRating && matchesSearch;
+            });
+
+            currentPage = 1;
+            displayPlaces();
+            addMarkersToMap();
+        };
+
+        function addMarkersToMap() {
+            markers.forEach(marker => map.removeLayer(marker));
             markers = [];
 
-            const bounds = [];
+            filteredPlaces.forEach(place => {
+                const marker = L.marker([place.lat, place.lng], {
+                    icon: L.icon({
+                        iconUrl: getCategoryMarkerIcon(place.category),
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    })
+                }).addTo(map);
 
-            filteredOutlets.forEach(outlet => {
-                const color = {
-                    'cafe': '#a855f7',
-                    'aeropuerto': '#3b82f6',
-                    'biblioteca': '#22c55e',
-                    'parque': '#84cc16',
-                    'centro-comercial': '#f97316',
-                    'otro': '#9ca3af'
-                }[outlet.category];
-
-                const icon = L.divIcon({
-                    className: 'custom-marker',
-                    html: `<div style="background: ${color}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 16px;">⚡</div>`,
-                    iconSize: [30, 30]
-                });
-
-                const marker = L.marker([outlet.lat, outlet.lng], { icon })
-                    .addTo(map)
-                    .bindPopup(`
-                        <div style="font-family: sans-serif;">
-                            <strong style="font-size: 1.1rem; color: #20d4e8;">${outlet.name}</strong><br>
-                            <span style="color: #666;">${outlet.location}</span><br>
-                            ${outlet.notes ? `<div style="margin-top: 0.5rem; font-size: 0.9rem;">💡 ${outlet.notes}</div>` : ''}
-                            <div style="margin-top: 0.5rem;">
-                                ${outlet.status === 'disponible' ? '✅' : '🔴'} ${outlet.status} | ⭐ ${outlet.rating}/5
-                            </div>
-                            ${outlet.distance ? `<div style="color: #20d4e8; margin-top: 0.5rem;">📍 ${outlet.distance.toFixed(1)} km</div>` : ''}
-                        </div>
-                    `);
+                const stars = '⭐'.repeat(place.rating);
+                marker.bindPopup(`
+                    <strong>${place.name}</strong><br>
+                    ${getCategoryEmoji(place.category)} ${getCategoryName(place.category)}<br>
+                    📍 ${place.location}<br>
+                    ${stars}
+                `);
 
                 markers.push(marker);
-                bounds.push([outlet.lat, outlet.lng]);
             });
-
-            if (bounds.length > 0) {
-                map.fitBounds(bounds, { padding: [50, 50] });
-            }
         }
 
-        // Show on map
-        function showOnMap(lat, lng) {
-            if (map) {
-                map.setView([lat, lng], 15);
-                markers.forEach(marker => {
-                    if (marker.getLatLng().lat === lat && marker.getLatLng().lng === lng) {
-                        marker.openPopup();
-                    }
-                });
-                document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
-            }
-        }
+        window.flyToPlace = function(lat, lng) {
+            map.flyTo([lat, lng], 16);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
 
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            filteredOutlets = outlets.filter(outlet => 
-                outlet.name.toLowerCase().includes(searchTerm) ||
-                outlet.location.toLowerCase().includes(searchTerm) ||
-                outlet.category.toLowerCase().includes(searchTerm)
-            );
-            currentPage = 1;
-            renderOutlets();
-            updateMapMarkers();
-        });
+        window.openAddPlaceModal = function() {
+            document.getElementById('addPlaceModal').classList.add('active');
+        };
 
-        // Filter functionality
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                const filter = btn.dataset.filter;
-                if (filter === 'all') {
-                    filteredOutlets = [...outlets];
-                } else {
-                    filteredOutlets = outlets.filter(outlet => outlet.category === filter);
-                }
-                currentPage = 1;
-                renderOutlets();
-                updateMapMarkers();
-            });
-        });
+        window.closeAddPlaceModal = function() {
+            document.getElementById('addPlaceModal').classList.remove('active');
+            document.getElementById('addPlaceForm').reset();
+        };
 
-        // Add outlet modal
-        function openAddModal() {
-            document.getElementById('addModal').classList.add('active');
-            
-            if (!mapPicker) {
-                mapPicker = L.map('mapPicker').setView([40.4168, -3.7038], 13);
-                
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(mapPicker);
+        window.addPlace = async function(event) {
+            event.preventDefault();
 
-                let tempMarker = null;
-                
-                mapPicker.on('click', (e) => {
-                    if (tempMarker) {
-                        mapPicker.removeLayer(tempMarker);
-                    }
-                    
-                    selectedLocation = e.latlng;
-                    
-                    tempMarker = L.marker([selectedLocation.lat, selectedLocation.lng], {
-                        icon: L.divIcon({
-                            className: 'custom-marker',
-                            html: '<div style="background: #20d4e8; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 16px;">📍</div>',
-                            iconSize: [30, 30]
-                        })
-                    }).addTo(mapPicker);
-                });
-
-                // Set initial location if user location is available
-                if (userLocation) {
-                    mapPicker.setView([userLocation.lat, userLocation.lng], 15);
-                }
-            }
-            
-            setTimeout(() => mapPicker.invalidateSize(), 100);
-        }
-
-        function closeAddModal() {
-            document.getElementById('addModal').classList.remove('active');
-            document.getElementById('addOutletForm').reset();
-            selectedLocation = null;
-        }
-
-        // Add outlet
-        async function addOutlet(e) {
-            e.preventDefault();
-            
-            if (!selectedLocation) {
-                alert('⚠️ Por favor, selecciona una ubicación en el mapa');
-                return;
-            }
-
-            const outletData = {
-                name: document.getElementById('outletName').value,
-                location: document.getElementById('outletLocation').value,
-                lat: selectedLocation.lat,
-                lng: selectedLocation.lng,
-                category: document.getElementById('outletCategory').value,
-                status: document.getElementById('outletStatus').value,
-                rating: parseInt(document.getElementById('outletRating').value),
-                notes: document.getElementById('outletNotes').value,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                addedBy: currentUser ? currentUser.displayName : 'Anónimo',
-                userId: currentUser ? currentUser.uid : null
-            };
-
-            try {
-                if (!navigator.onLine) {
-                    alert('⚠️ Sin conexión. El enchufe se guardará cuando vuelvas a estar en línea.');
-                    // Store in localStorage for later sync
-                    const pendingOutlets = JSON.parse(localStorage.getItem('pendingOutlets') || '[]');
-                    pendingOutlets.push(outletData);
-                    localStorage.setItem('pendingOutlets', JSON.stringify(pendingOutlets));
-                    closeAddModal();
-                    return;
-                }
-
-                await db.collection('plugs').add(outletData);
-                
-                // Award points if user is logged in
-                if (currentUser) {
-                    const userRef = db.collection('users').doc(currentUser.uid);
-                    await userRef.update({
-                        points: firebase.firestore.FieldValue.increment(10),
-                        outletsAdded: firebase.firestore.FieldValue.increment(1)
-                    });
-                    await loadUserPoints();
-                }
-                
-                alert('✅ ¡Enchufe agregado correctamente! ' + (currentUser ? '+10 puntos' : ''));
-                closeAddModal();
-                await loadOutlets();
-                
-            } catch (error) {
-                console.error('Error adding outlet:', error);
-                alert('❌ Error al agregar enchufe. Por favor, intenta de nuevo.');
-            }
-        }
-
-        // Sync pending outlets when back online
-        window.addEventListener('online', async () => {
-            const pendingOutlets = JSON.parse(localStorage.getItem('pendingOutlets') || '[]');
-            if (pendingOutlets.length > 0) {
-                console.log('Sincronizando enchufes pendientes...');
-                for (const outlet of pendingOutlets) {
-                    try {
-                        await db.collection('plugs').add(outlet);
-                    } catch (error) {
-                        console.error('Error syncing outlet:', error);
-                    }
-                }
-                localStorage.removeItem('pendingOutlets');
-                await loadOutlets();
-                alert('✅ Enchufes sincronizados correctamente');
-            }
-        });
-
-        // Profile modal
-        function openProfileModal() {
             if (!currentUser) {
-                alert('⚠️ Debes iniciar sesión para ver tu perfil');
+                alert('Debes iniciar sesión para agregar un lugar');
                 return;
             }
-            
-            document.getElementById('profileModal').classList.add('active');
-            loadProfile();
-        }
 
-        function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('active');
-        }
+            const name = document.getElementById('placeName').value;
+            const location = document.getElementById('placeAddress').value;
+            const category = document.getElementById('placeCategory').value;
+            const size = document.getElementById('placeSize').value;
+            const locationType = document.getElementById('placeLocationType').value;
+            const hasWater = document.getElementById('placeWater').value;
+            const leashRequired = document.getElementById('placeLeash').value;
+            const rating = parseInt(document.getElementById('placeRating').value);
+            const notes = document.getElementById('placeNotes').value;
 
-        async function loadProfile() {
-            if (!currentUser) return;
-            
-            try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                const userData = userDoc.data();
-                
-                const level = userData.points >= 100 ? 'Leyenda' :
-                             userData.points >= 50 ? 'Maestro' :
-                             userData.points >= 20 ? 'Cazador' : 'Explorador';
-                
-                document.getElementById('profileContent').innerHTML = `
-                    <div class="profile-header">
-                        <img src="${currentUser.photoURL}" alt="${currentUser.displayName}" class="profile-avatar">
-                        <h3 class="profile-name">${currentUser.displayName}</h3>
-                        <p class="profile-email">${currentUser.email}</p>
-                    </div>
-                    <div class="profile-stats">
-                        <div class="profile-stat">
-                            <div class="profile-stat-value">⭐ ${userData.points || 0}</div>
-                            <div class="profile-stat-label">Puntos</div>
-                        </div>
-                        <div class="profile-stat">
-                            <div class="profile-stat-value">🏆 ${level}</div>
-                            <div class="profile-stat-label">Nivel</div>
-                        </div>
-                        <div class="profile-stat">
-                            <div class="profile-stat-value">🔌 ${userData.outletsAdded || 0}</div>
-                            <div class="profile-stat-label">Enchufes</div>
-                        </div>
-                    </div>
-                `;
-            } catch (error) {
-                console.error('Error loading profile:', error);
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        try {
+                            await addDoc(collection(db, 'places'), {
+                                name,
+                                location,
+                                category,
+                                size,
+                                locationType,
+                                hasWater,
+                                leashRequired,
+                                rating,
+                                notes,
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude,
+                                timestamp: Timestamp.now(),
+                                userId: currentUser.uid,
+                                userName: currentUser.displayName
+                            });
+
+                            const userRef = doc(db, 'users', currentUser.uid);
+                            const userDoc = await getDoc(userRef);
+                            const userData = userDoc.data();
+                            const newPoints = userData.points + 10;
+                            const newPlacesAdded = userData.placesAdded + 1;
+                            let newLevel = userData.level;
+
+                            if (newPoints >= 1000) newLevel = 'Leyenda Perruna';
+                            else if (newPoints >= 500) newLevel = 'Maestro Peludo';
+                            else if (newPoints >= 100) newLevel = 'Cazador de Lugares';
+                            else newLevel = 'Explorador Perruno';
+
+                            await updateDoc(userRef, {
+                                points: newPoints,
+                                placesAdded: newPlacesAdded,
+                                level: newLevel
+                            });
+
+                            document.getElementById('userPoints').textContent = `${newPoints} puntos • ${newLevel}`;
+
+                            alert('¡Lugar agregado! +10 puntos 🎉');
+                            closeAddPlaceModal();
+                            loadPlaces();
+                        } catch (error) {
+                            console.error('Error adding place:', error);
+                            alert('Error al agregar el lugar. Intenta de nuevo.');
+                        }
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        alert('No se pudo obtener tu ubicación. Activa el GPS e intenta de nuevo.');
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                alert('Tu navegador no soporta geolocalización');
             }
-        }
+        };
 
-        // Legal modals
-        function openLegalModal(type) {
-            document.getElementById('legalModal').classList.add('active');
-            
-            const titles = {
-                'privacy': 'Política de Privacidad',
-                'terms': 'Términos y Condiciones',
-                'cookies': 'Política de Cookies',
-                'contact': 'Contacto',
-                'suggestions': 'Sugerencias',
-                'report': 'Reportar Problema'
+        function getCategoryName(category) {
+            const names = {
+                restaurante: 'Restaurante',
+                cafeteria: 'Cafetería',
+                parque: 'Parque',
+                playa: 'Playa',
+                hotel: 'Hotel',
+                tienda: 'Tienda',
+                veterinaria: 'Veterinaria',
+                peluqueria: 'Peluquería'
             };
-            
-            const contents = {
-                'privacy': '<p>En PlugIn, nos tomamos muy en serio tu privacidad...</p>',
-                'terms': '<p>Al usar PlugIn, aceptas los siguientes términos...</p>',
-                'cookies': '<p>Utilizamos cookies para mejorar tu experiencia...</p>',
-                'contact': '<p>📧 Email: holapluginapp@gmail.com</p>',
-                'suggestions': '<p>¿Tienes una sugerencia? Envíanos un email a holapluginapp@gmail.com</p>',
-                'report': '<p>Si encuentras algún problema, por favor contáctanos en holapluginapp@gmail.com</p>'
+            return names[category] || category;
+        }
+
+        function getCategoryEmoji(category) {
+            const emojis = {
+                restaurante: '🍽️',
+                cafeteria: '☕',
+                parque: '🌳',
+                playa: '🏖️',
+                hotel: '🏨',
+                tienda: '🛍️',
+                veterinaria: '🏥',
+                peluqueria: '✂️'
             };
-            
-            document.getElementById('legalTitle').textContent = titles[type];
-            document.getElementById('legalContent').innerHTML = contents[type];
+            return emojis[category] || '📍';
         }
 
-        function closeLegalModal() {
-            document.getElementById('legalModal').classList.remove('active');
+        function getCategoryMarkerIcon(category) {
+            const colors = {
+                restaurante: 'red',
+                cafeteria: 'orange',
+                parque: 'green',
+                playa: 'blue',
+                hotel: 'violet',
+                tienda: 'green',
+                veterinaria: 'red',
+                peluqueria: 'yellow'
+            };
+            const color = colors[category] || 'grey';
+            return `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`;
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadOutlets();
-            getUserLocation();
-            
-            // Setup nearest button
-            document.getElementById('btnNearest').addEventListener('click', goToNearestOutlet);
+        window.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            loadPlaces();
         });
     </script>
 </body>
