@@ -134,213 +134,390 @@
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 0.75rem;
-            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem;
         }
 
         .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: var(--primary);
         }
 
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
         }
 
-        .theme-toggle {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(180deg);
-        }
-
-        .install-btn {
-            background: var(--success);
-            color: white;
-            border: none;
+        .profile-btn, .theme-btn, .nav-btn {
+            background: rgba(255, 107, 53, 0.2);
+            border: 1px solid var(--primary);
+            color: var(--text);
             padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
+            border-radius: 0.5rem;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
-            display: none;
         }
 
-        .install-btn:hover {
-            background: #059669;
+        .profile-btn:hover, .theme-btn:hover, .nav-btn:hover {
+            background: rgba(255, 107, 53, 0.4);
             transform: translateY(-2px);
         }
 
-        .stats {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .stat {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            background: rgba(255, 107, 53, 0.1);
-            padding: 0.4rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            border: 1px solid rgba(255, 107, 53, 0.2);
-        }
-
-        .btn-login {
-            background: var(--primary);
-            color: var(--bg-dark);
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-login:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+        .profile-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .user-avatar {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             border: 2px solid var(--primary);
+            background-size: cover;
+            background-position: center;
         }
 
-        .btn-logout {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--error);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 0.4rem 0.75rem;
-            border-radius: 16px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
-
-        .btn-nearest {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 50%;
-            width: 64px;
-            height: 64px;
-            cursor: pointer;
-            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-            z-index: 999;
+        /* Modal Perfil de Usuario */
+        .profile-modal {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            overflow-y: auto;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
         }
 
-        .btn-nearest:hover {
-            transform: scale(1.1);
-            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.6);
+        .profile-modal.active {
+            display: flex;
         }
 
-        .hero {
-            text-align: center;
-            padding: 2.5rem 1rem;
-            max-width: 800px;
-            margin: 0 auto;
+        .profile-content {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 95%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
         }
 
-        .hero h1 {
-            font-size: 2rem;
-            margin-bottom: 0.75rem;
-            background: linear-gradient(135deg, var(--primary) 0%, #60a5fa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .hero p {
-            font-size: 1rem;
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .profile-info h2 {
+            margin-bottom: 0.25rem;
+            color: var(--primary);
+        }
+
+        .profile-info p {
             color: var(--text-secondary);
-            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
         }
 
-        .search-section {
+        .level-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .level-bronce {
+            background: rgba(205, 127, 50, 0.3);
+            color: #cd7f32;
+            border: 1px solid #cd7f32;
+        }
+
+        .level-plata {
+            background: rgba(192, 192, 192, 0.3);
+            color: #c0c0c0;
+            border: 1px solid #c0c0c0;
+        }
+
+        .level-oro {
+            background: rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+            border: 1px solid #ffd700;
+        }
+
+        .level-diamante {
+            background: rgba(78, 205, 196, 0.3);
+            color: #4ecdc4;
+            border: 1px solid #4ecdc4;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid var(--primary);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            text-align: center;
+        }
+
+        .stat-card.secondary {
+            background: rgba(78, 205, 196, 0.1);
+            border-color: var(--secondary);
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card.secondary .stat-value {
+            color: var(--secondary);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 0.25rem;
+        }
+
+        .my-places-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .my-places-section h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .place-item {
+            background: rgba(255, 107, 53, 0.05);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .place-item h4 {
+            color: var(--text);
+            margin-bottom: 0.25rem;
+        }
+
+        .place-item p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .place-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .no-places {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 2rem 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--primary);
+        }
+
+        .profile-content {
+            position: relative;
+        }
+
+        /* Estilos existentes mantenidos */
+        .main-content {
             max-width: 1200px;
-            margin: 0 auto 2rem;
-            padding: 0 1rem;
+            margin: 0 auto;
+            padding: 1rem;
         }
 
-        .search-bar {
+        .map-container {
+            height: 600px;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        [data-theme="light"] .map-container {
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .places-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .place-card {
+            background: rgba(255, 107, 53, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .place-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+        }
+
+        .place-card-header {
+            padding: 1.5rem;
+            background: rgba(255, 107, 53, 0.1);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .place-card-header h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .place-category {
+            display: inline-block;
+            background: rgba(247, 183, 49, 0.2);
+            color: var(--accent);
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .place-card-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .place-card-body p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .place-creator {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            margin-top: 1rem;
+        }
+
+        .place-distance {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .place-card-footer {
+            padding: 1rem 1.5rem;
+            background: rgba(255, 107, 53, 0.05);
+            border-top: 1px solid var(--border);
             display: flex;
             gap: 0.75rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
         }
 
-        .search-input {
+        .btn {
             flex: 1;
-            min-width: 200px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
             padding: 0.75rem 1rem;
-            border-radius: 12px;
-            color: var(--text);
-            font-size: 0.95rem;
-        }
-
-        [data-theme="light"] .search-input {
-            background: #ffffff;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
         .btn-primary {
             background: var(--primary);
-            color: var(--bg-dark);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        [data-theme="light"] .btn-primary {
             color: white;
         }
 
@@ -349,251 +526,96 @@
             transform: translateY(-2px);
         }
 
-        .filters {
+        .btn-secondary {
+            background: rgba(78, 205, 196, 0.2);
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(78, 205, 196, 0.4);
+        }
+
+        .search-container {
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 0.75rem;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+        }
+
+        .filter-buttons {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
             flex-wrap: wrap;
+            margin-bottom: 1rem;
         }
 
         .filter-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
             padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--text);
+            border-radius: 0.5rem;
             cursor: pointer;
+            font-size: 0.85rem;
             transition: all 0.3s ease;
-        }
-
-        [data-theme="light"] .filter-btn {
-            background: #ffffff;
         }
 
         .filter-btn.active {
             background: var(--primary);
-            color: var(--bg-dark);
-            border-color: var(--primary);
-        }
-
-        [data-theme="light"] .filter-btn.active {
             color: white;
         }
 
-        .outlets-section {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
+        .filter-btn:hover {
+            background: rgba(255, 107, 53, 0.3);
         }
 
-        .section-title {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .outlets-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2rem;
-        }
-
-        .outlet-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.25rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        [data-theme="light"] .outlet-card {
-            background: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .outlet-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.2);
-        }
-
-        .outlet-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 0.75rem;
-        }
-
-        .outlet-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .outlet-category {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .category-restaurante { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-        .category-cafeteria { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
-        .category-parque { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .category-playa { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
-        .category-hotel { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
-        .category-tienda { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .category-veterinaria { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
-        .category-peluqueria { background: rgba(251, 146, 60, 0.2); color: #fb923c; }
-
-        .outlet-location {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .outlet-distance {
-            color: var(--primary);
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .outlet-meta {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.75rem;
-            padding-top: 0.75rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .outlet-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .btn-action {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.5rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        [data-theme="light"] .btn-action {
-            background: #f8f9fa;
-        }
-
-        .btn-action:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--primary);
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-
-        .pagination button {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        [data-theme="light"] .pagination button {
-            background: #ffffff;
-        }
-
-        .pagination button:hover:not(:disabled) {
-            background: var(--primary);
-            color: var(--bg-dark);
-            border-color: var(--primary);
-        }
-
-        [data-theme="light"] .pagination button:hover:not(:disabled) {
-            color: white;
-        }
-
-        .pagination button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .map-section {
-            max-width: 1200px;
-            margin: 3rem auto;
-            padding: 0 1rem;
-        }
-
-        #map {
-            height: 500px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-        }
-
+        /* Modal base */
         .modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(4px);
-            z-index: 2000;
-            padding: 1rem;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1900;
+            align-items: center;
+            justify-content: center;
             overflow-y: auto;
         }
 
         .modal.active {
             display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .modal-content {
             background: var(--bg-dark);
             border: 1px solid var(--border);
-            border-radius: 20px;
+            border-radius: 1rem;
             padding: 2rem;
-            max-width: 500px;
-            width: 100%;
+            width: 95%;
+            max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
-        }
-
-        [data-theme="light"] .modal-content {
-            background: #ffffff;
+            position: relative;
+            animation: slideUp 0.3s ease;
         }
 
         .modal-header {
@@ -601,812 +623,941 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
+        .modal-header h2 {
+            color: var(--primary);
+            margin: 0;
         }
 
-        .btn-close {
+        .modal-close {
             background: none;
             border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
             font-size: 1.5rem;
-            padding: 0;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            color: var(--text);
         }
 
-        .btn-close:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text);
+        .modal-close:hover {
+            color: var(--primary);
         }
 
         .form-group {
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
         }
 
-        .form-label {
+        .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             color: var(--text);
-            font-weight: 500;
-            font-size: 0.9rem;
+            font-weight: 600;
         }
 
-        .form-input, .form-select, .form-textarea {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
             padding: 0.75rem;
-            border-radius: 12px;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 0.5rem;
             color: var(--text);
-            font-size: 0.95rem;
+            font-size: 1rem;
+            font-family: inherit;
         }
 
-        [data-theme="light"] .form-input,
-        [data-theme="light"] .form-select,
-        [data-theme="light"] .form-textarea {
-            background: #ffffff;
-        }
-
-        .form-textarea {
+        .form-group textarea {
             resize: vertical;
             min-height: 100px;
         }
 
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
-            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+        }
+
+        .footer {
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid var(--border);
+            padding: 2rem 1rem;
+            margin-top: 3rem;
+            position: relative;
+            bottom: 80px;
+        }
+
+        [data-theme="light"] .footer {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .footer-section a {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
         }
 
         @media (max-width: 768px) {
-            .hero h1 { font-size: 1.5rem; }
-            .outlets-grid { grid-template-columns: 1fr; }
-            #map { height: 350px; }
-            .header-content { justify-content: center; }
-            .header-actions { width: 100%; justify-content: center; }
+            .places-list {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
     <div id="loadingScreen">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">🐕</div>
         <div class="loading-spinner"></div>
-        <div class="loading-text">Cargando DoggoMap...</div>
-        <div class="loading-subtext">Buscando lugares pet-friendly cerca de ti</div>
+        <div class="loading-text">DoggoMap</div>
+        <div class="loading-subtext">Cargando ubicaciones...</div>
     </div>
 
+    <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <div class="logo">🐕 DoggoMap</div>
-            <div class="stats">
-                <div class="stat">
-                    <span id="outletCount">35</span> lugares
-                </div>
-                <div class="stat">
-                    <span id="pointsDisplay">0</span> Puntos
-                </div>
+            <div class="logo">
+                <span>🐕</span>
+                <span>DoggoMap</span>
             </div>
             <div class="header-actions">
-                <button class="theme-toggle" id="themeToggle" title="Cambiar tema">
-                    <span id="themeIcon">🌙</span>
-                </button>
-                <button class="install-btn" id="installBtn">
-                    📱 Instalar App
-                </button>
-                <div id="authContainer">
-                    <button class="btn-login" onclick="handleLogin()">🐕 Iniciar sesión</button>
-                </div>
+                <button id="profileBtn" class="profile-btn" style="display: none;">👤 Mi Perfil</button>
+                <button id="themeBtn" class="theme-btn">🌙 Tema</button>
+                <button id="addBtn" class="nav-btn">➕ Agregar lugar</button>
+                <button id="loginBtn" class="nav-btn">🔐 Login</button>
+                <button id="logoutBtn" class="nav-btn" style="display: none;">🚪 Logout</button>
             </div>
         </div>
     </header>
 
-    <button class="btn-nearest" id="btnNearest" title="Ir al lugar más cercano" style="display: none;">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="12" cy="12" r="3"></circle>
-        </svg>
-    </button>
+    <!-- Profile Modal -->
+    <div id="profileModal" class="profile-modal">
+        <div class="profile-content">
+            <button class="close-btn" onclick="closeProfileModal()">✕</button>
+            <div class="profile-header">
+                <div id="profileAvatar" class="profile-avatar"></div>
+                <div class="profile-info">
+                    <h2 id="profileName">Usuario</h2>
+                    <p id="profileEmail">email@example.com</p>
+                    <div id="levelBadge" class="level-badge level-bronce">🥉 Bronce</div>
+                </div>
+            </div>
 
-    <section class="hero">
-        <h1>¿Buscas lugares para tu perro? 🐕</h1>
-        <p>Encuentra restaurantes, parques, hoteles y más lugares pet-friendly cerca de ti</p>
-    </section>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="userPoints">0</div>
+                    <div class="stat-label">Puntos</div>
+                </div>
+                <div class="stat-card secondary">
+                    <div class="stat-value" id="userPlaces">0</div>
+                    <div class="stat-label">Lugares Agregados</div>
+                </div>
+            </div>
 
-    <div class="search-section">
-        <div class="search-bar">
-            <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre, ubicación...">
-            <button class="btn-primary" onclick="openAddModal()">➕ Agregar lugar</button>
-        </div>
-        <div class="filters">
-            <button class="filter-btn active" data-filter="all">Todos</button>
-            <button class="filter-btn" data-filter="restaurante">🍽️ Restaurantes</button>
-            <button class="filter-btn" data-filter="cafeteria">☕ Cafeterías</button>
-            <button class="filter-btn" data-filter="parque">🌳 Parques</button>
-            <button class="filter-btn" data-filter="hotel">🏨 Hoteles</button>
+            <div style="margin-bottom: 2rem;">
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Progreso al siguiente nivel</p>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="progressText">0 / 100 puntos</div>
+            </div>
+
+            <div id="missionInfo" style="background: rgba(247, 183, 49, 0.1); border: 1px solid var(--accent); padding: 1rem; border-radius: 0.75rem; margin-bottom: 2rem; display: none;">
+                <p style="color: var(--text); margin: 0; font-size: 0.9rem;"><strong>Próxima misión:</strong> <span id="nextMission"></span></p>
+            </div>
+
+            <div class="my-places-section">
+                <h3>📍 Mis Lugares Agregados</h3>
+                <div id="myPlacesList"></div>
+            </div>
         </div>
     </div>
 
-    <section class="outlets-section">
-        <h2 class="section-title">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-            Lugares disponibles
-        </h2>
-        <div class="outlets-grid" id="outletsGrid"></div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div id="mapContainer" class="map-container"></div>
 
-        <div class="pagination">
-            <button id="prevPage" onclick="changePage(-1)">← Anterior</button>
-            <span id="pageInfo">Página 1</span>
-            <button id="nextPage" onclick="changePage(1)">Siguiente →</button>
+        <div class="search-container">
+            <input id="searchInput" class="search-input" type="text" placeholder="🔍 Busca lugares pet-friendly...">
         </div>
-    </section>
 
-    <section class="map-section">
-        <h2 class="section-title">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                <line x1="8" y1="2" x2="8" y2="18"></line>
-                <line x1="16" y1="6" x2="16" y2="22"></line>
-            </svg>
-            Mapa de lugares
-        </h2>
-        <div id="map"></div>
-    </section>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="restaurante">🍽️ Restaurantes</button>
+            <button class="filter-btn" data-filter="parque">🌳 Parques</button>
+            <button class="filter-btn" data-filter="hotel">🏨 Hoteles</button>
+            <button class="filter-btn" data-filter="cafeteria">☕ Cafeterías</button>
+            <button class="filter-btn" data-filter="tienda">🛍️ Tiendas</button>
+        </div>
 
-    <div class="modal" id="addModal">
+        <div id="placesList" class="places-list"></div>
+    </div>
+
+    <!-- Add Place Modal -->
+    <div id="addModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">➕ Agregar lugar</h2>
-                <button class="btn-close" onclick="closeAddModal()">×</button>
+                <h2>➕ Agregar Lugar Pet-Friendly</h2>
+                <button class="modal-close" onclick="closeAddModal()">✕</button>
             </div>
-            <form id="addPlaceForm" onsubmit="addPlace(event)">
+            <form id="addForm" onsubmit="addPlace(event)">
                 <div class="form-group">
-                    <label class="form-label">Nombre del lugar</label>
-                    <input type="text" class="form-input" id="placeName" required placeholder="Ej: Café Central">
+                    <label for="placeName">Nombre del Lugar *</label>
+                    <input type="text" id="placeName" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Dirección</label>
-                    <input type="text" class="form-input" id="placeLocation" required placeholder="Ej: Calle Mayor 1">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Categoría</label>
-                    <select class="form-select" id="placeCategory" required>
-                        <option value="cafeteria">☕ Cafetería</option>
+                    <label for="placeCategory">Categoría *</label>
+                    <select id="placeCategory" required>
+                        <option value="">Selecciona una categoría</option>
                         <option value="restaurante">🍽️ Restaurante</option>
                         <option value="parque">🌳 Parque</option>
                         <option value="hotel">🏨 Hotel</option>
-                        <option value="playa">🏖️ Playa</option>
+                        <option value="cafeteria">☕ Cafetería</option>
                         <option value="tienda">🛍️ Tienda</option>
-                        <option value="veterinaria">🏥 Veterinaria</option>
-                        <option value="peluqueria">✂️ Peluquería</option>
+                        <option value="otro">🏪 Otro</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Tamaño de perro</label>
-                    <select class="form-select" id="placeSize" required>
-                        <option value="todos">Todos los tamaños</option>
-                        <option value="pequeno">Pequeño</option>
-                        <option value="mediano">Mediano</option>
-                        <option value="grande">Grande</option>
-                    </select>
+                    <label for="placeDescription">Descripción *</label>
+                    <textarea id="placeDescription" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Valoración</label>
-                    <select class="form-select" id="placeRating" required>
-                        <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
-                        <option value="4">⭐⭐⭐⭐ Muy bueno</option>
-                        <option value="3">⭐⭐⭐ Bueno</option>
-                    </select>
+                    <label for="placeCity">Ciudad *</label>
+                    <input type="text" id="placeCity" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Notas (opcional)</label>
-                    <textarea class="form-textarea" id="placeNotes" placeholder="Ej: Tienen agua para perros, muy amables..."></textarea>
+                    <label for="placeAddress">Dirección *</label>
+                    <input type="text" id="placeAddress" required>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Agregar lugar 🐕</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Agregar Lugar</button>
             </form>
         </div>
     </div>
 
-    <div class="modal" id="privacyModal">
-        <div class="modal-content" style="max-width: 700px;">
+    <!-- Privacy Modal -->
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">🔒 Política de Privacidad</h2>
-                <button class="btn-close" onclick="closePrivacyModal()">×</button>
+                <h2>🔒 Política de Privacidad</h2>
+                <button class="modal-close" onclick="closePrivacyModal()">✕</button>
             </div>
-            <div style="max-height: 60vh; overflow-y: auto;">
-                <h3 style="margin-top: 1rem; color: var(--primary);">1. Información que recopilamos</h3>
-                <p style="margin: 0.5rem 0; line-height: 1.6;">
-                    DoggoMap recopila únicamente la información necesaria para ofrecer nuestros servicios.
-                </p>
-
-                <h3 style="margin-top: 1.5rem; color: var(--primary);">2. Cómo usamos tu información</h3>
-                <p style="margin: 0.5rem 0; line-height: 1.6;">
-                    Para mostrar lugares pet-friendly cerca de ti y mejorar nuestros servicios.
-                </p>
-
-                <h3 style="margin-top: 1.5rem; color: var(--primary);">3. Contacto</h3>
-                <p style="margin: 0.5rem 0; line-height: 1.6;">
-                    Para consultas: <strong>holapluginapp@gmail.com</strong>
-                </p>
-            </div>
+            <p>DoggoMap recopila únicamente la información necesaria para ofrecer nuestros servicios.</p>
+            <p><strong>¿Para qué usamos tus datos?</strong></p>
+            <p>Para mostrar lugares pet-friendly cerca de ti y mejorar nuestros servicios.</p>
         </div>
     </div>
 
-    <div class="modal" id="aboutModal">
-        <div class="modal-content" style="max-width: 700px;">
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">🐕 Quiénes Somos</h2>
-                <button class="btn-close" onclick="closeAboutModal()">×</button>
+                <h2>ℹ️ Sobre DoggoMap</h2>
+                <button class="modal-close" onclick="closeAboutModal()">✕</button>
             </div>
-            <div style="max-height: 60vh; overflow-y: auto;">
-                <h3 style="margin-top: 1rem; color: var(--primary);">Nuestra Misión</h3>
-                <p style="margin: 0.5rem 0; line-height: 1.6;">
-                    DoggoMap nació para ayudar a encontrar lugares donde disfrutar con nuestros amigos de cuatro patas.
-                </p>
-                <h3 style="margin-top: 1.5rem; color: var(--primary);">Contacto</h3>
-                <p style="margin: 0.5rem 0; line-height: 1.6;">
-                    📧 <strong>holapluginapp@gmail.com</strong>
-                </p>
-            </div>
+            <p>DoggoMap nació para ayudar a encontrar lugares donde disfrutar con nuestros amigos de cuatro patas.</p>
+            <p>🐕 Más de 35 lugares pet-friendly en España</p>
+            <p>🗺️ Mapa interactivo y búsqueda en tiempo real</p>
+            <p>📱 Aplicación web progresiva (PWA)</p>
         </div>
     </div>
 
-    <div class="modal" id="faqModal">
-        <div class="modal-content" style="max-width: 700px;">
+    <!-- FAQ Modal -->
+    <div id="faqModal" class="modal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">❓ Preguntas Frecuentes</h2>
-                <button class="btn-close" onclick="closeFaqModal()">×</button>
+                <h2>❓ Preguntas Frecuentes</h2>
+                <button class="modal-close" onclick="closeFaqModal()">✕</button>
             </div>
-            <div style="max-height: 60vh; overflow-y: auto;">
-                <div style="margin-bottom: 1.5rem;">
-                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Es gratis usar DoggoMap?</h3>
-                    <p style="line-height: 1.6; margin: 0;">
-                        Sí, DoggoMap es <strong>100% gratis</strong> y siempre lo será.
-                    </p>
-                </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Cómo agrego un lugar?</h3>
-                    <p style="line-height: 1.6; margin: 0;">
-                        Inicia sesión, haz clic en "➕ Agregar lugar" y rellena la información.
-                    </p>
-                </div>
-            </div>
+            <h3 style="color: var(--primary); margin-top: 1rem;">¿Cómo agrego un lugar?</h3>
+            <p>Inicia sesión, haz clic en "➕ Agregar lugar" y rellena la información.</p>
+            
+            <h3 style="color: var(--primary); margin-top: 1rem;">¿Es gratis?</h3>
+            <p>Sí, DoggoMap es 100% gratis y siempre lo será.</p>
         </div>
     </div>
 
-    <div class="modal" id="contactModal">
-        <div class="modal-content" style="max-width: 600px;">
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">📧 Contacto</h2>
-                <button class="btn-close" onclick="closeContactModal()">×</button>
+                <h2>📧 Contacto</h2>
+                <button class="modal-close" onclick="closeContactModal()">✕</button>
             </div>
-            <div style="max-height: 60vh; overflow-y: auto;">
-                <p style="line-height: 1.6; margin-bottom: 1.5rem;">
-                    ¿Tienes alguna pregunta o sugerencia?
-                </p>
-                <div style="background: rgba(255, 107, 53, 0.1); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255, 107, 53, 0.2);">
-                    <h3 style="color: var(--primary); margin-bottom: 1rem;">📧 Email</h3>
-                    <p style="font-size: 1.1rem; margin: 0;">
-                        <strong>holapluginapp@gmail.com</strong>
-                    </p>
-                </div>
-            </div>
+            <p>¿Tienes alguna pregunta o sugerencia?</p>
+            <p><strong>Email:</strong> holapluginapp@gmail.com</p>
         </div>
     </div>
 
-    <footer style="background: rgba(15, 23, 42, 0.95); border-top: 1px solid var(--border); padding: 3rem 1rem 1.5rem 1rem; margin-top: 4rem;">
-        <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
-                <div>
-                    <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.1rem;">🐕 DoggoMap</h3>
-                    <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary); margin-bottom: 1rem;">
-                        Conectando dueños de mascotas con lugares pet-friendly en España.
-                    </p>
-                    <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-secondary);">📧 holapluginapp@gmail.com</p>
-                </div>
-                <div>
-                    <h4 style="color: var(--text); margin-bottom: 1rem;">Enlaces</h4>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="margin-bottom: 0.5rem;">
-                            <a href="#" onclick="openAboutModal(); return false;" style="color: var(--text-secondary); text-decoration: none;">Quiénes somos</a>
-                        </li>
-                        <li style="margin-bottom: 0.5rem;">
-                            <a href="#" onclick="openFaqModal(); return false;" style="color: var(--text-secondary); text-decoration: none;">FAQ</a>
-                        </li>
-                        <li style="margin-bottom: 0.5rem;">
-                            <a href="#" onclick="openContactModal(); return false;" style="color: var(--text-secondary); text-decoration: none;">Contacto</a>
-                        </li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 style="color: var(--text); margin-bottom: 1rem;">Legal</h4>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="margin-bottom: 0.5rem;">
-                            <a href="#" onclick="openPrivacyModal(); return false;" style="color: var(--text-secondary); text-decoration: none;">Privacidad</a>
-                        </li>
-                    </ul>
-                </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Sobre Nosotros</h3>
+                <a href="#" onclick="openAboutModal()">Acerca de DoggoMap</a>
+                <a href="#" onclick="openFaqModal()">Preguntas Frecuentes</a>
             </div>
-            <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; text-align: center;">
-                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    © 2025 DoggoMap. Todos los derechos reservados. Hecho con ❤️ para la comunidad pet-friendly 🐕
-                </p>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <a href="#" onclick="openPrivacyModal()">Política de Privacidad</a>
             </div>
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <a href="#" onclick="openContactModal()">Enviar Email</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 DoggoMap. Todos los derechos reservados. 🐕</p>
         </div>
     </footer>
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebaseapp/10.8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebaseapp/10.8.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebaseapp/10.8.0/firebase-firestore.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const html = document.documentElement;
-
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        html.setAttribute('data-theme', savedTheme);
-        themeIcon.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
-        });
-
-        let deferredPrompt;
-        const installBtn = document.getElementById('installBtn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.style.display = 'block';
-        });
-
-        installBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log(`User response: ${outcome}`);
-            deferredPrompt = null;
-            installBtn.style.display = 'none';
-        });
-
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-            }, 1500);
-        });
-
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // ============================================
         const firebaseConfig = {
-            apiKey: "AIzaSyDMWRD3d3I4qQKMI92d4uXXD7kr82eK3Kg",
-            authDomain: "plugin-app-6e530.firebaseapp.com",
-            projectId: "plugin-app-6e530",
-            storageBucket: "plugin-app-6e530.firebasestorage.app",
-            messagingSenderId: "341027766221",
-            appId: "1:341027766221:web:df9b7db73457cec5944e84"
+            apiKey: "AIzaSyAjPo5xY8vZ9A1bC2dE3fG4hI5jK6lM7nO",
+            authDomain: "doggomap-ab5f4.firebaseapp.com",
+            projectId: "doggomap-ab5f4",
+            storageBucket: "doggomap-ab5f4.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:1a2b3c4d5e6f7g8h9i0j"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        let currentUser = null;
-        let userLocation = null;
-        let outlets = [];
-        let filteredOutlets = [];
-        let map = null;
+        // ============================================
+        // GLOBAL VARIABLES
+        // ============================================
+        let map;
         let markers = [];
-        let currentPage = 1;
-        const outletsPerPage = 12;
+        let allPlaces = [];
+        let currentUser = null;
+        let userProfile = null;
 
-        const exampleOutlets = [
-            { id: 1, name: "Perrisimo Dog Cafe & Bar", location: "Calle Pez 27, Madrid", lat: 40.4273, lng: -3.7035, category: "cafeteria", size: "todos", rating: 5, notes: "Cafetería especializada en perros" },
-            { id: 2, name: "El Perro de Pavlov", location: "La Latina, Madrid", lat: 40.4091, lng: -3.7094, category: "cafeteria", size: "todos", rating: 5, notes: "Muy dog-friendly" },
-            { id: 3, name: "Cafelito", location: "Centro, Madrid", lat: 40.4168, lng: -3.7038, category: "cafeteria", size: "mediano", rating: 4, notes: "Ideal para desayunos" },
-            { id: 4, name: "Freedom Cakes", location: "Puerta del Sol, Madrid", lat: 40.4169, lng: -3.7033, category: "cafeteria", size: "todos", rating: 5, notes: "Repostería vegana" },
-            { id: 5, name: "Parque del Retiro", location: "Retiro, Madrid", lat: 40.4153, lng: -3.6844, category: "parque", size: "todos", rating: 5, notes: "Zona canina amplia" },
-            { id: 6, name: "Catalonia Puerta Del Sol", location: "Centro, Madrid", lat: 40.4174, lng: -3.7026, category: "hotel", size: "mediano", rating: 4, notes: "Hotel céntrico" },
-            { id: 7, name: "Dehesa de la Villa", location: "Noroeste Madrid", lat: 40.4556, lng: -3.7269, category: "parque", size: "todos", rating: 5, notes: "Gran parque" },
-            { id: 8, name: "Botánica", location: "Madrid Centro", lat: 40.4215, lng: -3.6994, category: "cafeteria", size: "todos", rating: 4, notes: "Con jardín" },
-            { id: 9, name: "CocoMad Bakery", location: "Madrid", lat: 40.4301, lng: -3.6889, category: "cafeteria", size: "mediano", rating: 4, notes: "Repostería artesanal" },
-            { id: 10, name: "Delish Vegan Doughnuts", location: "Plaza España, Madrid", lat: 40.4238, lng: -3.7122, category: "cafeteria", size: "pequeno", rating: 4, notes: "Donuts veganos" },
-            { id: 11, name: "Brunch & Cake", location: "Barcelona", lat: 41.3851, lng: 2.1734, category: "restaurante", size: "todos", rating: 5, notes: "Famoso por brunches" },
-            { id: 12, name: "Federal Café", location: "Sant Antoni, Barcelona", lat: 41.3759, lng: 2.1648, category: "cafeteria", size: "mediano", rating: 5, notes: "Ambiente relajado" },
-            { id: 13, name: "Parc de la Ciutadella", location: "Barcelona", lat: 41.3887, lng: 2.1871, category: "parque", size: "todos", rating: 5, notes: "Parque canino" },
-            { id: 14, name: "Hotel Catalonia", location: "Centro, Barcelona", lat: 41.3851, lng: 2.1766, category: "hotel", size: "grande", rating: 4, notes: "Pet-friendly" },
-            { id: 15, name: "Parque Joan Miró", location: "Eixample, Barcelona", lat: 41.3764, lng: 2.1509, category: "parque", size: "todos", rating: 4, notes: "Área canina" },
-            { id: 16, name: "Diagonal Mar", location: "Sant Martí, Barcelona", lat: 41.4098, lng: 2.2162, category: "parque", size: "todos", rating: 5, notes: "Parque moderno" },
-            { id: 17, name: "Can Culleretes", location: "Barcelona", lat: 41.3813, lng: 2.1739, category: "restaurante", size: "mediano", rating: 4, notes: "Restaurante histórico" },
-            { id: 18, name: "Parque Estación Norte", location: "Fort Pienc, Barcelona", lat: 41.3919, lng: 2.1804, category: "parque", size: "todos", rating: 4, notes: "Zona canina urbana" },
-            { id: 19, name: "La Fábrica de Huellas", location: "Valencia", lat: 39.4781, lng: -0.3695, category: "cafeteria", size: "todos", rating: 5, notes: "Café para perros" },
-            { id: 20, name: "El Garaje Foodie", location: "Valencia", lat: 39.4699, lng: -0.3763, category: "restaurante", size: "todos", rating: 5, notes: "Food trucks" },
-            { id: 21, name: "La Consentida", location: "Valencia", lat: 39.4733, lng: -0.3752, category: "restaurante", size: "mediano", rating: 4, notes: "Tapas por 2€" },
-            { id: 22, name: "Ubik Café", location: "Valencia", lat: 39.4629, lng: -0.3699, category: "cafeteria", size: "todos", rating: 5, notes: "Librería-café" },
-            { id: 23, name: "Parque del Turia", location: "Valencia", lat: 39.4753, lng: -0.3707, category: "parque", size: "todos", rating: 5, notes: "Circuito Agility" },
-            { id: 24, name: "Federal Café Valencia", location: "Valencia", lat: 39.4712, lng: -0.3780, category: "cafeteria", size: "mediano", rating: 5, notes: "Brunch excelente" },
-            { id: 25, name: "Trencat", location: "Valencia", lat: 39.4655, lng: -0.3714, category: "cafeteria", size: "pequeno", rating: 4, notes: "Pastelería" },
-            { id: 26, name: "Parque del Alamillo", location: "Sevilla", lat: 37.4051, lng: -6.0080, category: "parque", size: "todos", rating: 5, notes: "3 hectáreas caninas" },
-            { id: 27, name: "El Rinconcillo", location: "Sevilla", lat: 37.3970, lng: -5.9878, category: "restaurante", size: "mediano", rating: 4, notes: "Bar histórico" },
-            { id: 28, name: "Dehesa Doña María", location: "Sevilla", lat: 37.2824, lng: -5.9231, category: "parque", size: "todos", rating: 5, notes: "4 pistas caninas" },
-            { id: 29, name: "Petit Palace Arana", location: "Bilbao", lat: 43.2627, lng: -2.9253, category: "hotel", size: "grande", rating: 4, notes: "Hotel céntrico" },
-            { id: 30, name: "Spirit Apartamentos", location: "Bilbao", lat: 43.2585, lng: -2.9171, category: "hotel", size: "mediano", rating: 4, notes: "Apartamentos" },
-            { id: 31, name: "NH Bilbao Deusto", location: "Bilbao", lat: 43.2694, lng: -2.9465, category: "hotel", size: "grande", rating: 4, notes: "Hotel moderno" },
-            { id: 32, name: "B&B Hotel Zaragoza", location: "Zaragoza", lat: 41.6488, lng: -0.8891, category: "hotel", size: "grande", rating: 4, notes: "Admite hasta 40kg" },
-            { id: 33, name: "Hotel Río Arga", location: "Zaragoza", lat: 41.6560, lng: -0.8773, category: "hotel", size: "mediano", rating: 4, notes: "Centro histórico" },
-            { id: 34, name: "Moon Dreams", location: "Almería", lat: 36.8138, lng: -2.5499, category: "hotel", size: "todos", rating: 5, notes: "Todo incluido" },
-            { id: 35, name: "Iberostar Albufera", location: "Mallorca", lat: 39.7881, lng: 3.1081, category: "hotel", size: "grande", rating: 5, notes: "Resort" }
-        ];
+        // ============================================
+        // NIVELES Y PUNTOS
+        // ============================================
+        const LEVELS = {
+            bronce: { min: 0, max: 99, name: '🥉 Bronce', className: 'level-bronce' },
+            plata: { min: 100, max: 199, name: '🥈 Plata', className: 'level-plata' },
+            oro: { min: 200, max: 499, name: '🥇 Oro', className: 'level-oro' },
+            diamante: { min: 500, max: Infinity, name: '💎 Diamante', className: 'level-diamante' }
+        };
 
-        auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            updateAuthUI();
-            if (user) await loadUserPoints();
-        });
-
-        // ✅ ARREGLADO: Ya no muestra alert de error cuando SÍ funciona
-        async function handleLogin() {
-            try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                provider.setCustomParameters({ prompt: 'select_account' });
-                const result = await auth.signInWithPopup(provider);
-                
-                const userDoc = await db.collection('users').doc(result.user.uid).get();
-                if (!userDoc.exists) {
-                    await db.collection('users').doc(result.user.uid).set({
-                        email: result.user.email,
-                        displayName: result.user.displayName,
-                        photoURL: result.user.photoURL,
-                        points: 0,
-                        placesAdded: 0,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                // Ya no mostramos alert aquí - el sistema lo maneja automáticamente
-            } catch (error) {
-                console.error('Error al iniciar sesión:', error);
-                // Solo mostrar alert si realmente falló (no si el usuario cerró el popup)
-                if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-                    alert('Error al iniciar sesión: ' + error.message);
+        function getLevelFromPoints(points) {
+            for (const [key, level] of Object.entries(LEVELS)) {
+                if (points >= level.min && points <= level.max) {
+                    return { key, ...level };
                 }
             }
+            return { key: 'bronce', ...LEVELS.bronce };
         }
 
-        async function handleLogout() {
-            try {
-                await auth.signOut();
-                alert('Sesión cerrada');
-            } catch (error) {
-                console.error('Error:', error);
+        function getNextLevelThreshold(currentPoints) {
+            const level = getLevelFromPoints(currentPoints);
+            const levelKeys = Object.keys(LEVELS);
+            const currentLevelIndex = levelKeys.indexOf(level.key);
+            
+            if (currentLevelIndex < levelKeys.length - 1) {
+                return LEVELS[levelKeys[currentLevelIndex + 1]].min;
             }
+            return level.max;
         }
 
-        // ✅ MEJORADO: Ahora muestra la foto del usuario
-        function updateAuthUI() {
-            const authContainer = document.getElementById('authContainer');
-            if (currentUser) {
-                authContainer.innerHTML = `
-                    <div class="user-info">
-                        <img src="${currentUser.photoURL}" alt="${currentUser.displayName}" class="user-avatar">
-                        <button class="btn-logout" onclick="handleLogout()">Salir</button>
-                    </div>
-                `;
+        // ============================================
+        // AUTH HANDLERS
+        // ============================================
+        function handleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    currentUser = result.user;
+                    initializeUserProfile();
+                    updateAuthUI();
+                })
+                .catch(error => console.error('Error al iniciar sesión:', error));
+        }
+
+        function handleLogout() {
+            auth.signOut()
+                .then(() => {
+                    currentUser = null;
+                    userProfile = null;
+                    updateAuthUI();
+                    renderOutlets();
+                })
+                .catch(error => console.error('Error al cerrar sesión:', error));
+        }
+
+        async function initializeUserProfile() {
+            if (!currentUser) return;
+
+            const userRef = db.collection('users').doc(currentUser.uid);
+            const userDoc = await userRef.get();
+
+            if (!userDoc.exists) {
+                // Crear nuevo perfil de usuario
+                const newProfile = {
+                    uid: currentUser.uid,
+                    displayName: currentUser.displayName,
+                    email: currentUser.email,
+                    photoURL: currentUser.photoURL,
+                    points: 0,
+                    createdAt: new Date(),
+                    totalPlacesAdded: 0
+                };
+                await userRef.set(newProfile);
+                userProfile = newProfile;
             } else {
-                authContainer.innerHTML = `<button class="btn-login" onclick="handleLogin()">🐕 Iniciar sesión</button>`;
+                userProfile = userDoc.data();
             }
         }
 
         async function loadUserPoints() {
             if (!currentUser) return;
-            try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    document.getElementById('pointsDisplay').textContent = userData.points || 0;
+
+            const userRef = db.collection('users').doc(currentUser.uid);
+            userRef.onSnapshot(doc => {
+                if (doc.exists) {
+                    userProfile = doc.data();
                 }
-            } catch (error) {
-                console.error('Error:', error);
+            });
+        }
+
+        function updateAuthUI() {
+            const loginBtn = document.getElementById('loginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const profileBtn = document.getElementById('profileBtn');
+            const addBtn = document.getElementById('addBtn');
+
+            if (currentUser) {
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                profileBtn.style.display = 'inline-block';
+                addBtn.style.display = 'inline-block';
+                logoutBtn.onclick = handleLogout;
+                profileBtn.onclick = openProfileModal;
+                addBtn.onclick = openAddModal;
+            } else {
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                profileBtn.style.display = 'none';
+                addBtn.style.display = 'inline-block';
+                loginBtn.onclick = handleLogin;
+                addBtn.onclick = () => {
+                    if (!currentUser) {
+                        alert('Por favor, inicia sesión para agregar lugares.');
+                        handleLogin();
+                    } else {
+                        openAddModal();
+                    }
+                };
             }
         }
 
+        // ============================================
+        // PROFILE MODAL
+        // ============================================
+        async function openProfileModal() {
+            if (!currentUser || !userProfile) return;
+
+            // Cargar datos del usuario
+            document.getElementById('profileName').textContent = userProfile.displayName || 'Usuario';
+            document.getElementById('profileEmail').textContent = userProfile.email || '';
+            
+            if (userProfile.photoURL) {
+                document.getElementById('profileAvatar').style.backgroundImage = `url('${userProfile.photoURL}')`;
+            }
+
+            const points = userProfile.points || 0;
+            const level = getLevelFromPoints(points);
+            document.getElementById('userPoints').textContent = points;
+            document.getElementById('levelBadge').className = `level-badge ${level.className}`;
+            document.getElementById('levelBadge').textContent = level.name;
+
+            // Progreso
+            const nextLevel = getNextLevelThreshold(points);
+            const currentLevelMin = level.min;
+            const progress = ((points - currentLevelMin) / (nextLevel - currentLevelMin)) * 100;
+            document.getElementById('progressFill').style.width = Math.min(progress, 100) + '%';
+            document.getElementById('progressText').textContent = `${points} / ${nextLevel} puntos`;
+
+            // Lugares agregados por el usuario
+            const placesSnapshot = await db.collection('places')
+                .where('createdBy', '==', currentUser.uid)
+                .orderBy('createdAt', 'desc')
+                .get();
+
+            const myPlacesList = document.getElementById('myPlacesList');
+            myPlacesList.innerHTML = '';
+
+            if (placesSnapshot.empty) {
+                myPlacesList.innerHTML = '<div class="no-places">Aún no has agregado lugares. ¡Sé el primero!</div>';
+            } else {
+                document.getElementById('userPlaces').textContent = placesSnapshot.size;
+
+                placesSnapshot.forEach(doc => {
+                    const place = doc.data();
+                    const date = place.createdAt?.toDate().toLocaleDateString('es-ES');
+                    const placeHTML = `
+                        <div class="place-item">
+                            <h4>${place.name}</h4>
+                            <p>${place.category} - ${place.city}</p>
+                            <p class="place-date">📅 Agregado: ${date}</p>
+                        </div>
+                    `;
+                    myPlacesList.innerHTML += placeHTML;
+                });
+            }
+
+            document.getElementById('profileModal').classList.add('active');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        // ============================================
+        // LOCATION & MAP
+        // ============================================
         function getUserLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        if (map) {
-                            L.marker([userLocation.lat, userLocation.lng], {
-                                icon: L.divIcon({
-                                    html: '<div style="background: #ff6b35; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white;"></div>',
-                                    iconSize: [22, 22]
-                                })
-                            }).addTo(map).bindPopup('Tú estás aquí');
+            return new Promise((resolve, reject) => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        position => {
+                            resolve({
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            });
+                        },
+                        error => {
+                            console.log('Usando ubicación por defecto (Madrid)');
+                            resolve({ lat: 40.4168, lng: -3.7038 });
                         }
-                        calculateDistances();
-                        renderOutlets();
-                        document.getElementById('btnNearest').style.display = 'flex';
-                    },
-                    (error) => console.log('Error ubicación:', error),
-                    { enableHighAccuracy: true }
-                );
-            }
+                    );
+                } else {
+                    resolve({ lat: 40.4168, lng: -3.7038 });
+                }
+            });
         }
 
-        function calculateDistance(lat1, lon1, lat2, lon2) {
+        async function initMap() {
+            const location = await getUserLocation();
+            
+            map = L.map('mapContainer').setView([location.lat, location.lng], 6);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            await loadOutlets();
+        }
+
+        function calculateDistance(lat1, lng1, lat2, lng2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-
-        function calculateDistances() {
-            if (!userLocation) return;
-            outlets.forEach(outlet => {
-                outlet.distance = calculateDistance(
-                    userLocation.lat, userLocation.lng,
-                    outlet.lat, outlet.lng
-                );
-            });
-            outlets.sort((a, b) => (a.distance || 999) - (b.distance || 999));
-        }
-
-        function goToNearestOutlet() {
-            if (!userLocation || outlets.length === 0) {
-                alert('No se pudo determinar tu ubicación');
-                return;
-            }
-            
-            // Recalcular distancias con los lugares actuales
-            calculateDistances();
-            
-            // Encontrar el lugar más cercano de la lista actual
-            const nearest = outlets[0];
-            
-            // Scroll al mapa
-            document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
-            
-            // Esperar a que termine el scroll y hacer zoom al lugar más cercano
-            setTimeout(() => {
-                if (map && nearest) {
-                    map.setView([nearest.lat, nearest.lng], 15);
-                    
-                    // Buscar el marcador del lugar más cercano y abrir su popup
-                    markers.forEach(marker => {
-                        const markerPos = marker.getLatLng();
-                        if (Math.abs(markerPos.lat - nearest.lat) < 0.0001 && 
-                            Math.abs(markerPos.lng - nearest.lng) < 0.0001) {
-                            marker.openPopup();
-                        }
-                    });
-                }
-            }, 500);
+            return (R * c).toFixed(1);
         }
 
         async function loadOutlets() {
-            try {
-                const snapshot = await db.collection('places').orderBy('timestamp', 'desc').get();
-                outlets = [...exampleOutlets];
-                snapshot.forEach((doc) => {
-                    outlets.push({ id: doc.id, ...doc.data() });
+            const snapshot = await db.collection('places').get();
+            allPlaces = [];
+
+            snapshot.forEach(doc => {
+                allPlaces.push({
+                    id: doc.id,
+                    ...doc.data()
                 });
-                filteredOutlets = [...outlets];
-                document.getElementById('outletCount').textContent = outlets.length;
-                renderOutlets();
-                initMap();
-            } catch (error) {
-                console.error('Error:', error);
-                outlets = [...exampleOutlets];
-                filteredOutlets = [...outlets];
-                renderOutlets();
-                initMap();
-            }
-        }
+            });
 
-        function renderOutlets() {
-            const grid = document.getElementById('outletsGrid');
-            const startIndex = (currentPage - 1) * outletsPerPage;
-            const endIndex = startIndex + outletsPerPage;
-            const paginatedOutlets = filteredOutlets.slice(startIndex, endIndex);
-
-            grid.innerHTML = paginatedOutlets.map(outlet => {
-                const categoryEmoji = {
-                    'cafeteria': '☕', 'restaurante': '🍽️', 'parque': '🌳',
-                    'hotel': '🏨', 'playa': '🏖️', 'tienda': '🛍️',
-                    'veterinaria': '🏥', 'peluqueria': '✂️'
-                };
-                const distanceText = outlet.distance ? `${outlet.distance.toFixed(1)} km` : '';
-                return `
-                    <div class="outlet-card" onclick="showOnMap(${outlet.lat}, ${outlet.lng})">
-                        <div class="outlet-header">
-                            <div class="outlet-name">${outlet.name}</div>
-                            <span class="outlet-category category-${outlet.category}">${categoryEmoji[outlet.category]} ${outlet.category}</span>
-                        </div>
-                        <div class="outlet-location">📍 ${outlet.location}</div>
-                        ${distanceText ? `<div class="outlet-distance">📍 ${distanceText}</div>` : ''}
-                        ${outlet.notes ? `<div style="font-size: 0.85rem; color: var(--text-secondary);">${outlet.notes}</div>` : ''}
-                        <div class="outlet-meta">
-                            <div class="meta-item">${'⭐'.repeat(outlet.rating)}</div>
-                            <div class="meta-item">🐕 ${outlet.size}</div>
-                        </div>
-                        <div class="outlet-actions">
-                            <button class="btn-action" onclick="event.stopPropagation(); openGoogleMaps(${outlet.lat}, ${outlet.lng})">
-                                Ver en mapa →
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            const totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
-            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
-            document.getElementById('prevPage').disabled = currentPage === 1;
-            document.getElementById('nextPage').disabled = currentPage === totalPages;
-        }
-
-        function openGoogleMaps(lat, lng) {
-            const url = userLocation 
-                ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${lat},${lng}&travelmode=walking`
-                : `https://www.google.com/maps?q=${lat},${lng}`;
-            window.open(url, '_blank');
-        }
-
-        function changePage(direction) {
-            const totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
-            currentPage += direction;
-            currentPage = Math.max(1, Math.min(currentPage, totalPages));
-            renderOutlets();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function initMap() {
-            if (map) map.remove();
-            map = L.map('map').setView([40.4168, -3.7038], 6);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
             updateMapMarkers();
-            if (userLocation) {
-                L.marker([userLocation.lat, userLocation.lng], {
-                    icon: L.divIcon({
-                        html: '<div style="background: #ff6b35; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white;"></div>',
-                        iconSize: [22, 22]
-                    })
-                }).addTo(map).bindPopup('Tú estás aquí');
-            }
+            renderOutlets();
         }
 
         function updateMapMarkers() {
-            if (!map) return;
-            markers.forEach(marker => marker.remove());
+            markers.forEach(marker => map.removeLayer(marker));
             markers = [];
-            filteredOutlets.forEach(outlet => {
-                const color = {
-                    'cafeteria': '#f59e0b', 'restaurante': '#ef4444',
-                    'parque': '#22c55e', 'hotel': '#a855f7',
-                    'playa': '#3b82f6'
-                }[outlet.category] || '#9ca3af';
-                const icon = L.divIcon({
-                    html: `<div style="background: ${color}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white;">🐕</div>`,
-                    iconSize: [30, 30]
-                });
-                const marker = L.marker([outlet.lat, outlet.lng], { icon })
-                    .addTo(map)
-                    .bindPopup(`<strong>${outlet.name}</strong><br>${outlet.location}`);
+
+            const userLocation = await getUserLocation();
+
+            allPlaces.forEach(place => {
+                if (!place.latitude || !place.longitude) return;
+
+                const marker = L.marker([place.latitude, place.longitude]).addTo(map);
+                marker.bindPopup(`
+                    <strong>${place.name}</strong><br>
+                    ${place.category}<br>
+                    ${place.city}
+                `);
+
                 markers.push(marker);
             });
         }
 
-        function showOnMap(lat, lng) {
-            if (map) {
-                map.setView([lat, lng], 15);
-                markers.forEach(marker => {
-                    if (marker.getLatLng().lat === lat && marker.getLatLng().lng === lng) {
-                        marker.openPopup();
-                    }
-                });
-            }
-            document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+        async function updateMapMarkersAsync() {
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+
+            allPlaces.forEach(place => {
+                if (!place.latitude || !place.longitude) return;
+
+                const marker = L.marker([place.latitude, place.longitude]).addTo(map);
+                marker.bindPopup(`
+                    <strong>${place.name}</strong><br>
+                    ${place.category}<br>
+                    ${place.city}
+                `);
+
+                markers.push(marker);
+            });
         }
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            filteredOutlets = outlets.filter(outlet =>
-                outlet.name.toLowerCase().includes(searchTerm) ||
-                outlet.location.toLowerCase().includes(searchTerm)
-            );
-            currentPage = 1;
-            renderOutlets();
-            updateMapMarkers();
-        });
+        // ============================================
+        // RENDER PLACES
+        // ============================================
+        function renderOutlets() {
+            const container = document.getElementById('placesList');
+            container.innerHTML = '';
 
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const filter = btn.dataset.filter;
-                filteredOutlets = filter === 'all' ? [...outlets] : outlets.filter(o => o.category === filter);
-                currentPage = 1;
-                renderOutlets();
-                updateMapMarkers();
+            allPlaces.forEach(place => {
+                const categoryEmoji = {
+                    restaurante: '🍽️',
+                    parque: '🌳',
+                    hotel: '🏨',
+                    cafeteria: '☕',
+                    tienda: '🛍️',
+                    otro: '🏪'
+                }[place.category] || '📍';
+
+                const creatorInfo = place.creatorName ? `<p class="place-creator">👤 Agregado por: <strong>${place.creatorName}</strong></p>` : '';
+
+                const placeHTML = `
+                    <div class="place-card">
+                        <div class="place-card-header">
+                            <h3>${place.name}</h3>
+                            <span class="place-category">${categoryEmoji} ${place.category}</span>
+                        </div>
+                        <div class="place-card-body">
+                            <p><strong>📍 Ubicación:</strong> ${place.address}, ${place.city}</p>
+                            <p><strong>ℹ️ Descripción:</strong> ${place.description}</p>
+                            ${creatorInfo}
+                        </div>
+                        <div class="place-card-footer">
+                            <button class="btn btn-primary" onclick="showOnMap('${place.id}')">📍 Ver en Mapa</button>
+                            <button class="btn btn-secondary" onclick="openGoogleMaps('${place.address}', '${place.city}')">🗺️ Google Maps</button>
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML += placeHTML;
             });
-        });
+        }
 
-        function openAddModal() { document.getElementById('addModal').classList.add('active'); }
-        function closeAddModal() { document.getElementById('addModal').classList.remove('active'); }
-        function openPrivacyModal() { document.getElementById('privacyModal').classList.add('active'); }
-        function closePrivacyModal() { document.getElementById('privacyModal').classList.remove('active'); }
-        function openAboutModal() { document.getElementById('aboutModal').classList.add('active'); }
-        function closeAboutModal() { document.getElementById('aboutModal').classList.remove('active'); }
-        function openFaqModal() { document.getElementById('faqModal').classList.add('active'); }
-        function closeFaqModal() { document.getElementById('faqModal').classList.remove('active'); }
-        function openContactModal() { document.getElementById('contactModal').classList.add('active'); }
-        function closeContactModal() { document.getElementById('contactModal').classList.remove('active'); }
+        function showOnMap(placeId) {
+            const place = allPlaces.find(p => p.id === placeId);
+            if (place && place.latitude && place.longitude) {
+                map.setView([place.latitude, place.longitude], 15);
+            }
+        }
+
+        function openGoogleMaps(address, city) {
+            const query = `${address}, ${city}`;
+            window.open(`https://www.google.com/maps/search/${encodeURIComponent(query)}`, '_blank');
+        }
+
+        // ============================================
+        // ADD PLACE
+        // ============================================
+        function openAddModal() {
+            if (!currentUser) {
+                handleLogin();
+                return;
+            }
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
+        }
 
         async function addPlace(e) {
             e.preventDefault();
+
             if (!currentUser) {
-                alert('Debes iniciar sesión');
+                alert('Debes iniciar sesión para agregar un lugar.');
+                handleLogin();
                 return;
             }
-            const placeData = {
-                name: document.getElementById('placeName').value,
-                location: document.getElementById('placeLocation').value,
-                category: document.getElementById('placeCategory').value,
-                size: document.getElementById('placeSize').value,
-                rating: parseInt(document.getElementById('placeRating').value),
-                notes: document.getElementById('placeNotes').value,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                userId: currentUser.uid
+
+            const name = document.getElementById('placeName').value;
+            const category = document.getElementById('placeCategory').value;
+            const description = document.getElementById('placeDescription').value;
+            const city = document.getElementById('placeCity').value;
+            const address = document.getElementById('placeAddress').value;
+
+            // Obtener coordenadas usando geocoding (simulado)
+            // En producción, usar una API de geocoding real
+            const mockCoordinates = {
+                'madrid': { lat: 40.4168, lng: -3.7038 },
+                'barcelona': { lat: 41.3874, lng: 2.1686 },
+                'valencia': { lat: 39.4699, lng: -0.3763 },
+                'sevilla': { lat: 37.3891, lng: -5.9844 },
+                'bilbao': { lat: 43.2633, lng: -2.9349 }
             };
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(async (position) => {
-                    try {
-                        placeData.lat = position.coords.latitude;
-                        placeData.lng = position.coords.longitude;
-                        await db.collection('places').add(placeData);
-                        await db.collection('users').doc(currentUser.uid).update({
-                            points: firebase.firestore.FieldValue.increment(10),
-                            placesAdded: firebase.firestore.FieldValue.increment(1)
-                        });
-                        await loadUserPoints();
-                        alert('¡Lugar agregado! +10 puntos 🎉');
-                        closeAddModal();
-                        await loadOutlets();
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('Error al agregar lugar');
-                    }
+
+            const coords = mockCoordinates[city.toLowerCase()] || { lat: 40.4168, lng: -3.7038 };
+
+            try {
+                const newPlace = {
+                    name,
+                    category,
+                    description,
+                    city,
+                    address,
+                    latitude: coords.lat,
+                    longitude: coords.lng,
+                    createdBy: currentUser.uid,
+                    creatorName: currentUser.displayName,
+                    createdAt: new Date(),
+                    points: 10
+                };
+
+                const docRef = await db.collection('places').add(newPlace);
+
+                // Agregar puntos al usuario
+                const userRef = db.collection('users').doc(currentUser.uid);
+                await userRef.update({
+                    points: firebase.firestore.FieldValue.increment(10),
+                    totalPlacesAdded: firebase.firestore.FieldValue.increment(1)
                 });
+
+                alert('¡Lugar agregado exitosamente! +10 puntos 🎉');
+                document.getElementById('addForm').reset();
+                closeAddModal();
+                await loadOutlets();
+                await loadUserPoints();
+            } catch (error) {
+                console.error('Error al agregar lugar:', error);
+                alert('Error al agregar el lugar. Intenta de nuevo.');
             }
         }
 
-        document.getElementById('btnNearest').addEventListener('click', goToNearestOutlet);
+        // ============================================
+        // MODALES
+        // ============================================
+        function openPrivacyModal() {
+            document.getElementById('privacyModal').classList.add('active');
+        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadOutlets();
-            getUserLocation();
+        function closePrivacyModal() {
+            document.getElementById('privacyModal').classList.remove('active');
+        }
+
+        function openAboutModal() {
+            document.getElementById('aboutModal').classList.add('active');
+        }
+
+        function closeAboutModal() {
+            document.getElementById('aboutModal').classList.remove('active');
+        }
+
+        function openFaqModal() {
+            document.getElementById('faqModal').classList.add('active');
+        }
+
+        function closeFaqModal() {
+            document.getElementById('faqModal').classList.remove('active');
+        }
+
+        function openContactModal() {
+            document.getElementById('contactModal').classList.add('active');
+        }
+
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.remove('active');
+        }
+
+        // ============================================
+        // BÚSQUEDA Y FILTROS
+        // ============================================
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const filtered = allPlaces.filter(place => 
+                place.name.toLowerCase().includes(query) ||
+                place.city.toLowerCase().includes(query) ||
+                place.description.toLowerCase().includes(query)
+            );
+            
+            document.getElementById('placesList').innerHTML = '';
+            filtered.forEach(place => {
+                const categoryEmoji = {
+                    restaurante: '🍽️',
+                    parque: '🌳',
+                    hotel: '🏨',
+                    cafeteria: '☕',
+                    tienda: '🛍️',
+                    otro: '🏪'
+                }[place.category] || '📍';
+
+                const creatorInfo = place.creatorName ? `<p class="place-creator">👤 Agregado por: <strong>${place.creatorName}</strong></p>` : '';
+
+                const placeHTML = `
+                    <div class="place-card">
+                        <div class="place-card-header">
+                            <h3>${place.name}</h3>
+                            <span class="place-category">${categoryEmoji} ${place.category}</span>
+                        </div>
+                        <div class="place-card-body">
+                            <p><strong>📍 Ubicación:</strong> ${place.address}, ${place.city}</p>
+                            <p><strong>ℹ️ Descripción:</strong> ${place.description}</p>
+                            ${creatorInfo}
+                        </div>
+                        <div class="place-card-footer">
+                            <button class="btn btn-primary" onclick="showOnMap('${place.id}')">📍 Ver en Mapa</button>
+                            <button class="btn btn-secondary" onclick="openGoogleMaps('${place.address}', '${place.city}')">🗺️ Google Maps</button>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('placesList').innerHTML += placeHTML;
+            });
         });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const filter = this.dataset.filter;
+                const filtered = filter === 'all' ? allPlaces : allPlaces.filter(p => p.category === filter);
+
+                document.getElementById('placesList').innerHTML = '';
+                filtered.forEach(place => {
+                    const categoryEmoji = {
+                        restaurante: '🍽️',
+                        parque: '🌳',
+                        hotel: '🏨',
+                        cafeteria: '☕',
+                        tienda: '🛍️',
+                        otro: '🏪'
+                    }[place.category] || '📍';
+
+                    const creatorInfo = place.creatorName ? `<p class="place-creator">👤 Agregado por: <strong>${place.creatorName}</strong></p>` : '';
+
+                    const placeHTML = `
+                        <div class="place-card">
+                            <div class="place-card-header">
+                                <h3>${place.name}</h3>
+                                <span class="place-category">${categoryEmoji} ${place.category}</span>
+                            </div>
+                            <div class="place-card-body">
+                                <p><strong>📍 Ubicación:</strong> ${place.address}, ${place.city}</p>
+                                <p><strong>ℹ️ Descripción:</strong> ${place.description}</p>
+                                ${creatorInfo}
+                            </div>
+                            <div class="place-card-footer">
+                                <button class="btn btn-primary" onclick="showOnMap('${place.id}')">📍 Ver en Mapa</button>
+                                <button class="btn btn-secondary" onclick="openGoogleMaps('${place.address}', '${place.city}')">🗺️ Google Maps</button>
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById('placesList').innerHTML += placeHTML;
+                });
+            });
+        });
+
+        // ============================================
+        // TEMA CLARO/OSCURO
+        // ============================================
+        document.getElementById('themeBtn').addEventListener('click', function() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            if (user) {
+                initializeUserProfile();
+            }
+            updateAuthUI();
+
+            const loadingScreen = document.getElementById('loadingScreen');
+            loadingScreen.classList.add('hidden');
+
+            initMap();
+            loadUserPoints();
+        });
+
+        // Aplicar tema guardado
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 </body>
 </html>
