@@ -24,4 +24,1397 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐕</text></svg>">
     
     <!-- PWA Manifest -->
-    <
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRG9nZ29NYXAiLCJzaG9ydF9uYW1lIjoiRG9nZ29NYXAiLCJzdGFydF91cmwiOiIvIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBmMTcyYSIsInRoZW1lX2NvbG9yIjoiI2ZmNmIzNSIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWwsPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48dGV4dCB5PScuOWVtJyBmb250LXNpemU9JzkwJz7wn5CVPC90ZXh0Pjwvc3ZnPiIsInNpemVzIjoiNTEyeDUxMiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
+    <meta name="theme-color" content="#ff6b35">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        :root {
+            --primary: #ff6b35;
+            --primary-dark: #ff8555;
+            --secondary: #4ecdc4;
+            --accent: #f7b731;
+            --bg-dark: #0f172a;
+            --bg-darker: #0a0f1a;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        /* Light mode colors */
+        [data-theme="light"] {
+            --bg-dark: #ffffff;
+            --bg-darker: #f8f9fa;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Loading Screen */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        #loadingScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 107, 53, 0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .loading-subtext {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        [data-theme="light"] .header {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(180deg);
+        }
+
+        /* Install Button */
+        .install-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .install-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255, 107, 53, 0.1);
+            padding: 0.4rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 107, 53, 0.2);
+        }
+
+        .btn-login {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 0.4rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Botón flotante lugar más cercano */
+        .btn-nearest {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nearest:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.6);
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Search */
+        .search-section {
+            max-width: 1200px;
+            margin: 0 auto 2rem;
+            padding: 0 1rem;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        [data-theme="light"] .search-input {
+            background: #ffffff;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        [data-theme="light"] .btn-primary {
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] .filter-btn {
+            background: #ffffff;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
+        }
+
+        [data-theme="light"] .filter-btn.active {
+            color: white;
+        }
+
+        /* Lugares Grid */
+        .outlets-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .outlets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .outlet-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        [data-theme="light"] .outlet-card {
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .outlet-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.2);
+        }
+
+        .outlet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .outlet-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .outlet-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .category-restaurante { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .category-cafeteria { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .category-parque { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .category-playa { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .category-hotel { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        .category-tienda { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .category-veterinaria { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
+        .category-peluqueria { background: rgba(251, 146, 60, 0.2); color: #fb923c; }
+
+        .outlet-location {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .outlet-distance {
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .outlet-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .outlet-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-action {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] .btn-action {
+            background: #f8f9fa;
+        }
+
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .pagination button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] .pagination button {
+            background: #ffffff;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
+        }
+
+        [data-theme="light"] .pagination button:hover:not(:disabled) {
+            color: white;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Map */
+        .map-section {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        #map {
+            height: 500px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        [data-theme="light"] .modal-content {
+            background: #ffffff;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        [data-theme="light"] .form-input,
+        [data-theme="light"] .form-select,
+        [data-theme="light"] .form-textarea {
+            background: #ffffff;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.5rem; }
+            .outlets-grid { grid-template-columns: 1fr; }
+            #map { height: 350px; }
+            .header-content { justify-content: center; }
+            .header-actions { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🐕</div>
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Cargando DoggoMap...</div>
+        <div class="loading-subtext">Buscando lugares pet-friendly cerca de ti</div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🐕 DoggoMap</div>
+            <div class="stats">
+                <div class="stat">
+                    <span id="outletCount">35</span> lugares
+                </div>
+                <div class="stat">
+                    <span id="pointsDisplay">0</span> Puntos
+                </div>
+            </div>
+            <div class="header-actions">
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="themeToggle" title="Cambiar tema">
+                    <span id="themeIcon">🌙</span>
+                </button>
+                <!-- Install Button (PWA) -->
+                <button class="install-btn" id="installBtn">
+                    📱 Instalar App
+                </button>
+                <div id="authContainer">
+                    <button class="btn-login" onclick="handleLogin()">🐕 Iniciar sesión</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Botón flotante lugar más cercano -->
+    <button class="btn-nearest" id="btnNearest" title="Ir al lugar más cercano" style="display: none;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+    </button>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>¿Buscas lugares para tu perro? 🐕</h1>
+        <p>Encuentra restaurantes, parques, hoteles y más lugares pet-friendly cerca de ti</p>
+    </section>
+
+    <!-- Search & Filters -->
+    <div class="search-section">
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre, ubicación...">
+            <button class="btn-primary" onclick="openAddModal()">➕ Agregar lugar</button>
+        </div>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="restaurante">🍽️ Restaurantes</button>
+            <button class="filter-btn" data-filter="cafeteria">☕ Cafeterías</button>
+            <button class="filter-btn" data-filter="parque">🌳 Parques</button>
+            <button class="filter-btn" data-filter="hotel">🏨 Hoteles</button>
+        </div>
+    </div>
+
+    <!-- Lugares -->
+    <section class="outlets-section">
+        <h2 class="section-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            Lugares disponibles
+        </h2>
+        <div class="outlets-grid" id="outletsGrid"></div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <button id="prevPage" onclick="changePage(-1)">← Anterior</button>
+            <span id="pageInfo">Página 1</span>
+            <button id="nextPage" onclick="changePage(1)">Siguiente →</button>
+        </div>
+    </section>
+
+    <!-- Map -->
+    <section class="map-section">
+        <h2 class="section-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                <line x1="8" y1="2" x2="8" y2="18"></line>
+                <line x1="16" y1="6" x2="16" y2="22"></line>
+            </svg>
+            Mapa de lugares
+        </h2>
+        <div id="map"></div>
+    </section>
+
+    <!-- Add Place Modal -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">➕ Agregar lugar</h2>
+                <button class="btn-close" onclick="closeAddModal()">×</button>
+            </div>
+            <form id="addPlaceForm" onsubmit="addPlace(event)">
+                <div class="form-group">
+                    <label class="form-label">Nombre del lugar</label>
+                    <input type="text" class="form-input" id="placeName" required placeholder="Ej: Café Central">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" class="form-input" id="placeLocation" required placeholder="Ej: Calle Mayor 1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Categoría</label>
+                    <select class="form-select" id="placeCategory" required>
+                        <option value="cafeteria">☕ Cafetería</option>
+                        <option value="restaurante">🍽️ Restaurante</option>
+                        <option value="parque">🌳 Parque</option>
+                        <option value="hotel">🏨 Hotel</option>
+                        <option value="playa">🏖️ Playa</option>
+                        <option value="tienda">🛍️ Tienda</option>
+                        <option value="veterinaria">🏥 Veterinaria</option>
+                        <option value="peluqueria">✂️ Peluquería</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tamaño de perro</label>
+                    <select class="form-select" id="placeSize" required>
+                        <option value="todos">Todos los tamaños</option>
+                        <option value="pequeno">Pequeño</option>
+                        <option value="mediano">Mediano</option>
+                        <option value="grande">Grande</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Valoración</label>
+                    <select class="form-select" id="placeRating" required>
+                        <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+                        <option value="4">⭐⭐⭐⭐ Muy bueno</option>
+                        <option value="3">⭐⭐⭐ Bueno</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notas (opcional)</label>
+                    <textarea class="form-textarea" id="placeNotes" placeholder="Ej: Tienen agua para perros, muy amables..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Agregar lugar 🐕</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Privacy Modal -->
+    <div class="modal" id="privacyModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🔒 Política de Privacidad</h2>
+                <button class="btn-close" onclick="closePrivacyModal()">×</button>
+            </div>
+            <div style="max-height: 60vh; overflow-y: auto;">
+                <h3 style="margin-top: 1rem; color: var(--primary);">1. Información que recopilamos</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    DoggoMap recopila únicamente la información necesaria para ofrecer nuestros servicios.
+                </p>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">2. Cómo usamos tu información</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    Para mostrar lugares pet-friendly cerca de ti y mejorar nuestros servicios.
+                </p>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">3. Contacto</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    Para consultas: <strong>holapluginapp@gmail.com</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal" id="aboutModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🐕 Quiénes Somos</h2>
+                <button class="btn-close" onclick="closeAboutModal()">×</button>
+            </div>
+            <div style="max-height: 60vh; overflow-y: auto;">
+                <h3 style="margin-top: 1rem; color: var(--primary);">Nuestra Misión</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    DoggoMap nació para ayudar a encontrar lugares donde disfrutar con nuestros amigos de cuatro patas.
+                </p>
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">Contacto</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    📧 <strong>holapluginapp@gmail.com</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Modal -->
+    <div class="modal" id="faqModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">❓ Preguntas Frecuentes</h2>
+                <button class="btn-close" onclick="closeFaqModal()">×</button>
+            </div>
+            <div style="max-height: 60vh; overflow-y: auto;">
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Es gratis usar DoggoMap?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        Sí, DoggoMap es <strong>100% gratis</strong> y siempre lo será.
+                    </p>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Cómo agrego un lugar?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        Inicia sesión, haz clic en "➕ Agregar lugar" y rellena la información.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal" id="contactModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">📧 Contacto</h2>
+                <button class="btn-close" onclick="closeContactModal()">×</button>
+            </div>
+            <div style="max-height: 60vh; overflow-y: auto;">
+                <p style="line-height: 1.6; margin-bottom: 1.5rem;">
+                    ¿Tienes alguna pregunta o sugerencia?
+                </p>
+                <div style="background: rgba(255, 107, 53, 0.1); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255, 107, 53, 0.2);">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem;">📧 Email</h3>
+                    <p style="font-size: 1.1rem; margin: 0;">
+                        <strong>holapluginapp@gmail.com</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background: rgba(15, 23, 42, 0.95); border-top: 1px solid var(--border); padding: 3rem 1rem 1.5rem 1rem; margin-top: 4rem;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+                <div>
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.1rem;">🐕 DoggoMap</h3>
+                    <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary); margin-bottom: 1rem;">
+                        Conectando dueños de mascotas con lugares pet-friendly en España.
+                    </p>
+                    <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-secondary);">📧 holapluginapp@gmail.com</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--text); margin-bottom: 1rem;">Enlaces</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openAboutModal(); return false;" style="color: var(--text-secondary); text-decoration: none;">Quiénes somos</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openFaqModal(); return false;" style="color: var(--text-secondary); text-decoration: none;">FAQ</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openContactModal(); return false;" style="color: var(--text-secondary); text-decoration: none;">Contacto</a>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--text); margin-bottom: 1rem;">Legal</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openPrivacyModal(); return false;" style="color: var(--text-secondary); text-decoration: none;">Privacidad</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; text-align: center;">
+                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
+                    © 2025 DoggoMap. Todos los derechos reservados. Hecho con ❤️ para la comunidad pet-friendly 🐕
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', savedTheme);
+        themeIcon.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+        });
+
+        // PWA Install
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response: ${outcome}`);
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        });
+
+        // Loading Screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1500);
+        });
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNL4d-peCEhqE6dV6wJvHZUyI9D7LiC_Y",
+            authDomain: "plugin-app-6e530.firebaseapp.com",
+            projectId: "plugin-app-6e530",
+            storageBucket: "plugin-app-6e530.firebasestorage.app",
+            messagingSenderId: "1048836630086",
+            appId: "1:1048836630086:web:8b3a2b1dc925f06e3e9d34"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let userLocation = null;
+        let outlets = [];
+        let filteredOutlets = [];
+        let map = null;
+        let markers = [];
+        let currentPage = 1;
+        const outletsPerPage = 12;
+
+        // 35 LUGARES REALES
+        const exampleOutlets = [
+            { id: 1, name: "Perrisimo Dog Cafe & Bar", location: "Calle Pez 27, Madrid", lat: 40.4273, lng: -3.7035, category: "cafeteria", size: "todos", rating: 5, notes: "Cafetería especializada en perros" },
+            { id: 2, name: "El Perro de Pavlov", location: "La Latina, Madrid", lat: 40.4091, lng: -3.7094, category: "cafeteria", size: "todos", rating: 5, notes: "Muy dog-friendly" },
+            { id: 3, name: "Cafelito", location: "Centro, Madrid", lat: 40.4168, lng: -3.7038, category: "cafeteria", size: "mediano", rating: 4, notes: "Ideal para desayunos" },
+            { id: 4, name: "Freedom Cakes", location: "Puerta del Sol, Madrid", lat: 40.4169, lng: -3.7033, category: "cafeteria", size: "todos", rating: 5, notes: "Repostería vegana" },
+            { id: 5, name: "Parque del Retiro", location: "Retiro, Madrid", lat: 40.4153, lng: -3.6844, category: "parque", size: "todos", rating: 5, notes: "Zona canina amplia" },
+            { id: 6, name: "Catalonia Puerta Del Sol", location: "Centro, Madrid", lat: 40.4174, lng: -3.7026, category: "hotel", size: "mediano", rating: 4, notes: "Hotel céntrico" },
+            { id: 7, name: "Dehesa de la Villa", location: "Noroeste Madrid", lat: 40.4556, lng: -3.7269, category: "parque", size: "todos", rating: 5, notes: "Gran parque" },
+            { id: 8, name: "Botánica", location: "Madrid Centro", lat: 40.4215, lng: -3.6994, category: "cafeteria", size: "todos", rating: 4, notes: "Con jardín" },
+            { id: 9, name: "CocoMad Bakery", location: "Madrid", lat: 40.4301, lng: -3.6889, category: "cafeteria", size: "mediano", rating: 4, notes: "Repostería artesanal" },
+            { id: 10, name: "Delish Vegan Doughnuts", location: "Plaza España, Madrid", lat: 40.4238, lng: -3.7122, category: "cafeteria", size: "pequeno", rating: 4, notes: "Donuts veganos" },
+            { id: 11, name: "Brunch & Cake", location: "Barcelona", lat: 41.3851, lng: 2.1734, category: "restaurante", size: "todos", rating: 5, notes: "Famoso por brunches" },
+            { id: 12, name: "Federal Café", location: "Sant Antoni, Barcelona", lat: 41.3759, lng: 2.1648, category: "cafeteria", size: "mediano", rating: 5, notes: "Ambiente relajado" },
+            { id: 13, name: "Parc de la Ciutadella", location: "Barcelona", lat: 41.3887, lng: 2.1871, category: "parque", size: "todos", rating: 5, notes: "Parque canino" },
+            { id: 14, name: "Hotel Catalonia", location: "Centro, Barcelona", lat: 41.3851, lng: 2.1766, category: "hotel", size: "grande", rating: 4, notes: "Pet-friendly" },
+            { id: 15, name: "Parque Joan Miró", location: "Eixample, Barcelona", lat: 41.3764, lng: 2.1509, category: "parque", size: "todos", rating: 4, notes: "Área canina" },
+            { id: 16, name: "Diagonal Mar", location: "Sant Martí, Barcelona", lat: 41.4098, lng: 2.2162, category: "parque", size: "todos", rating: 5, notes: "Parque moderno" },
+            { id: 17, name: "Can Culleretes", location: "Barcelona", lat: 41.3813, lng: 2.1739, category: "restaurante", size: "mediano", rating: 4, notes: "Restaurante histórico" },
+            { id: 18, name: "Parque Estación Norte", location: "Fort Pienc, Barcelona", lat: 41.3919, lng: 2.1804, category: "parque", size: "todos", rating: 4, notes: "Zona canina urbana" },
+            { id: 19, name: "La Fábrica de Huellas", location: "Valencia", lat: 39.4781, lng: -0.3695, category: "cafeteria", size: "todos", rating: 5, notes: "Café para perros" },
+            { id: 20, name: "El Garaje Foodie", location: "Valencia", lat: 39.4699, lng: -0.3763, category: "restaurante", size: "todos", rating: 5, notes: "Food trucks" },
+            { id: 21, name: "La Consentida", location: "Valencia", lat: 39.4733, lng: -0.3752, category: "restaurante", size: "mediano", rating: 4, notes: "Tapas por 2€" },
+            { id: 22, name: "Ubik Café", location: "Valencia", lat: 39.4629, lng: -0.3699, category: "cafeteria", size: "todos", rating: 5, notes: "Librería-café" },
+            { id: 23, name: "Parque del Turia", location: "Valencia", lat: 39.4753, lng: -0.3707, category: "parque", size: "todos", rating: 5, notes: "Circuito Agility" },
+            { id: 24, name: "Federal Café Valencia", location: "Valencia", lat: 39.4712, lng: -0.3780, category: "cafeteria", size: "mediano", rating: 5, notes: "Brunch excelente" },
+            { id: 25, name: "Trencat", location: "Valencia", lat: 39.4655, lng: -0.3714, category: "cafeteria", size: "pequeno", rating: 4, notes: "Pastelería" },
+            { id: 26, name: "Parque del Alamillo", location: "Sevilla", lat: 37.4051, lng: -6.0080, category: "parque", size: "todos", rating: 5, notes: "3 hectáreas caninas" },
+            { id: 27, name: "El Rinconcillo", location: "Sevilla", lat: 37.3970, lng: -5.9878, category: "restaurante", size: "mediano", rating: 4, notes: "Bar histórico" },
+            { id: 28, name: "Dehesa Doña María", location: "Sevilla", lat: 37.2824, lng: -5.9231, category: "parque", size: "todos", rating: 5, notes: "4 pistas caninas" },
+            { id: 29, name: "Petit Palace Arana", location: "Bilbao", lat: 43.2627, lng: -2.9253, category: "hotel", size: "grande", rating: 4, notes: "Hotel céntrico" },
+            { id: 30, name: "Spirit Apartamentos", location: "Bilbao", lat: 43.2585, lng: -2.9171, category: "hotel", size: "mediano", rating: 4, notes: "Apartamentos" },
+            { id: 31, name: "NH Bilbao Deusto", location: "Bilbao", lat: 43.2694, lng: -2.9465, category: "hotel", size: "grande", rating: 4, notes: "Hotel moderno" },
+            { id: 32, name: "B&B Hotel Zaragoza", location: "Zaragoza", lat: 41.6488, lng: -0.8891, category: "hotel", size: "grande", rating: 4, notes: "Admite hasta 40kg" },
+            { id: 33, name: "Hotel Río Arga", location: "Zaragoza", lat: 41.6560, lng: -0.8773, category: "hotel", size: "mediano", rating: 4, notes: "Centro histórico" },
+            { id: 34, name: "Moon Dreams", location: "Almería", lat: 36.8138, lng: -2.5499, category: "hotel", size: "todos", rating: 5, notes: "Todo incluido" },
+            { id: 35, name: "Iberostar Albufera", location: "Mallorca", lat: 39.7881, lng: 3.1081, category: "hotel", size: "grande", rating: 5, notes: "Resort" }
+        ];
+
+        // Auth
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            updateAuthUI();
+            if (user) await loadUserPoints();
+        });
+
+        async function handleLogin() {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider);
+                const userDoc = await db.collection('users').doc(result.user.uid).get();
+                if (!userDoc.exists()) {
+                    await db.collection('users').doc(result.user.uid).set({
+                        email: result.user.email,
+                        displayName: result.user.displayName,
+                        photoURL: result.user.photoURL,
+                        points: 0,
+                        placesAdded: 0,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                alert('¡Bienvenido a DoggoMap! 🐕');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al iniciar sesión');
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+                alert('Sesión cerrada');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function updateAuthUI() {
+            const authContainer = document.getElementById('authContainer');
+            if (currentUser) {
+                authContainer.innerHTML = `
+                    <div class="user-info">
+                        <img src="${currentUser.photoURL}" alt="${currentUser.displayName}" class="user-avatar">
+                        <button class="btn-logout" onclick="handleLogout()">Salir</button>
+                    </div>
+                `;
+            } else {
+                authContainer.innerHTML = `<button class="btn-login" onclick="handleLogin()">🐕 Iniciar sesión</button>`;
+            }
+        }
+
+        async function loadUserPoints() {
+            if (!currentUser) return;
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    document.getElementById('pointsDisplay').textContent = userData.points || 0;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        if (map) {
+                            L.marker([userLocation.lat, userLocation.lng], {
+                                icon: L.divIcon({
+                                    html: '<div style="background: #ff6b35; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white;"></div>',
+                                    iconSize: [22, 22]
+                                })
+                            }).addTo(map).bindPopup('Tú estás aquí');
+                        }
+                        calculateDistances();
+                        renderOutlets();
+                        document.getElementById('btnNearest').style.display = 'flex';
+                    },
+                    (error) => console.log('Error ubicación:', error),
+                    { enableHighAccuracy: true }
+                );
+            }
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function calculateDistances() {
+            if (!userLocation) return;
+            outlets.forEach(outlet => {
+                outlet.distance = calculateDistance(
+                    userLocation.lat, userLocation.lng,
+                    outlet.lat, outlet.lng
+                );
+            });
+            outlets.sort((a, b) => (a.distance || 999) - (b.distance || 999));
+        }
+
+        function goToNearestOutlet() {
+            if (!userLocation || outlets.length === 0) {
+                alert('No se pudo determinar tu ubicación');
+                return;
+            }
+            calculateDistances();
+            const nearest = outlets;
+            const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${nearest.lat},${nearest.lng}&travelmode=walking`;
+            window.open(url, '_blank');
+        }
+
+        async function loadOutlets() {
+            try {
+                const snapshot = await db.collection('places').orderBy('timestamp', 'desc').get();
+                outlets = [...exampleOutlets];
+                snapshot.forEach((doc) => {
+                    outlets.push({ id: doc.id, ...doc.data() });
+                });
+                filteredOutlets = [...outlets];
+                document.getElementById('outletCount').textContent = outlets.length;
+                renderOutlets();
+                initMap();
+            } catch (error) {
+                console.error('Error:', error);
+                outlets = [...exampleOutlets];
+                filteredOutlets = [...outlets];
+                renderOutlets();
+                initMap();
+            }
+        }
+
+        function renderOutlets() {
+            const grid = document.getElementById('outletsGrid');
+            const startIndex = (currentPage - 1) * outletsPerPage;
+            const endIndex = startIndex + outletsPerPage;
+            const paginatedOutlets = filteredOutlets.slice(startIndex, endIndex);
+
+            grid.innerHTML = paginatedOutlets.map(outlet => {
+                const categoryEmoji = {
+                    'cafeteria': '☕', 'restaurante': '🍽️', 'parque': '🌳',
+                    'hotel': '🏨', 'playa': '🏖️', 'tienda': '🛍️',
+                    'veterinaria': '🏥', 'peluqueria': '✂️'
+                };
+                const distanceText = outlet.distance ? `${outlet.distance.toFixed(1)} km` : '';
+                return `
+                    <div class="outlet-card" onclick="showOnMap(${outlet.lat}, ${outlet.lng})">
+                        <div class="outlet-header">
+                            <div class="outlet-name">${outlet.name}</div>
+                            <span class="outlet-category category-${outlet.category}">${categoryEmoji[outlet.category]} ${outlet.category}</span>
+                        </div>
+                        <div class="outlet-location">📍 ${outlet.location}</div>
+                        ${distanceText ? `<div class="outlet-distance">📍 ${distanceText}</div>` : ''}
+                        ${outlet.notes ? `<div style="font-size: 0.85rem; color: var(--text-secondary);">${outlet.notes}</div>` : ''}
+                        <div class="outlet-meta">
+                            <div class="meta-item">${'⭐'.repeat(outlet.rating)}</div>
+                            <div class="meta-item">🐕 ${outlet.size}</div>
+                        </div>
+                        <div class="outlet-actions">
+                            <button class="btn-action" onclick="event.stopPropagation(); openGoogleMaps(${outlet.lat}, ${outlet.lng})">
+                                Ver en mapa →
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
+            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        function openGoogleMaps(lat, lng) {
+            const url = userLocation 
+                ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${lat},${lng}&travelmode=walking`
+                : `https://www.google.com/maps?q=${lat},${lng}`;
+            window.open(url, '_blank');
+        }
+
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
+            currentPage += direction;
+            currentPage = Math.max(1, Math.min(currentPage, totalPages));
+            renderOutlets();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function initMap() {
+            if (map) map.remove();
+            map = L.map('map').setView([40.4168, -3.7038], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+            updateMapMarkers();
+            if (userLocation) {
+                L.marker([userLocation.lat, userLocation.lng], {
+                    icon: L.divIcon({
+                        html: '<div style="background: #ff6b35; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white;"></div>',
+                        iconSize: [22, 22]
+                    })
+                }).addTo(map).bindPopup('Tú estás aquí');
+            }
+        }
+
+        function updateMapMarkers() {
+            if (!map) return;
+            markers.forEach(marker => marker.remove());
+            markers = [];
+            filteredOutlets.forEach(outlet => {
+                const color = {
+                    'cafeteria': '#f59e0b', 'restaurante': '#ef4444',
+                    'parque': '#22c55e', 'hotel': '#a855f7',
+                    'playa': '#3b82f6'
+                }[outlet.category] || '#9ca3af';
+                const icon = L.divIcon({
+                    html: `<div style="background: ${color}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white;">🐕</div>`,
+                    iconSize: [30, 30]
+                });
+                const marker = L.marker([outlet.lat, outlet.lng], { icon })
+                    .addTo(map)
+                    .bindPopup(`<strong>${outlet.name}</strong><br>${outlet.location}`);
+                markers.push(marker);
+            });
+        }
+
+        function showOnMap(lat, lng) {
+            if (map) {
+                map.setView([lat, lng], 15);
+                markers.forEach(marker => {
+                    if (marker.getLatLng().lat === lat && marker.getLatLng().lng === lng) {
+                        marker.openPopup();
+                    }
+                });
+            }
+            document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredOutlets = outlets.filter(outlet =>
+                outlet.name.toLowerCase().includes(searchTerm) ||
+                outlet.location.toLowerCase().includes(searchTerm)
+            );
+            currentPage = 1;
+            renderOutlets();
+            updateMapMarkers();
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const filter = btn.dataset.filter;
+                filteredOutlets = filter === 'all' ? [...outlets] : outlets.filter(o => o.category === filter);
+                currentPage = 1;
+                renderOutlets();
+                updateMapMarkers();
+            });
+        });
+
+        function openAddModal() { document.getElementById('addModal').classList.add('active'); }
+        function closeAddModal() { document.getElementById('addModal').classList.remove('active'); }
+        function openPrivacyModal() { document.getElementById('privacyModal').classList.add('active'); }
+        function closePrivacyModal() { document.getElementById('privacyModal').classList.remove('active'); }
+        function openAboutModal() { document.getElementById('aboutModal').classList.add('active'); }
+        function closeAboutModal() { document.getElementById('aboutModal').classList.remove('active'); }
+        function openFaqModal() { document.getElementById('faqModal').classList.add('active'); }
+        function closeFaqModal() { document.getElementById('faqModal').classList.remove('active'); }
+        function openContactModal() { document.getElementById('contactModal').classList.add('active'); }
+        function closeContactModal() { document.getElementById('contactModal').classList.remove('active'); }
+
+        async function addPlace(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                alert('Debes iniciar sesión');
+                return;
+            }
+            const placeData = {
+                name: document.getElementById('placeName').value,
+                location: document.getElementById('placeLocation').value,
+                category: document.getElementById('placeCategory').value,
+                size: document.getElementById('placeSize').value,
+                rating: parseInt(document.getElementById('placeRating').value),
+                notes: document.getElementById('placeNotes').value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                userId: currentUser.uid
+            };
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    try {
+                        placeData.lat = position.coords.latitude;
+                        placeData.lng = position.coords.longitude;
+                        await db.collection('places').add(placeData);
+                        await db.collection('users').doc(currentUser.uid).update({
+                            points: firebase.firestore.FieldValue.increment(10),
+                            placesAdded: firebase.firestore.FieldValue.increment(1)
+                        });
+                        await loadUserPoints();
+                        alert('¡Lugar agregado! +10 puntos 🎉');
+                        closeAddModal();
+                        await loadOutlets();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error al agregar lugar');
+                    }
+                });
+            }
+        }
+
+        document.getElementById('btnNearest').addEventListener('click', goToNearestOutlet);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOutlets();
+            getUserLocation();
+        });
+    </script>
+</body>
+</html>
