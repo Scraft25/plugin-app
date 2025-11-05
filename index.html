@@ -879,7 +879,7 @@
             }
             
             calculateDistances();
-            const nearest = outlets;
+            const nearest = outlets[0];
             
             if (!nearest.distance) {
                 alert('No se pudo calcular la distancia');
@@ -1188,11 +1188,394 @@
         // Setup nearest button
         document.getElementById('btnNearest').addEventListener('click', goToNearestOutlet);
 
+        // Modal management functions
+        function openPrivacyModal() {
+            document.getElementById('privacyModal').classList.add('active');
+        }
+        
+        function closePrivacyModal() {
+            document.getElementById('privacyModal').classList.remove('active');
+        }
+        
+        function openAboutModal() {
+            document.getElementById('aboutModal').classList.add('active');
+        }
+        
+        function closeAboutModal() {
+            document.getElementById('aboutModal').classList.remove('active');
+        }
+        
+        function openFaqModal() {
+            document.getElementById('faqModal').classList.add('active');
+        }
+        
+        function closeFaqModal() {
+            document.getElementById('faqModal').classList.remove('active');
+        }
+        
+        function openContactModal() {
+            document.getElementById('contactModal').classList.add('active');
+        }
+        
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.remove('active');
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadOutlets();
             getUserLocation();
         });
     </script>
+
+    <!-- Privacy Modal -->
+    <div class="modal" id="privacyModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🔒 Política de Privacidad</h2>
+                <button class="btn-close" onclick="closePrivacyModal()">×</button>
+            </div>
+            <div style="max-height: 60vh; overflow-y: auto;">
+                <h3 style="margin-top: 1rem; color: var(--primary);">1. Información que recopilamos</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    DoggoMap recopila únicamente la información necesaria para ofrecer nuestros servicios:
+                </p>
+                <ul style="margin: 0.5rem 0 1rem 1.5rem; line-height: 1.8;">
+                    <li>Nombre y correo electrónico (al iniciar sesión con Google)</li>
+                    <li>Ubicación GPS (solo cuando añades o buscas lugares)</li>
+                    <li>Lugares que agregas a la plataforma</li>
+                    <li>Puntos y estadísticas de uso</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">2. Cómo usamos tu información</h3>
+                <ul style="margin: 0.5rem 0 1rem 1.5rem; line-height: 1.8;">
+                    <li>Mostrar lugares pet-friendly cerca de ti</li>
+                    <li>Calcular distancias a los lugares</li>
+                    <li>Gestionar tu cuenta y puntos</li>
+                    <li>Mejorar nuestros servicios</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">3. Compartición de datos</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    <strong>No vendemos ni compartimos tus datos personales con terceros.</strong> Los lugares que agregas son públicos y visibles para todos los usuarios de DoggoMap.
+                </p>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">4. Tus derechos</h3>
+                <ul style="margin: 0.5rem 0 1rem 1.5rem; line-height: 1.8;">
+                    <li>Acceder a tus datos personales</li>
+                    <li>Solicitar la eliminación de tu cuenta</li>
+                    <li>Modificar tu información</li>
+                    <li>Desactivar el acceso a tu ubicación</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">5. Cookies y almacenamiento</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    Usamos Firebase Authentication para gestionar sesiones. No usamos cookies de terceros para publicidad.
+                </p>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">6. Contacto</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    Para cualquier consulta sobre privacidad: <strong>holapluginapp@gmail.com</strong>
+                </p>
+
+                <p style="margin-top: 2rem; font-size: 0.85rem; color: var(--text-secondary);">
+                    Última actualización: Noviembre 2025
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal" id="aboutModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🐕 Quiénes Somos</h2>
+                <button class="btn-close" onclick="closeAboutModal()">×</button>
+            </div>
+            <div style="max-height: 60vh; overflow-y: auto;">
+                <h3 style="margin-top: 1rem; color: var(--primary);">Nuestra Misión</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    DoggoMap nació de una necesidad simple: <strong>encontrar lugares donde poder disfrutar con nuestros mejores amigos de cuatro patas.</strong>
+                </p>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    Sabemos lo frustrante que es llegar a un lugar y que te digan "no admitimos perros". Por eso creamos una plataforma donde la comunidad comparte lugares 100% pet-friendly en toda España.
+                </p>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">¿Qué ofrecemos?</h3>
+                <ul style="margin: 0.5rem 0 1rem 1.5rem; line-height: 1.8;">
+                    <li>🗺️ <strong>Mapa interactivo</strong> con lugares verificados</li>
+                    <li>📍 <strong>Búsqueda por ubicación</strong> y distancia</li>
+                    <li>☕ <strong>Múltiples categorías:</strong> restaurantes, cafeterías, hoteles, parques, playas</li>
+                    <li>⭐ <strong>Valoraciones reales</strong> de otros usuarios</li>
+                    <li>🎯 <strong>Navegación integrada</strong> con Google Maps</li>
+                    <li>🏆 <strong>Sistema de puntos</strong> por contribuir</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">Comunidad colaborativa</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    DoggoMap es <strong>100% gratuito</strong> y funciona gracias a usuarios como tú que agregan y valoran lugares. Cada lugar que añades ayuda a miles de personas con mascotas.
+                </p>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">Valores</h3>
+                <ul style="margin: 0.5rem 0 1rem 1.5rem; line-height: 1.8;">
+                    <li>🤝 <strong>Comunidad primero:</strong> Construido por y para dueños de mascotas</li>
+                    <li>✅ <strong>Información verificada:</strong> Datos reales de usuarios reales</li>
+                    <li>🌍 <strong>Accesible para todos:</strong> Gratis y sin anuncios intrusivos</li>
+                    <li>💚 <strong>Amor por los animales:</strong> Promovemos espacios inclusivos para mascotas</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary);">Contacto</h3>
+                <p style="margin: 0.5rem 0; line-height: 1.6;">
+                    ¿Tienes sugerencias o quieres colaborar?<br>
+                    📧 <strong>holapluginapp@gmail.com</strong>
+                </p>
+
+                <div style="margin-top: 2rem; padding: 1rem; background: rgba(255, 107, 53, 0.1); border-radius: 12px; border: 1px solid rgba(255, 107, 53, 0.2);">
+                    <p style="margin: 0; text-align: center; font-weight: 600;">
+                        🐕 Hecho con ❤️ para la comunidad pet-friendly 🐕
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Modal -->
+    <div class="modal" id="faqModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">❓ Preguntas Frecuentes</h2>
+                <button class="btn-close" onclick="closeFaqModal()">×</button>
+            </div>
+            <div style="max-height: 60vh; overflow-y: auto;">
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Es gratis usar DoggoMap?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        Sí, DoggoMap es <strong>100% gratis</strong> y siempre lo será. No hay costes ocultos ni suscripciones.
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Necesito crear una cuenta?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        Puedes ver todos los lugares sin cuenta. Solo necesitas iniciar sesión si quieres <strong>agregar nuevos lugares</strong> y ganar puntos.
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Cómo agrego un lugar?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        1. Inicia sesión con Google<br>
+                        2. Haz clic en "➕ Agregar lugar"<br>
+                        3. Rellena la información del lugar<br>
+                        4. ¡Listo! Ganarás 10 puntos por cada lugar agregado
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Para qué sirven los puntos?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        Los puntos reflejan tu contribución a la comunidad. A más puntos, más ayudas a otros dueños de mascotas a encontrar lugares pet-friendly. ¡Es tu medalla de honor perruna! 🏆
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Cómo funciona "Lugar más cercano"?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        El botón verde flotante calcula automáticamente el lugar pet-friendly más cercano a tu ubicación y te abre Google Maps con direcciones a pie.
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Los lugares están verificados?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        Los lugares son agregados por usuarios como tú. Si encuentras información incorrecta, contáctanos en <strong>holapluginapp@gmail.com</strong> y lo corregiremos.
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Por qué pide mi ubicación?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        Tu ubicación se usa únicamente para:<br>
+                        • Calcular distancias a los lugares<br>
+                        • Mostrarte lugares cercanos primero<br>
+                        • Agregar lugares con coordenadas precisas<br>
+                        <strong>Nunca compartimos tu ubicación con terceros.</strong>
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Funciona fuera de España?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        Por ahora nos enfocamos en España, pero puedes agregar lugares de cualquier parte del mundo. ¡Estamos creciendo! 🌍
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Tenéis app móvil?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        Estamos trabajando en ello. Mientras tanto, puedes usar DoggoMap desde el navegador de tu móvil. Funciona perfectamente y puedes añadirla a tu pantalla de inicio. 📱
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">¿Cómo puedo ayudar?</h3>
+                    <p style="line-height: 1.6; margin: 0;">
+                        • Agrega lugares que conozcas<br>
+                        • Comparte DoggoMap con otros dueños de mascotas<br>
+                        • Envíanos feedback: <strong>holapluginapp@gmail.com</strong><br>
+                        • Síguenos en redes sociales (próximamente)
+                    </p>
+                </div>
+
+                <div style="margin-top: 2rem; padding: 1rem; background: rgba(255, 107, 53, 0.1); border-radius: 12px; border: 1px solid rgba(255, 107, 53, 0.2); text-align: center;">
+                    <p style="margin: 0; font-weight: 600;">
+                        ¿No encuentras tu pregunta?
+                    </p>
+                    <p style="margin: 0.5rem 0 0 0;">
+                        Escríbenos: <strong>holapluginapp@gmail.com</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal" id="contactModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">📧 Contacto</h2>
+                <button class="btn-close" onclick="closeContactModal()">×</button>
+            </div>
+            <div style="max-height: 60vh; overflow-y: auto;">
+                <p style="line-height: 1.6; margin-bottom: 1.5rem;">
+                    ¿Tienes alguna pregunta, sugerencia o quieres reportar un problema? ¡Nos encantaría escucharte!
+                </p>
+
+                <div style="background: rgba(255, 107, 53, 0.1); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255, 107, 53, 0.2); margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem;">📧 Email</h3>
+                    <p style="font-size: 1.1rem; margin: 0;">
+                        <strong>holapluginapp@gmail.com</strong>
+                    </p>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0 0 0;">
+                        Respondemos en 24-48 horas
+                    </p>
+                </div>
+
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">💬 ¿Sobre qué quieres escribirnos?</h3>
+                <ul style="line-height: 1.8; margin-bottom: 1.5rem;">
+                    <li>🐛 <strong>Reportar un error</strong> en la web o app</li>
+                    <li>📍 <strong>Sugerir lugares</strong> que deberíamos incluir</li>
+                    <li>💡 <strong>Proponer nuevas funciones</strong></li>
+                    <li>🤝 <strong>Colaborar</strong> con nosotros</li>
+                    <li>📰 <strong>Prensa y medios</strong></li>
+                    <li>❓ <strong>Cualquier otra consulta</strong></li>
+                </ul>
+
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">🌐 Redes Sociales</h3>
+                <p style="line-height: 1.6; margin-bottom: 1.5rem; color: var(--text-secondary);">
+                    Próximamente en Instagram, Twitter y Facebook. ¡Síguenos para novedades!
+                </p>
+
+                <div style="margin-top: 2rem; padding: 1rem; background: rgba(34, 197, 94, 0.1); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.2);">
+                    <p style="margin: 0; text-align: center;">
+                        <strong>⚡ Tiempo de respuesta promedio: 24-48 horas</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background: rgba(15, 23, 42, 0.95); border-top: 1px solid var(--border); padding: 3rem 1rem 1.5rem 1rem; margin-top: 4rem;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <!-- Main Footer Content -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+                <!-- Column 1: About -->
+                <div>
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.1rem;">🐕 DoggoMap</h3>
+                    <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary); margin-bottom: 1rem;">
+                        La comunidad que conecta a dueños de mascotas con lugares pet-friendly en toda España.
+                    </p>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                        <p style="margin: 0.25rem 0;">📧 holapluginapp@gmail.com</p>
+                        <p style="margin: 0.25rem 0;">🇪🇸 Madrid, España</p>
+                    </div>
+                </div>
+
+                <!-- Column 2: Links -->
+                <div>
+                    <h4 style="color: var(--text); margin-bottom: 1rem; font-size: 1rem;">Enlaces</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openAboutModal(); return false;" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.3s;">
+                                Quiénes somos
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openFaqModal(); return false;" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.3s;">
+                                Preguntas frecuentes
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openContactModal(); return false;" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.3s;">
+                                Contacto
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Legal -->
+                <div>
+                    <h4 style="color: var(--text); margin-bottom: 1rem; font-size: 1rem;">Legal</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openPrivacyModal(); return false;" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.3s;">
+                                Política de Privacidad
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openPrivacyModal(); return false;" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.3s;">
+                                Términos de Uso
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openPrivacyModal(); return false;" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.3s;">
+                                Política de Cookies
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Community -->
+                <div>
+                    <h4 style="color: var(--text); margin-bottom: 1rem; font-size: 1rem;">Comunidad</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 0.5rem;">
+                            <span style="color: var(--text-secondary); font-size: 0.9rem;">🏆 Sistema de puntos</span>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <span style="color: var(--text-secondary); font-size: 0.9rem;">📍 Agrega lugares</span>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <span style="color: var(--text-secondary); font-size: 0.9rem;">⭐ Valora y comenta</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div style="border-top: 1px solid var(--border); margin: 2rem 0 1.5rem 0;"></div>
+
+            <!-- Bottom Footer -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
+                    © 2025 DoggoMap. Todos los derechos reservados.
+                </p>
+                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
+                    Hecho con ❤️ para la comunidad pet-friendly 🐕
+                </p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
