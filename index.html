@@ -4,32 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DoggoMap - Encuentra lugares pet-friendly cerca de ti 🐕</title>
-    <meta name="description" content="Descubre restaurantes, cafeterías, hoteles y parques que aceptan perros en toda España. La mejor app para viajar con tu mascota.">
+    <meta name="description" content="Descubre restaurantes, cafeterías, hoteles y parques que aceptan perros en toda España.">
     
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --primary-hover: #ff8555;
-            --secondary-color: #4ecdc4;
-            --accent-color: #f7b731;
-            --text-color: #2d3436;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --border-color: #dee2e6;
-            --success-color: #26de81;
-            --danger-color: #fc5c65;
-            
-            --restaurant-color: #ff6b6b;
-            --cafe-color: #ee5a6f;
-            --park-color: #4ecdc4;
-            --beach-color: #45aaf2;
-            --hotel-color: #a55eea;
-            --shop-color: #26de81;
-            --vet-color: #fd79a8;
-            --grooming-color: #fdcb6e;
+            --primary: #ff6b35;
+            --primary-dark: #ff8555;
+            --secondary: #4ecdc4;
+            --accent: #f7b731;
+            --bg-dark: #0f172a;
+            --bg-darker: #0a0f1a;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
         }
 
         * {
@@ -39,347 +31,414 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
         }
 
-        header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
-            color: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        /* Header */
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
         .header-content {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 1.8rem;
+            font-size: 1.25rem;
             font-weight: bold;
+            color: var(--primary);
         }
 
-        .logo::before {
-            content: "🐕";
-            font-size: 2rem;
+        .stats {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
         }
 
-        .user-section {
+        .stat {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.4rem;
+            background: rgba(255, 107, 53, 0.1);
+            padding: 0.4rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 107, 53, 0.2);
         }
 
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            background: rgba(255,255,255,0.2);
+        .btn-login {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
             padding: 0.5rem 1rem;
-            border-radius: 50px;
+            border-radius: 20px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
         }
 
-        .user-profile:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .user-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            border: 2px solid white;
+        .btn-login:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
         }
 
         .user-info {
-            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        .user-name {
-            font-weight: 600;
-            font-size: 0.9rem;
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
         }
 
-        .user-points {
-            font-size: 0.75rem;
-            opacity: 0.9;
-        }
-
-        .btn {
-            padding: 0.6rem 1.5rem;
-            border: none;
-            border-radius: 25px;
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 0.4rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.8rem;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Botón flotante lugar más cercano */
+        .btn-nearest {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nearest:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.6);
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Search */
+        .search-section {
+            max-width: 1200px;
+            margin: 0 auto 2rem;
+            padding: 0 1rem;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            color: var(--text);
             font-size: 0.95rem;
         }
 
         .btn-primary {
-            background: white;
-            color: var(--primary-color);
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
         .btn-primary:hover {
+            background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        .btn-secondary {
-            background: var(--secondary-color);
-            color: white;
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
-        .btn-secondary:hover {
-            background: #45b8b0;
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
+        .filter-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
         }
 
-        .search-section {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        /* Lugares Grid */
+        .outlets-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .outlets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
             margin-bottom: 2rem;
         }
 
-        .search-header {
+        .outlet-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .outlet-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.2);
+        }
+
+        .outlet-header {
             display: flex;
             justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .outlet-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .outlet-category {
+            display: inline-flex;
             align-items: center;
-            margin-bottom: 1.5rem;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
 
-        .search-header h2 {
-            font-size: 1.5rem;
-            color: var(--text-color);
-        }
+        .category-restaurante { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .category-cafeteria { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .category-parque { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .category-playa { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .category-hotel { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        .category-tienda { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .category-veterinaria { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
+        .category-peluqueria { background: rgba(251, 146, 60, 0.2); color: #fb923c; }
 
-        .search-controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .form-group {
+        .outlet-location {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .form-group label {
+        .outlet-distance {
+            color: var(--primary);
             font-size: 0.85rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
-            color: var(--text-color);
         }
 
-        .form-control {
-            padding: 0.8rem;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 0.95rem;
-            transition: border-color 0.3s;
+        .outlet-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
         }
 
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .outlet-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-action {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .pagination button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Map */
+        .map-section {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1rem;
         }
 
         #map {
             height: 500px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
         }
 
-        .places-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .place-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-        }
-
-        .place-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .place-header {
-            padding: 1.2rem;
-            position: relative;
-        }
-
-        .place-category {
-            display: inline-block;
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: white;
-            margin-bottom: 0.8rem;
-        }
-
-        .category-restaurante { background: var(--restaurant-color); }
-        .category-cafeteria { background: var(--cafe-color); }
-        .category-parque { background: var(--park-color); }
-        .category-playa { background: var(--beach-color); }
-        .category-hotel { background: var(--hotel-color); }
-        .category-tienda { background: var(--shop-color); }
-        .category-veterinaria { background: var(--vet-color); }
-        .category-peluqueria { background: var(--grooming-color); }
-
-        .place-name {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .place-location {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .place-body {
-            padding: 0 1.2rem 1.2rem 1.2rem;
-        }
-
-        .place-details {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .detail-badge {
-            background: var(--bg-color);
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .place-rating {
-            display: flex;
-            gap: 0.3rem;
-            margin-bottom: 1rem;
-        }
-
-        .star {
-            color: var(--accent-color);
-            font-size: 1.2rem;
-        }
-
-        .star.empty {
-            color: #ddd;
-        }
-
-        .place-notes {
-            color: #636e72;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-top: 0.5rem;
-        }
-
-        .place-footer {
-            padding: 1rem 1.2rem;
-            background: var(--bg-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .place-meta {
-            font-size: 0.8rem;
-            color: #7f8c8d;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin: 2rem 0;
-        }
-
-        .page-btn {
-            padding: 0.6rem 1rem;
-            border: 2px solid var(--border-color);
-            background: white;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .page-btn:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .page-btn.active {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-        }
-
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6);
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
             z-index: 2000;
-            align-items: center;
-            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
         }
 
         .modal.active {
             display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .modal-content {
-            background: white;
-            padding: 2rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
             border-radius: 20px;
+            padding: 2rem;
             max-width: 500px;
-            width: 90%;
+            width: 100%;
             max-height: 90vh;
             overflow-y: auto;
         }
@@ -391,342 +450,217 @@
             margin-bottom: 1.5rem;
         }
 
-        .modal-header h3 {
+        .modal-title {
             font-size: 1.5rem;
-            color: var(--text-color);
+            font-weight: 600;
         }
 
-        .close-btn {
+        .btn-close {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            color: var(--text-secondary);
             cursor: pointer;
-            color: #7f8c8d;
-        }
-
-        footer {
-            background: var(--text-color);
-            color: white;
-            text-align: center;
-            padding: 2rem;
-            margin-top: 4rem;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .footer-links {
+            font-size: 1.5rem;
+            padding: 0;
+            width: 32px;
+            height: 32px;
             display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
 
-        .footer-links a {
-            color: white;
-            text-decoration: none;
-            opacity: 0.8;
-            transition: opacity 0.3s;
+        .btn-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
         }
 
-        .footer-links a:hover {
-            opacity: 1;
+        .form-group {
+            margin-bottom: 1.25rem;
         }
 
-        .spinner {
-            border: 3px solid var(--border-color);
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 2rem auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .container {
-                padding: 0 1rem;
-            }
-
-            .search-controls {
-                grid-template-columns: 1fr;
-            }
-
-            .places-grid {
-                grid-template-columns: 1fr;
-            }
-
-            #map {
-                height: 350px;
-            }
-        }
-
-        .fab {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: transform 0.3s;
-            z-index: 999;
-        }
-
-        .fab:hover {
-            transform: scale(1.1);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-        }
-
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .empty-state h3 {
-            font-size: 1.5rem;
-            color: var(--text-color);
+        .form-label {
+            display: block;
             margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 0.9rem;
         }
 
-        .empty-state p {
-            color: #7f8c8d;
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.5rem; }
+            .outlets-grid { grid-template-columns: 1fr; }
+            #map { height: 350px; }
         }
     </style>
 </head>
 <body>
-    <header>
+    <!-- Header -->
+    <header class="header">
         <div class="header-content">
-            <div class="logo">DoggoMap</div>
-            <div class="user-section">
-                <div id="loginSection">
-                    <button class="btn btn-primary" onclick="loginWithGoogle()">🐕 Iniciar sesión</button>
+            <div class="logo">🐕 DoggoMap</div>
+            <div class="stats">
+                <div class="stat">
+                    <span id="outletCount">35</span> lugares
                 </div>
-                <div id="userSection" style="display: none;">
-                    <div class="user-profile">
-                        <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
-                        <div class="user-info">
-                            <div class="user-name" id="userName"></div>
-                            <div class="user-points" id="userPoints"></div>
-                        </div>
-                    </div>
-                    <button class="btn btn-secondary" onclick="logout()">Cerrar sesión</button>
+                <div class="stat">
+                    <span id="pointsDisplay">0</span> Puntos
                 </div>
+            </div>
+            <div id="authContainer">
+                <button class="btn-login" onclick="handleLogin()">🐕 Iniciar sesión</button>
             </div>
         </div>
     </header>
 
-    <div class="container">
-        <div class="search-section">
-            <div class="search-header">
-                <h2>🔍 Encuentra lugares pet-friendly</h2>
-                <button class="btn btn-primary" onclick="openAddPlaceModal()">➕ Agregar lugar</button>
+    <!-- Botón flotante lugar más cercano -->
+    <button class="btn-nearest" id="btnNearest" title="Ir al lugar más cercano" style="display: none;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+    </button>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>¿Buscas lugares para tu perro? 🐕</h1>
+        <p>Encuentra restaurantes, parques, hoteles y más lugares pet-friendly cerca de ti</p>
+    </section>
+
+    <!-- Search & Filters -->
+    <div class="search-section">
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre, ubicación...">
+            <button class="btn-primary" onclick="openAddModal()">➕ Agregar lugar</button>
+        </div>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="restaurante">🍽️ Restaurantes</button>
+            <button class="filter-btn" data-filter="cafeteria">☕ Cafeterías</button>
+            <button class="filter-btn" data-filter="parque">🌳 Parques</button>
+            <button class="filter-btn" data-filter="hotel">🏨 Hoteles</button>
+        </div>
+    </div>
+
+    <!-- Lugares -->
+    <section class="outlets-section">
+        <h2 class="section-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            Lugares disponibles
+        </h2>
+        <div class="outlets-grid" id="outletsGrid"></div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <button id="prevPage" onclick="changePage(-1)">← Anterior</button>
+            <span id="pageInfo">Página 1</span>
+            <button id="nextPage" onclick="changePage(1)">Siguiente →</button>
+        </div>
+    </section>
+
+    <!-- Map -->
+    <section class="map-section">
+        <h2 class="section-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                <line x1="8" y1="2" x2="8" y2="18"></line>
+                <line x1="16" y1="6" x2="16" y2="22"></line>
+            </svg>
+            Mapa de lugares
+        </h2>
+        <div id="map"></div>
+    </section>
+
+    <!-- Add Place Modal -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">➕ Agregar lugar</h2>
+                <button class="btn-close" onclick="closeAddModal()">×</button>
             </div>
-            
-            <div class="search-controls">
+            <form id="addPlaceForm" onsubmit="addPlace(event)">
                 <div class="form-group">
-                    <label>🏷️ Categoría</label>
-                    <select id="filterCategory" class="form-control" onchange="filterPlaces()">
-                        <option value="">Todas</option>
-                        <option value="restaurante">🍽️ Restaurante</option>
+                    <label class="form-label">Nombre del lugar</label>
+                    <input type="text" class="form-input" id="placeName" required placeholder="Ej: Café Central">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" class="form-input" id="placeLocation" required placeholder="Ej: Calle Mayor 1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Categoría</label>
+                    <select class="form-select" id="placeCategory" required>
                         <option value="cafeteria">☕ Cafetería</option>
+                        <option value="restaurante">🍽️ Restaurante</option>
                         <option value="parque">🌳 Parque</option>
-                        <option value="playa">🏖️ Playa</option>
                         <option value="hotel">🏨 Hotel</option>
+                        <option value="playa">🏖️ Playa</option>
                         <option value="tienda">🛍️ Tienda</option>
                         <option value="veterinaria">🏥 Veterinaria</option>
                         <option value="peluqueria">✂️ Peluquería</option>
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label>📏 Tamaño de perro</label>
-                    <select id="filterSize" class="form-control" onchange="filterPlaces()">
-                        <option value="">Todos</option>
+                    <label class="form-label">Tamaño de perro</label>
+                    <select class="form-select" id="placeSize" required>
+                        <option value="todos">Todos los tamaños</option>
                         <option value="pequeno">Pequeño</option>
                         <option value="mediano">Mediano</option>
                         <option value="grande">Grande</option>
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label>🏠 Ubicación</label>
-                    <select id="filterLocation" class="form-control" onchange="filterPlaces()">
-                        <option value="">Todas</option>
-                        <option value="interior">Interior</option>
-                        <option value="terraza">Terraza</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>⭐ Valoración mínima</label>
-                    <select id="filterRating" class="form-control" onchange="filterPlaces()">
-                        <option value="0">Todas</option>
-                        <option value="4">4+ estrellas</option>
-                        <option value="3">3+ estrellas</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>🔎 Buscar por nombre o ubicación</label>
-                <input type="text" id="searchInput" class="form-control" placeholder="Escribe para buscar..." oninput="filterPlaces()">
-            </div>
-        </div>
-
-        <div id="map"></div>
-
-        <div id="loading" style="display: none;">
-            <div class="spinner"></div>
-        </div>
-
-        <div id="placesContainer" class="places-grid"></div>
-
-        <div id="emptyState" class="empty-state" style="display: none;">
-            <div class="empty-state-icon">🐕</div>
-            <h3>No se encontraron lugares</h3>
-            <p>Intenta cambiar los filtros o sé el primero en agregar un lugar pet-friendly</p>
-        </div>
-
-        <div id="pagination" class="pagination"></div>
-    </div>
-
-    <button class="fab" onclick="openAddPlaceModal()">+</button>
-
-    <div id="addPlaceModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>➕ Agregar lugar pet-friendly</h3>
-                <button class="close-btn" onclick="closeAddPlaceModal()">×</button>
-            </div>
-            
-            <form id="addPlaceForm" onsubmit="addPlace(event)">
-                <div class="form-group">
-                    <label>Nombre del lugar *</label>
-                    <input type="text" id="placeName" class="form-control" required placeholder="Ej: Café Central">
-                </div>
-
-                <div class="form-group">
-                    <label>Dirección *</label>
-                    <input type="text" id="placeAddress" class="form-control" required placeholder="Ej: Calle Mayor 15">
-                </div>
-
-                <div class="form-group">
-                    <label>Categoría *</label>
-                    <select id="placeCategory" class="form-control" required>
-                        <option value="">Selecciona...</option>
-                        <option value="restaurante">🍽️ Restaurante</option>
-                        <option value="cafeteria">☕ Cafetería</option>
-                        <option value="parque">🌳 Parque</option>
-                        <option value="playa">🏖️ Playa</option>
-                        <option value="hotel">🏨 Hotel</option>
-                        <option value="tienda">🛍️ Tienda</option>
-                        <option value="veterinaria">🏥 Veterinaria</option>
-                        <option value="peluqueria">✂️ Peluquería</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Tamaño de perro aceptado *</label>
-                    <select id="placeSize" class="form-control" required>
-                        <option value="">Selecciona...</option>
-                        <option value="pequeno">🐕 Pequeño</option>
-                        <option value="mediano">🐕 Mediano</option>
-                        <option value="grande">🐕 Grande</option>
-                        <option value="todos">🐕 Todos los tamaños</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Ubicación permitida *</label>
-                    <select id="placeLocationType" class="form-control" required>
-                        <option value="">Selecciona...</option>
-                        <option value="interior">🏠 Interior</option>
-                        <option value="terraza">☀️ Terraza</option>
-                        <option value="ambos">🏠☀️ Ambos</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>¿Tiene agua para perros? *</label>
-                    <select id="placeWater" class="form-control" required>
-                        <option value="">Selecciona...</option>
-                        <option value="si">💧 Sí</option>
-                        <option value="no">❌ No</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>¿Correa obligatoria? *</label>
-                    <select id="placeLeash" class="form-control" required>
-                        <option value="">Selecciona...</option>
-                        <option value="si">🦮 Sí</option>
-                        <option value="no">🐕 No</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Valoración *</label>
-                    <select id="placeRating" class="form-control" required>
-                        <option value="">Selecciona...</option>
+                    <label class="form-label">Valoración</label>
+                    <select class="form-select" id="placeRating" required>
                         <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
                         <option value="4">⭐⭐⭐⭐ Muy bueno</option>
                         <option value="3">⭐⭐⭐ Bueno</option>
-                        <option value="2">⭐⭐ Regular</option>
-                        <option value="1">⭐ Malo</option>
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label>Notas adicionales (opcional)</label>
-                    <textarea id="placeNotes" class="form-control" rows="3" placeholder="Ej: Tienen menú especial para perros, muy amables con las mascotas"></textarea>
+                    <label class="form-label">Notas (opcional)</label>
+                    <textarea class="form-textarea" id="placeNotes" placeholder="Ej: Tienen agua para perros, muy amables..."></textarea>
                 </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Agregar lugar 🐕</button>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Agregar lugar 🐕</button>
             </form>
         </div>
     </div>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="#">Sobre nosotros</a>
-                <a href="#">Contacto</a>
-                <a href="mailto:holapluginapp@gmail.com">Email</a>
-            </div>
-            <p>&copy; 2025 DoggoMap. Encuentra los mejores lugares para tu mejor amigo 🐕❤️</p>
-        </div>
-    </footer>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { doc, setDoc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
+    <script>
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDNL4d-peCEhqE6dV6wJvHZUyI9D7LiC_Y",
             authDomain: "plugin-app-6e530.firebaseapp.com",
@@ -736,484 +670,528 @@
             appId: "1:1048836630086:web:8b3a2b1dc925f06e3e9d34"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        let map;
-        let markers = [];
-        let allPlaces = [];
-        let filteredPlaces = [];
+        // Global variables
         let currentUser = null;
+        let userLocation = null;
+        let outlets = [];
+        let filteredOutlets = [];
+        let map = null;
+        let markers = [];
         let currentPage = 1;
-        const placesPerPage = 12;
+        const outletsPerPage = 12;
 
-        // LUGARES PRE-CARGADOS (30+ LUGARES REALES PET-FRIENDLY DE ESPAÑA)
-        const initialPlaces = [
+        // 35 LUGARES REALES PET-FRIENDLY
+        const exampleOutlets = [
             // MADRID
-            { name: "Perrisimo Dog Cafe & Bar", location: "Calle Pez 27, Madrid", lat: 40.4273, lng: -3.7035, category: "cafeteria", size: "todos", locationType: "ambos", hasWater: "si", leashRequired: "no", rating: 5, notes: "Cafetería especializada en perros. Tienen menú especial para mascotas y snacks." },
-            { name: "El Perro de Pavlov", location: "La Latina, Madrid", lat: 40.4091, lng: -3.7094, category: "cafeteria", size: "todos", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 5, notes: "Muy dog-friendly, ambiente acogedor." },
-            { name: "Cafelito", location: "Centro, Madrid", lat: 40.4168, lng: -3.7038, category: "cafeteria", size: "mediano", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 4, notes: "Ideal para desayunos con tu perro." },
-            { name: "Freedom Cakes", location: "Puerta del Sol, Madrid", lat: 40.4169, lng: -3.7033, category: "cafeteria", size: "todos", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 5, notes: "Repostería vegana, muy pet-friendly." },
-            { name: "Delish Vegan Doughnuts", location: "Plaza España, Madrid", lat: 40.4238, lng: -3.7122, category: "cafeteria", size: "pequeno", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 4, notes: "Donuts veganos deliciosos, admiten perros en terraza." },
-            { name: "Botánica", location: "Madrid Centro", lat: 40.4215, lng: -3.6994, category: "cafeteria", size: "todos", locationType: "ambos", hasWater: "si", leashRequired: "si", rating: 4, notes: "Cafetería acogedora con jardín." },
-            { name: "CocoMad Bakery", location: "Madrid", lat: 40.4301, lng: -3.6889, category: "cafeteria", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Repostería artesanal, acepta perros." },
-            { name: "Parque del Retiro - Zona Canina", location: "Retiro, Madrid", lat: 40.4153, lng: -3.6844, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "Zona canina amplia con agility y bebederos." },
-            { name: "Catalonia Puerta Del Sol", location: "Centro, Madrid", lat: 40.4174, lng: -3.7026, category: "hotel", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Hotel céntrico que acepta mascotas." },
-            { name: "Dehesa de la Villa", location: "Noroeste Madrid", lat: 40.4556, lng: -3.7269, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "Gran parque con zonas para perros sueltos." },
-
+            { id: 1, name: "Perrisimo Dog Cafe & Bar", location: "Calle Pez 27, Madrid", lat: 40.4273, lng: -3.7035, category: "cafeteria", size: "todos", rating: 5, notes: "Cafetería especializada en perros" },
+            { id: 2, name: "El Perro de Pavlov", location: "La Latina, Madrid", lat: 40.4091, lng: -3.7094, category: "cafeteria", size: "todos", rating: 5, notes: "Muy dog-friendly" },
+            { id: 3, name: "Cafelito", location: "Centro, Madrid", lat: 40.4168, lng: -3.7038, category: "cafeteria", size: "mediano", rating: 4, notes: "Ideal para desayunos" },
+            { id: 4, name: "Freedom Cakes", location: "Puerta del Sol, Madrid", lat: 40.4169, lng: -3.7033, category: "cafeteria", size: "todos", rating: 5, notes: "Repostería vegana" },
+            { id: 5, name: "Parque del Retiro", location: "Retiro, Madrid", lat: 40.4153, lng: -3.6844, category: "parque", size: "todos", rating: 5, notes: "Zona canina amplia" },
+            { id: 6, name: "Catalonia Puerta Del Sol", location: "Centro, Madrid", lat: 40.4174, lng: -3.7026, category: "hotel", size: "mediano", rating: 4, notes: "Hotel céntrico" },
+            { id: 7, name: "Dehesa de la Villa", location: "Noroeste Madrid", lat: 40.4556, lng: -3.7269, category: "parque", size: "todos", rating: 5, notes: "Gran parque" },
+            { id: 8, name: "Botánica", location: "Madrid Centro", lat: 40.4215, lng: -3.6994, category: "cafeteria", size: "todos", rating: 4, notes: "Con jardín" },
+            { id: 9, name: "CocoMad Bakery", location: "Madrid", lat: 40.4301, lng: -3.6889, category: "cafeteria", size: "mediano", rating: 4, notes: "Repostería artesanal" },
+            { id: 10, name: "Delish Vegan Doughnuts", location: "Plaza España, Madrid", lat: 40.4238, lng: -3.7122, category: "cafeteria", size: "pequeno", rating: 4, notes: "Donuts veganos" },
+            
             // BARCELONA
-            { name: "Brunch & Cake", location: "Varias ubicaciones, Barcelona", lat: 41.3851, lng: 2.1734, category: "restaurante", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 5, notes: "Famoso por sus brunches, muy dog-friendly." },
-            { name: "Federal Café", location: "Sant Antoni, Barcelona", lat: 41.3759, lng: 2.1648, category: "cafeteria", size: "mediano", locationType: "ambos", hasWater: "si", leashRequired: "si", rating: 5, notes: "Ambiente relajado, café excelente." },
-            { name: "Parc de la Ciutadella", location: "Ciutat Vella, Barcelona", lat: 41.3887, lng: 2.1871, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "Parque canino cerca del lago con juegos." },
-            { name: "Hotel Catalonia Magdalenes", location: "Centro, Barcelona", lat: 41.3851, lng: 2.1766, category: "hotel", size: "grande", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Hotel céntrico pet-friendly." },
-            { name: "Parque Joan Miró", location: "Eixample, Barcelona", lat: 41.3764, lng: 2.1509, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 4, notes: "Área canina bien equipada." },
-            { name: "Parque Estación del Norte", location: "Fort Pienc, Barcelona", lat: 41.3919, lng: 2.1804, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 4, notes: "Zona canina urbana." },
-            { name: "Diagonal Mar", location: "Sant Martí, Barcelona", lat: 41.4098, lng: 2.2162, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "Parque moderno con área de perros." },
-            { name: "Can Culleretes", location: "Ciutat Vella, Barcelona", lat: 41.3813, lng: 2.1739, category: "restaurante", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Restaurante histórico que acepta perros." },
+            { id: 11, name: "Brunch & Cake", location: "Barcelona", lat: 41.3851, lng: 2.1734, category: "restaurante", size: "todos", rating: 5, notes: "Famoso por brunches" },
+            { id: 12, name: "Federal Café", location: "Sant Antoni, Barcelona", lat: 41.3759, lng: 2.1648, category: "cafeteria", size: "mediano", rating: 5, notes: "Ambiente relajado" },
+            { id: 13, name: "Parc de la Ciutadella", location: "Barcelona", lat: 41.3887, lng: 2.1871, category: "parque", size: "todos", rating: 5, notes: "Parque canino" },
+            { id: 14, name: "Hotel Catalonia", location: "Centro, Barcelona", lat: 41.3851, lng: 2.1766, category: "hotel", size: "grande", rating: 4, notes: "Pet-friendly" },
+            { id: 15, name: "Parque Joan Miró", location: "Eixample, Barcelona", lat: 41.3764, lng: 2.1509, category: "parque", size: "todos", rating: 4, notes: "Área canina" },
+            { id: 16, name: "Diagonal Mar", location: "Sant Martí, Barcelona", lat: 41.4098, lng: 2.2162, category: "parque", size: "todos", rating: 5, notes: "Parque moderno" },
+            { id: 17, name: "Can Culleretes", location: "Barcelona", lat: 41.3813, lng: 2.1739, category: "restaurante", size: "mediano", rating: 4, notes: "Restaurante histórico" },
+            { id: 18, name: "Parque Estación Norte", location: "Fort Pienc, Barcelona", lat: 41.3919, lng: 2.1804, category: "parque", size: "todos", rating: 4, notes: "Zona canina urbana" },
 
             // VALENCIA
-            { name: "La Fábrica de Huellas", location: "Turia 60, Valencia", lat: 39.4781, lng: -0.3695, category: "cafeteria", size: "todos", locationType: "ambos", hasWater: "si", leashRequired: "no", rating: 5, notes: "Primer café de Valencia dedicado en exclusiva a perros." },
-            { name: "El Garaje Foodie", location: "Dr. Ferran 10, Valencia", lat: 39.4699, lng: -0.3763, category: "restaurante", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 5, notes: "6 food trucks diferentes, muy pet-friendly." },
-            { name: "La Consentida", location: "Dr. Serrano 22, Valencia", lat: 39.4733, lng: -0.3752, category: "restaurante", size: "mediano", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 4, notes: "Montaditos y tapas por 2€." },
-            { name: "Ubik Café", location: "Literato Azorín 13, Valencia", lat: 39.4629, lng: -0.3699, category: "cafeteria", size: "todos", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 5, notes: "Librería-café en Ruzafa, muy acogedor." },
-            { name: "Trencat Dolç i Salat", location: "Trench 21, Valencia", lat: 39.4655, lng: -0.3714, category: "cafeteria", size: "pequeno", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Pastelería donde los perros no estorban." },
-            { name: "Parque del Turia - Zona Agility", location: "Tramo 4, Valencia", lat: 39.4753, lng: -0.3707, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "Circuito de Agility público y zonas amplias." },
-            { name: "Federal Café Valencia", location: "Valencia Centro", lat: 39.4712, lng: -0.3780, category: "cafeteria", size: "mediano", locationType: "ambos", hasWater: "si", leashRequired: "si", rating: 5, notes: "Sucursal valenciana, excelente brunch." },
+            { id: 19, name: "La Fábrica de Huellas", location: "Valencia", lat: 39.4781, lng: -0.3695, category: "cafeteria", size: "todos", rating: 5, notes: "Café para perros" },
+            { id: 20, name: "El Garaje Foodie", location: "Valencia", lat: 39.4699, lng: -0.3763, category: "restaurante", size: "todos", rating: 5, notes: "Food trucks" },
+            { id: 21, name: "La Consentida", location: "Valencia", lat: 39.4733, lng: -0.3752, category: "restaurante", size: "mediano", rating: 4, notes: "Tapas por 2€" },
+            { id: 22, name: "Ubik Café", location: "Valencia", lat: 39.4629, lng: -0.3699, category: "cafeteria", size: "todos", rating: 5, notes: "Librería-café" },
+            { id: 23, name: "Parque del Turia", location: "Valencia", lat: 39.4753, lng: -0.3707, category: "parque", size: "todos", rating: 5, notes: "Circuito Agility" },
+            { id: 24, name: "Federal Café Valencia", location: "Valencia", lat: 39.4712, lng: -0.3780, category: "cafeteria", size: "mediano", rating: 5, notes: "Brunch excelente" },
+            { id: 25, name: "Trencat", location: "Valencia", lat: 39.4655, lng: -0.3714, category: "cafeteria", size: "pequeno", rating: 4, notes: "Pastelería" },
 
             // SEVILLA
-            { name: "Parque del Alamillo", location: "Isla de la Cartuja, Sevilla", lat: 37.4051, lng: -6.0080, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "3 hectáreas de zona canina con juegos." },
-            { name: "El Rinconcillo", location: "Casco Antiguo, Sevilla", lat: 37.3970, lng: -5.9878, category: "restaurante", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Bar histórico, acepta perros en interior." },
-            { name: "Parque Forestal Dehesa Doña María", location: "Dos Hermanas, Sevilla", lat: 37.2824, lng: -5.9231, category: "parque", size: "todos", locationType: "terraza", hasWater: "si", leashRequired: "no", rating: 5, notes: "4 pistas cerradas para perros y área de agility." },
+            { id: 26, name: "Parque del Alamillo", location: "Sevilla", lat: 37.4051, lng: -6.0080, category: "parque", size: "todos", rating: 5, notes: "3 hectáreas caninas" },
+            { id: 27, name: "El Rinconcillo", location: "Sevilla", lat: 37.3970, lng: -5.9878, category: "restaurante", size: "mediano", rating: 4, notes: "Bar histórico" },
+            { id: 28, name: "Dehesa Doña María", location: "Sevilla", lat: 37.2824, lng: -5.9231, category: "parque", size: "todos", rating: 5, notes: "4 pistas caninas" },
 
             // BILBAO
-            { name: "Petit Palace Arana", location: "Centro, Bilbao", lat: 43.2627, lng: -2.9253, category: "hotel", size: "grande", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Hotel céntrico pet-friendly, bien valorado." },
-            { name: "Spirit Apartamentos Atxuri", location: "Bilbao", lat: 43.2585, lng: -2.9171, category: "hotel", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Apartamentos que aceptan mascotas." },
-            { name: "NH Bilbao Deusto", location: "Deusto, Bilbao", lat: 43.2694, lng: -2.9465, category: "hotel", size: "grande", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Hotel moderno pet-friendly." },
+            { id: 29, name: "Petit Palace Arana", location: "Bilbao", lat: 43.2627, lng: -2.9253, category: "hotel", size: "grande", rating: 4, notes: "Hotel céntrico" },
+            { id: 30, name: "Spirit Apartamentos", location: "Bilbao", lat: 43.2585, lng: -2.9171, category: "hotel", size: "mediano", rating: 4, notes: "Apartamentos" },
+            { id: 31, name: "NH Bilbao Deusto", location: "Bilbao", lat: 43.2694, lng: -2.9465, category: "hotel", size: "grande", rating: 4, notes: "Hotel moderno" },
 
             // OTRAS CIUDADES
-            { name: "B&B Hotel Zaragoza Plaza Mozart", location: "Zaragoza Centro", lat: 41.6488, lng: -0.8891, category: "hotel", size: "grande", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Admite perros hasta 40kg, 20€/noche." },
-            { name: "Hotel Río Arga", location: "Centro Histórico, Zaragoza", lat: 41.6560, lng: -0.8773, category: "hotel", size: "mediano", locationType: "interior", hasWater: "si", leashRequired: "si", rating: 4, notes: "Cerca de la Basílica del Pilar, admite perros hasta 15kg." },
-            { name: "Moon Dreams Portomagno", location: "Aguadulce, Almería", lat: 36.8138, lng: -2.5499, category: "hotel", size: "todos", locationType: "ambos", hasWater: "si", leashRequired: "si", rating: 5, notes: "Hotel todo incluido junto a playa de perros." },
-            { name: "Iberostar Albufera Park", location: "Playa del Muro, Mallorca", lat: 39.7881, lng: 3.1081, category: "hotel", size: "grande", locationType: "terraza", hasWater: "si", leashRequired: "si", rating: 5, notes: "Resort pet-friendly en Mallorca." }
+            { id: 32, name: "B&B Hotel Zaragoza", location: "Zaragoza", lat: 41.6488, lng: -0.8891, category: "hotel", size: "grande", rating: 4, notes: "Admite hasta 40kg" },
+            { id: 33, name: "Hotel Río Arga", location: "Zaragoza", lat: 41.6560, lng: -0.8773, category: "hotel", size: "mediano", rating: 4, notes: "Centro histórico" },
+            { id: 34, name: "Moon Dreams", location: "Almería", lat: 36.8138, lng: -2.5499, category: "hotel", size: "todos", rating: 5, notes: "Todo incluido" },
+            { id: 35, name: "Iberostar Albufera", location: "Mallorca", lat: 39.7881, lng: 3.1081, category: "hotel", size: "grande", rating: 5, notes: "Resort" }
         ];
 
-        function initMap() {
-            map = L.map('map').setView([40.4168, -3.7038], 6);
+        // Auth State Observer
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            updateAuthUI();
+            if (user) {
+                await loadUserPoints();
+            }
+        });
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+        // Login
+        async function handleLogin() {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                const result = await auth.signInWithPopup(provider);
+                
+                const userDoc = await db.collection('users').doc(result.user.uid).get();
+                if (!userDoc.exists()) {
+                    await db.collection('users').doc(result.user.uid).set({
+                        email: result.user.email,
+                        displayName: result.user.displayName,
+                        photoURL: result.user.photoURL,
+                        points: 0,
+                        placesAdded: 0,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                alert('¡Bienvenido a DoggoMap! 🐕');
+            } catch (error) {
+                console.error('Error en login:', error);
+                alert('Error al iniciar sesión');
+            }
+        }
 
+        // Logout
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+                alert('Sesión cerrada');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Update UI
+        function updateAuthUI() {
+            const authContainer = document.getElementById('authContainer');
+            if (currentUser) {
+                authContainer.innerHTML = `
+                    <div class="user-info">
+                        <img src="${currentUser.photoURL}" alt="${currentUser.displayName}" class="user-avatar">
+                        <button class="btn-logout" onclick="handleLogout()">Salir</button>
+                    </div>
+                `;
+            } else {
+                authContainer.innerHTML = `
+                    <button class="btn-login" onclick="handleLogin()">🐕 Iniciar sesión</button>
+                `;
+            }
+        }
+
+        // Load user points
+        async function loadUserPoints() {
+            if (!currentUser) return;
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    document.getElementById('pointsDisplay').textContent = userData.points || 0;
+                }
+            } catch (error) {
+                console.error('Error loading points:', error);
+            }
+        }
+
+        // Get user location
+        function getUserLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        map.setView([lat, lng], 12);
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        console.log('Ubicación obtenida:', userLocation);
                         
-                        L.marker([lat, lng], {
-                            icon: L.icon({
-                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-                                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                                iconSize: [25, 41],
-                                iconAnchor: [12, 41],
-                                popupAnchor: [1, -34],
-                                shadowSize: [41, 41]
-                            })
-                        }).addTo(map).bindPopup('Estás aquí').openPopup();
+                        if (map) {
+                            L.marker([userLocation.lat, userLocation.lng], {
+                                icon: L.divIcon({
+                                    className: 'user-location-marker',
+                                    html: '<div style="background: #ff6b35; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(255,107,53,0.5);"></div>',
+                                    iconSize: [22, 22]
+                                })
+                            }).addTo(map).bindPopup('Tú estás aquí');
+                        }
+                        
+                        calculateDistances();
+                        renderOutlets();
+                        document.getElementById('btnNearest').style.display = 'flex';
                     },
-                    (error) => {
-                        console.log('Error getting location:', error);
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
+                    (error) => console.log('Error ubicación:', error),
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
                 );
             }
         }
 
-        window.loginWithGoogle = async function() {
-            try {
-                const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-                
-                if (isMobile) {
-                    await signInWithRedirect(auth, provider);
-                } else {
-                    await signInWithPopup(auth, provider);
-                }
-            } catch (error) {
-                console.error('Error en login:', error);
-                alert('Error al iniciar sesión. Intenta de nuevo.');
-            }
-        };
+        // Calculate distance (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radio de la Tierra en km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
 
-        getRedirectResult(auth)
-            .then((result) => {
-                if (result && result.user) {
-                    console.log('Login exitoso:', result.user.displayName);
-                }
-            })
-            .catch((error) => {
-                console.error('Error en redirect:', error);
-            });
-
-        window.logout = async function() {
-            try {
-                await signOut(auth);
-                currentUser = null;
-                document.getElementById('loginSection').style.display = 'block';
-                document.getElementById('userSection').style.display = 'none';
-            } catch (error) {
-                console.error('Error al cerrar sesión:', error);
-            }
-        };
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('userSection').style.display = 'flex';
-                document.getElementById('userName').textContent = user.displayName || 'Usuario';
-                document.getElementById('userAvatar').src = user.photoURL || 'https://via.placeholder.com/40';
-
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-
-                if (!userDoc.exists()) {
-                    await setDoc(userRef, {
-                        uid: user.uid,
-                        email: user.email,
-                        displayName: user.displayName,
-                        photoURL: user.photoURL,
-                        points: 0,
-                        level: 'Explorador Perruno',
-                        placesAdded: 0,
-                        createdAt: Timestamp.now(),
-                        lastLogin: Timestamp.now()
-                    });
-                    document.getElementById('userPoints').textContent = '0 puntos • Explorador Perruno';
-                } else {
-                    const userData = userDoc.data();
-                    document.getElementById('userPoints').textContent = `${userData.points} puntos • ${userData.level}`;
-                    
-                    await updateDoc(userRef, {
-                        lastLogin: Timestamp.now()
-                    });
-                }
-            } else {
-                currentUser = null;
-                document.getElementById('loginSection').style.display = 'block';
-                document.getElementById('userSection').style.display = 'none';
-            }
-        });
-
-        async function loadPlaces() {
-            document.getElementById('loading').style.display = 'block';
+        // Calculate distances to all places
+        function calculateDistances() {
+            if (!userLocation) return;
             
-            try {
-                const q = query(collection(db, 'places'), orderBy('timestamp', 'desc'));
-                const querySnapshot = await getDocs(q);
-                
-                allPlaces = [...initialPlaces];
-                
-                querySnapshot.forEach((doc) => {
-                    allPlaces.push({ id: doc.id, ...doc.data() });
-                });
+            outlets.forEach(outlet => {
+                outlet.distance = calculateDistance(
+                    userLocation.lat, userLocation.lng,
+                    outlet.lat, outlet.lng
+                );
+            });
+            
+            outlets.sort((a, b) => {
+                if (a.distance === undefined) return 1;
+                if (b.distance === undefined) return -1;
+                return a.distance - b.distance;
+            });
+        }
 
-                filteredPlaces = [...allPlaces];
-                displayPlaces();
-                addMarkersToMap();
-            } catch (error) {
-                console.error('Error loading places:', error);
-                allPlaces = [...initialPlaces];
-                filteredPlaces = [...allPlaces];
-                displayPlaces();
-                addMarkersToMap();
-            } finally {
-                document.getElementById('loading').style.display = 'none';
+        // Go to nearest place
+        function goToNearestOutlet() {
+            if (!userLocation || outlets.length === 0) {
+                alert('No se pudo determinar tu ubicación');
+                return;
+            }
+            
+            calculateDistances();
+            const nearest = outlets;
+            
+            if (!nearest.distance) {
+                alert('No se pudo calcular la distancia');
+                return;
+            }
+            
+            // Abrir Google Maps con direcciones
+            const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${nearest.lat},${nearest.lng}&travelmode=walking`;
+            window.open(url, '_blank');
+            
+            // Highlight en mapa
+            if (map) {
+                map.setView([nearest.lat, nearest.lng], 16);
+                markers.forEach(marker => {
+                    if (marker.getLatLng().lat === nearest.lat && marker.getLatLng().lng === nearest.lng) {
+                        marker.openPopup();
+                    }
+                });
             }
         }
 
-        function displayPlaces() {
-            const container = document.getElementById('placesContainer');
-            const emptyState = document.getElementById('emptyState');
-            
-            if (filteredPlaces.length === 0) {
-                container.innerHTML = '';
-                emptyState.style.display = 'block';
-                document.getElementById('pagination').innerHTML = '';
-                return;
+        // Load places
+        async function loadOutlets() {
+            try {
+                const snapshot = await db.collection('places').orderBy('timestamp', 'desc').get();
+                
+                outlets = [...exampleOutlets];
+                
+                snapshot.forEach((doc) => {
+                    outlets.push({ id: doc.id, ...doc.data() });
+                });
+
+                filteredOutlets = [...outlets];
+                document.getElementById('outletCount').textContent = outlets.length;
+                renderOutlets();
+                initMap();
+            } catch (error) {
+                console.error('Error loading places:', error);
+                outlets = [...exampleOutlets];
+                filteredOutlets = [...outlets];
+                renderOutlets();
+                initMap();
             }
+        }
 
-            emptyState.style.display = 'none';
-            
-            const startIndex = (currentPage - 1) * placesPerPage;
-            const endIndex = startIndex + placesPerPage;
-            const placesToShow = filteredPlaces.slice(startIndex, endIndex);
+        // Render outlets
+        function renderOutlets() {
+            const grid = document.getElementById('outletsGrid');
+            const startIndex = (currentPage - 1) * outletsPerPage;
+            const endIndex = startIndex + outletsPerPage;
+            const paginatedOutlets = filteredOutlets.slice(startIndex, endIndex);
 
-            container.innerHTML = placesToShow.map(place => {
-                const stars = '⭐'.repeat(place.rating) + '<span class="star empty">⭐</span>'.repeat(5 - place.rating);
+            grid.innerHTML = paginatedOutlets.map(outlet => {
+                const categoryEmoji = {
+                    'cafeteria': '☕',
+                    'restaurante': '🍽️',
+                    'parque': '🌳',
+                    'hotel': '🏨',
+                    'playa': '🏖️',
+                    'tienda': '🛍️',
+                    'veterinaria': '🏥',
+                    'peluqueria': '✂️'
+                };
+
+                const distanceText = outlet.distance ? `${outlet.distance.toFixed(1)} km de distancia` : '';
                 
                 return `
-                    <div class="place-card">
-                        <div class="place-header">
-                            <span class="place-category category-${place.category}">${getCategoryEmoji(place.category)} ${getCategoryName(place.category)}</span>
-                            <h3 class="place-name">${place.name}</h3>
-                            <div class="place-location">📍 ${place.location}</div>
+                    <div class="outlet-card" onclick="showOnMap(${outlet.lat}, ${outlet.lng})">
+                        <div class="outlet-header">
+                            <div class="outlet-name">${outlet.name}</div>
+                            <span class="outlet-category category-${outlet.category}">${categoryEmoji[outlet.category] || '📍'} ${outlet.category}</span>
                         </div>
-                        <div class="place-body">
-                            <div class="place-details">
-                                <span class="detail-badge">🐕 ${place.size === 'todos' ? 'Todos los tamaños' : place.size}</span>
-                                <span class="detail-badge">${place.locationType === 'ambos' ? '🏠☀️ Interior y terraza' : place.locationType === 'interior' ? '🏠 Interior' : '☀️ Terraza'}</span>
-                                ${place.hasWater === 'si' ? '<span class="detail-badge">💧 Tiene agua</span>' : ''}
-                                ${place.leashRequired === 'no' ? '<span class="detail-badge">🐕 Sin correa</span>' : '<span class="detail-badge">🦮 Correa requerida</span>'}
-                            </div>
-                            <div class="place-rating">${stars}</div>
-                            ${place.notes ? `<div class="place-notes">"${place.notes}"</div>` : ''}
+                        <div class="outlet-location">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            ${outlet.location}
                         </div>
-                        <div class="place-footer">
-                            <div class="place-meta">${place.userName ? 'Agregado por ' + place.userName : 'Verificado'}</div>
-                            <button class="btn btn-secondary" onclick="flyToPlace(${place.lat}, ${place.lng})">Ver en mapa</button>
+                        ${distanceText ? `<div class="outlet-distance">📍 ${distanceText}</div>` : ''}
+                        ${outlet.notes ? `<div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">${outlet.notes}</div>` : ''}
+                        <div class="outlet-meta">
+                            <div class="meta-item">${'⭐'.repeat(outlet.rating)}</div>
+                            <div class="meta-item">🐕 ${outlet.size}</div>
+                        </div>
+                        <div class="outlet-actions">
+                            <button class="btn-action" onclick="event.stopPropagation(); openGoogleMaps(${outlet.lat}, ${outlet.lng})">
+                                Ver en mapa →
+                            </button>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            createPagination();
+            // Update pagination
+            const totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
+            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
         }
 
-        function createPagination() {
-            const totalPages = Math.ceil(filteredPlaces.length / placesPerPage);
-            const paginationContainer = document.getElementById('pagination');
-            
-            if (totalPages <= 1) {
-                paginationContainer.innerHTML = '';
-                return;
-            }
-
-            let paginationHTML = '';
-            
-            if (currentPage > 1) {
-                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage - 1})">← Anterior</button>`;
-            }
-
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                    paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
-                } else if (i === currentPage - 2 || i === currentPage + 2) {
-                    paginationHTML += `<span class="page-btn">...</span>`;
-                }
-            }
-
-            if (currentPage < totalPages) {
-                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage + 1})">Siguiente →</button>`;
-            }
-
-            paginationContainer.innerHTML = paginationHTML;
+        // Open Google Maps
+        function openGoogleMaps(lat, lng) {
+            const url = userLocation 
+                ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${lat},${lng}&travelmode=walking`
+                : `https://www.google.com/maps?q=${lat},${lng}`;
+            window.open(url, '_blank');
         }
 
-        window.changePage = function(page) {
-            currentPage = page;
-            displayPlaces();
+        // Change page
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
+            currentPage += direction;
+            currentPage = Math.max(1, Math.min(currentPage, totalPages));
+            renderOutlets();
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
+        }
 
-        window.filterPlaces = function() {
-            const categoryFilter = document.getElementById('filterCategory').value;
-            const sizeFilter = document.getElementById('filterSize').value;
-            const locationFilter = document.getElementById('filterLocation').value;
-            const ratingFilter = parseInt(document.getElementById('filterRating').value) || 0;
-            const searchText = document.getElementById('searchInput').value.toLowerCase();
-
-            filteredPlaces = allPlaces.filter(place => {
-                const matchesCategory = !categoryFilter || place.category === categoryFilter;
-                const matchesSize = !sizeFilter || place.size === sizeFilter || place.size === 'todos';
-                const matchesLocation = !locationFilter || place.locationType === locationFilter || place.locationType === 'ambos';
-                const matchesRating = place.rating >= ratingFilter;
-                const matchesSearch = place.name.toLowerCase().includes(searchText) || place.location.toLowerCase().includes(searchText);
-
-                return matchesCategory && matchesSize && matchesLocation && matchesRating && matchesSearch;
-            });
-
-            currentPage = 1;
-            displayPlaces();
-            addMarkersToMap();
-        };
-
-        function addMarkersToMap() {
-            markers.forEach(marker => map.removeLayer(marker));
-            markers = [];
-
-            filteredPlaces.forEach(place => {
-                const marker = L.marker([place.lat, place.lng], {
-                    icon: L.icon({
-                        iconUrl: getCategoryMarkerIcon(place.category),
-                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                        iconSize: [25, 41],
-                        iconAnchor: [12, 41],
-                        popupAnchor: [1, -34],
-                        shadowSize: [41, 41]
+        // Init map
+        function initMap() {
+            if (map) map.remove();
+            
+            map = L.map('map').setView([40.4168, -3.7038], 6);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            updateMapMarkers();
+            
+            if (userLocation) {
+                L.marker([userLocation.lat, userLocation.lng], {
+                    icon: L.divIcon({
+                        className: 'user-location-marker',
+                        html: '<div style="background: #ff6b35; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(255,107,53,0.5);"></div>',
+                        iconSize: [22, 22]
                     })
-                }).addTo(map);
-
-                const stars = '⭐'.repeat(place.rating);
-                marker.bindPopup(`
-                    <strong>${place.name}</strong><br>
-                    ${getCategoryEmoji(place.category)} ${getCategoryName(place.category)}<br>
-                    📍 ${place.location}<br>
-                    ${stars}
-                `);
-
-                markers.push(marker);
-            });
+                }).addTo(map).bindPopup('Tú estás aquí');
+            }
         }
 
-        window.flyToPlace = function(lat, lng) {
-            map.flyTo([lat, lng], 16);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
+        // Update map markers
+        function updateMapMarkers() {
+            if (!map) return;
+            
+            markers.forEach(marker => marker.remove());
+            markers = [];
+            
+            const bounds = [];
+            
+            filteredOutlets.forEach(outlet => {
+                const color = {
+                    'cafeteria': '#f59e0b',
+                    'restaurante': '#ef4444',
+                    'parque': '#22c55e',
+                    'hotel': '#a855f7',
+                    'playa': '#3b82f6',
+                    'tienda': '#22c55e',
+                    'veterinaria': '#ec4899',
+                    'peluqueria': '#fb923c'
+                }[outlet.category] || '#9ca3af';
+                
+                const icon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="background: ${color}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 16px;">🐕</div>`,
+                    iconSize: [30, 30]
+                });
+                
+                const marker = L.marker([outlet.lat, outlet.lng], { icon })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="font-family: sans-serif;">
+                            <strong style="font-size: 1.1rem; color: #ff6b35;">${outlet.name}</strong><br>
+                            <span style="color: #666;">${outlet.location}</span><br>
+                            ${outlet.notes ? `<div style="margin-top: 0.5rem; font-size: 0.9rem;">${outlet.notes}</div>` : ''}
+                            <div style="margin-top: 0.5rem;">
+                                ${'⭐'.repeat(outlet.rating)}<br>
+                                🐕 ${outlet.size}
+                            </div>
+                            ${outlet.distance ? `<div style="color: #ff6b35; margin-top: 0.5rem;">${outlet.distance.toFixed(1)} km</div>` : ''}
+                            <button onclick="openGoogleMaps(${outlet.lat}, ${outlet.lng})" style="margin-top: 0.5rem; background: #ff6b35; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; width: 100%;">
+                                Cómo llegar →
+                            </button>
+                        </div>
+                    `);
+                
+                markers.push(marker);
+                bounds.push([outlet.lat, outlet.lng]);
+            });
+            
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
 
-        window.openAddPlaceModal = function() {
-            document.getElementById('addPlaceModal').classList.add('active');
-        };
+        // Show on map
+        function showOnMap(lat, lng) {
+            if (map) {
+                map.setView([lat, lng], 15);
+                markers.forEach(marker => {
+                    if (marker.getLatLng().lat === lat && marker.getLatLng().lng === lng) {
+                        marker.openPopup();
+                    }
+                });
+            }
+            document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+        }
 
-        window.closeAddPlaceModal = function() {
-            document.getElementById('addPlaceModal').classList.remove('active');
+        // Search
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredOutlets = outlets.filter(outlet =>
+                outlet.name.toLowerCase().includes(searchTerm) ||
+                outlet.location.toLowerCase().includes(searchTerm) ||
+                outlet.category.toLowerCase().includes(searchTerm)
+            );
+            currentPage = 1;
+            renderOutlets();
+            updateMapMarkers();
+        });
+
+        // Filters
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                if (filter === 'all') {
+                    filteredOutlets = [...outlets];
+                } else {
+                    filteredOutlets = outlets.filter(outlet => outlet.category === filter);
+                }
+                currentPage = 1;
+                renderOutlets();
+                updateMapMarkers();
+            });
+        });
+
+        // Modals
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
             document.getElementById('addPlaceForm').reset();
-        };
+        }
 
-        window.addPlace = async function(event) {
-            event.preventDefault();
-
+        // Add place
+        async function addPlace(e) {
+            e.preventDefault();
+            
             if (!currentUser) {
                 alert('Debes iniciar sesión para agregar un lugar');
                 return;
             }
 
-            const name = document.getElementById('placeName').value;
-            const location = document.getElementById('placeAddress').value;
-            const category = document.getElementById('placeCategory').value;
-            const size = document.getElementById('placeSize').value;
-            const locationType = document.getElementById('placeLocationType').value;
-            const hasWater = document.getElementById('placeWater').value;
-            const leashRequired = document.getElementById('placeLeash').value;
-            const rating = parseInt(document.getElementById('placeRating').value);
-            const notes = document.getElementById('placeNotes').value;
+            const placeData = {
+                name: document.getElementById('placeName').value,
+                location: document.getElementById('placeLocation').value,
+                category: document.getElementById('placeCategory').value,
+                size: document.getElementById('placeSize').value,
+                rating: parseInt(document.getElementById('placeRating').value),
+                notes: document.getElementById('placeNotes').value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                addedBy: currentUser.displayName,
+                userId: currentUser.uid
+            };
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
                         try {
-                            await addDoc(collection(db, 'places'), {
-                                name,
-                                location,
-                                category,
-                                size,
-                                locationType,
-                                hasWater,
-                                leashRequired,
-                                rating,
-                                notes,
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude,
-                                timestamp: Timestamp.now(),
-                                userId: currentUser.uid,
-                                userName: currentUser.displayName
+                            placeData.lat = position.coords.latitude;
+                            placeData.lng = position.coords.longitude;
+                            
+                            await db.collection('places').add(placeData);
+                            
+                            const userRef = db.collection('users').doc(currentUser.uid);
+                            await userRef.update({
+                                points: firebase.firestore.FieldValue.increment(10),
+                                placesAdded: firebase.firestore.FieldValue.increment(1)
                             });
-
-                            const userRef = doc(db, 'users', currentUser.uid);
-                            const userDoc = await getDoc(userRef);
-                            const userData = userDoc.data();
-                            const newPoints = userData.points + 10;
-                            const newPlacesAdded = userData.placesAdded + 1;
-                            let newLevel = userData.level;
-
-                            if (newPoints >= 1000) newLevel = 'Leyenda Perruna';
-                            else if (newPoints >= 500) newLevel = 'Maestro Peludo';
-                            else if (newPoints >= 100) newLevel = 'Cazador de Lugares';
-                            else newLevel = 'Explorador Perruno';
-
-                            await updateDoc(userRef, {
-                                points: newPoints,
-                                placesAdded: newPlacesAdded,
-                                level: newLevel
-                            });
-
-                            document.getElementById('userPoints').textContent = `${newPoints} puntos • ${newLevel}`;
-
+                            
+                            await loadUserPoints();
                             alert('¡Lugar agregado! +10 puntos 🎉');
-                            closeAddPlaceModal();
-                            loadPlaces();
+                            closeAddModal();
+                            await loadOutlets();
                         } catch (error) {
-                            console.error('Error adding place:', error);
-                            alert('Error al agregar el lugar. Intenta de nuevo.');
+                            console.error('Error:', error);
+                            alert('Error al agregar lugar');
                         }
                     },
                     (error) => {
-                        console.error('Error getting location:', error);
-                        alert('No se pudo obtener tu ubicación. Activa el GPS e intenta de nuevo.');
+                        console.error('Error ubicación:', error);
+                        alert('No se pudo obtener tu ubicación');
                     },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
             } else {
                 alert('Tu navegador no soporta geolocalización');
             }
-        };
-
-        function getCategoryName(category) {
-            const names = {
-                restaurante: 'Restaurante',
-                cafeteria: 'Cafetería',
-                parque: 'Parque',
-                playa: 'Playa',
-                hotel: 'Hotel',
-                tienda: 'Tienda',
-                veterinaria: 'Veterinaria',
-                peluqueria: 'Peluquería'
-            };
-            return names[category] || category;
         }
 
-        function getCategoryEmoji(category) {
-            const emojis = {
-                restaurante: '🍽️',
-                cafeteria: '☕',
-                parque: '🌳',
-                playa: '🏖️',
-                hotel: '🏨',
-                tienda: '🛍️',
-                veterinaria: '🏥',
-                peluqueria: '✂️'
-            };
-            return emojis[category] || '📍';
-        }
+        // Setup nearest button
+        document.getElementById('btnNearest').addEventListener('click', goToNearestOutlet);
 
-        function getCategoryMarkerIcon(category) {
-            const colors = {
-                restaurante: 'red',
-                cafeteria: 'orange',
-                parque: 'green',
-                playa: 'blue',
-                hotel: 'violet',
-                tienda: 'green',
-                veterinaria: 'red',
-                peluqueria: 'yellow'
-            };
-            const color = colors[category] || 'grey';
-            return `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`;
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            initMap();
-            loadPlaces();
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOutlets();
+            getUserLocation();
         });
     </script>
 </body>
