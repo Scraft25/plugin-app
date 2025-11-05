@@ -1066,7 +1066,7 @@
                 const result = await auth.signInWithPopup(provider);
                 
                 const userDoc = await db.collection('users').doc(result.user.uid).get();
-                if (!userDoc.exists()) {
+                if (!userDoc.exists) {
                     await db.collection('users').doc(result.user.uid).set({
                         email: result.user.email,
                         displayName: result.user.displayName,
@@ -1176,10 +1176,31 @@
                 alert('No se pudo determinar tu ubicación');
                 return;
             }
+            
+            // Recalcular distancias con los lugares actuales
             calculateDistances();
-            const nearest = outlets;
-            const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${nearest.lat},${nearest.lng}&travelmode=walking`;
-            window.open(url, '_blank');
+            
+            // Encontrar el lugar más cercano de la lista actual
+            const nearest = outlets[0];
+            
+            // Scroll al mapa
+            document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+            
+            // Esperar a que termine el scroll y hacer zoom al lugar más cercano
+            setTimeout(() => {
+                if (map && nearest) {
+                    map.setView([nearest.lat, nearest.lng], 15);
+                    
+                    // Buscar el marcador del lugar más cercano y abrir su popup
+                    markers.forEach(marker => {
+                        const markerPos = marker.getLatLng();
+                        if (Math.abs(markerPos.lat - nearest.lat) < 0.0001 && 
+                            Math.abs(markerPos.lng - nearest.lng) < 0.0001) {
+                            marker.openPopup();
+                        }
+                    });
+                }
+            }, 500);
         }
 
         async function loadOutlets() {
